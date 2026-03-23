@@ -24,3 +24,20 @@
         clone: yes
         update: yes
         force: yes
+
+    - name: Copy frontend service file
+      ansible.builtin.copy:
+        src: /opt/properties-by-magni/services/frontend.service
+        dest: /etc/systemd/system/frontend.service
+        mode: '0644'
+        remote_src: yes
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable and restart frontend service
+      ansible.builtin.systemd:
+        name: frontend
+        state: restarted
+        enabled: yes
