@@ -1,0 +1,18 @@
+---
+- name: Deploy properties-by-magni
+  hosts: raspberrypi
+  become: yes
+  tasks:
+    - name: Ensure git is installed
+      apt:
+        name: git
+        state: present
+
+    - name: Clone or pull the repository
+      git:
+        repo: https://github.com/magnimar/properties-by-magni.git
+        dest: /opt/properties-by-magni
+        clone: yes
+        update: yes
+        force: yes
+      become_user: magni
