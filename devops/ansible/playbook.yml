@@ -15,4 +15,3 @@
         clone: yes
         update: yes
         force: yes
-      become_user: raspberrypi
