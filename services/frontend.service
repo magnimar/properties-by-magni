@@ -1,0 +1,17 @@
+[Unit]
+Description=Properties by Magni Frontend Service
+After=network.target
+
+[Service]
+User=raspberrypi
+Group=raspberrypi
+WorkingDirectory=/opt/properties-by-magni/frontend
+ExecStart=/usr/bin/npm run dev -- --port 5000 --host
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/frontend.log
+StandardError=append:/var/log/frontend.log
+SyslogIdentifier=properties-by-magni-frontend
+
+[Install]
+WantedBy=multi-user.target

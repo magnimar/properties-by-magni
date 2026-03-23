@@ -1,0 +1,75 @@
+---
+- name: Deploy properties-by-magni
+  hosts: raspberrypi
+  become: yes
+  vars:
+    frontend_dir: /opt/properties-by-magni/frontend
+  tasks:
+    - name: Ensure git is installed
+      apt:
+        name: git
+        state: present
+
+    - name: Ensure Node.js and npm are installed
+      apt:
+        name:
+          - nodejs
+          - npm
+        state: present
+        update_cache: yes
+
+    - name: Ensure /opt/properties-by-magni directory exists
+      ansible.builtin.file:
+        path: /opt/properties-by-magni
+        state: directory
+        mode: '0755'
+        owner: raspberrypi
+        group: raspberrypi
+
+    - name: Clone or pull the repository
+      git:
+        repo: https://github.com/magnimar/properties-by-magni.git
+        dest: /opt/properties-by-magni
+        version: add_services
+        clone: yes
+        update: yes
+        force: yes
+
+    - name: Change ownership of cloned files
+      ansible.builtin.file:
+        path: /opt/properties-by-magni
+        state: directory
+        owner: raspberrypi
+        group: raspberrypi
+        recurse: yes
+
+    - name: Install npm dependencies
+      ansible.builtin.shell:
+        cmd: npm ci
+        chdir: "{{ frontend_dir }}"
+      become_user: raspberrypi
+
+    - name: Ensure frontend log file exists and has correct ownership
+      ansible.builtin.file:
+        path: /var/log/frontend.log
+        state: touch
+        owner: raspberrypi
+        group: raspberrypi
+        mode: '0644'
+
+    - name: Copy frontend service file
+      ansible.builtin.copy:
+        src: /opt/properties-by-magni/services/frontend.service
+        dest: /etc/systemd/system/frontend.service
+        mode: '0644'
+        remote_src: yes
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable and restart frontend service
+      ansible.builtin.systemd:
+        name: frontend
+        state: restarted
+        enabled: yes

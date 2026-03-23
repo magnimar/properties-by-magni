@@ -1,0 +1,34 @@
+name: Deploy to Raspberry Pi
+
+on:
+  push:
+    branches:
+      - main
+      - add_services
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Run Ansible playbook
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: False
+          ANSIBLE_BECOME_PASS: ${{ secrets.SUDO_PASSWORD }}
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
+          echo "" >> ssh_key
+          chmod 600 ssh_key
+          ansible-playbook devops/ansible/playbook.yml -i devops/ansible/inventory.ini --private-key ssh_key
