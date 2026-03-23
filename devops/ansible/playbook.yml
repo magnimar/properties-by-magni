@@ -49,6 +49,14 @@
         chdir: "{{ frontend_dir }}"
       become_user: raspberrypi
 
+    - name: Ensure frontend log file exists and has correct ownership
+      ansible.builtin.file:
+        path: /var/log/frontend.log
+        state: touch
+        owner: raspberrypi
+        group: raspberrypi
+        mode: '0644'
+
     - name: Copy frontend service file
       ansible.builtin.copy:
         src: /opt/properties-by-magni/services/frontend.service
