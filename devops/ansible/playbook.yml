@@ -8,6 +8,14 @@
         name: git
         state: present
 
+    - name: Ensure Node.js and npm are installed
+      apt:
+        name:
+          - nodejs
+          - npm
+        state: present
+        update_cache: yes
+
     - name: Ensure /opt/properties-by-magni directory exists
       ansible.builtin.file:
         path: /opt/properties-by-magni
