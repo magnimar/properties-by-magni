@@ -16,7 +16,7 @@ jobs:
       - name: Set up Tailscale
         uses: tailscale/github-action@v2
         with:
-          authkey: ${{ secrets.TS_AUTHKEY }}
+          authkey: ${{ secrets.TS_API_KEY }}
 
       - name: Install Ansible
         run: |
