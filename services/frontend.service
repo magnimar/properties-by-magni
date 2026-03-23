@@ -9,8 +9,8 @@ WorkingDirectory=/opt/properties-by-magni
 ExecStart=/usr/bin/npm run dev -- --port 5000
 Restart=always
 RestartSec=10
-StandardOutput=journal
-StandardError=journal
+StandardOutput=append:/var/log/properties-by-magni-frontend.log
+StandardError=append:/var/log/properties-by-magni-frontend.log
 SyslogIdentifier=properties-by-magni-frontend
 
 [Install]
