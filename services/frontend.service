@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=raspberrypi
 Group=raspberrypi
-WorkingDirectory=/opt/properties-by-magni
+WorkingDirectory=/opt/properties-by-magni/frontend
 ExecStart=/usr/bin/npm run dev -- --port 5000
 Restart=always
 RestartSec=10
