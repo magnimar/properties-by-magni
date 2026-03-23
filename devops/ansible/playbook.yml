@@ -15,4 +15,4 @@
         clone: yes
         update: yes
         force: yes
-      become_user: magni
+      become_user: raspberrypi
