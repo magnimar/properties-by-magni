@@ -8,6 +8,14 @@
         name: git
         state: present
 
+    - name: Ensure /opt/properties-by-magni directory exists
+      ansible.builtin.file:
+        path: /opt/properties-by-magni
+        state: directory
+        mode: '0755'
+        owner: raspberrypi
+        group: raspberrypi
+
     - name: Clone or pull the repository
       git:
         repo: https://github.com/magnimar/properties-by-magni.git
