@@ -5,7 +5,7 @@
   vars:
     frontend_dir: /opt/properties-by-magni/frontend
     backend_dir: /opt/properties-by-magni/backend
-    scraper_dir: /opt/properties-by-magni/property_scraper
+    scraper_dir: /opt/properties-by-magni/scraper
   tasks:
     - name: Ensure required packages are installed
       apt:
