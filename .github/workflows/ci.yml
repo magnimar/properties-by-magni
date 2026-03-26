@@ -4,13 +4,18 @@ on:
   push:
     branches:
       - main
+      - add_services
+      - everything_service
   pull_request:
     branches:
       - main
 
 jobs:
-  lint_and_check:
+  python_lint_and_check:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: [backend, scraper]
 
     steps:
     - name: Checkout code
@@ -19,16 +24,16 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.x' # Use the latest Python 3 version
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r ${{ matrix.directory }}/requirements.txt
         pip install ruff black
 
     - name: Run Ruff Linter
-      run: ruff check .
+      run: ruff check ${{ matrix.directory }}
 
     - name: Run Black Formatter Check
-      run: black --check .
+      run: black --check ${{ matrix.directory }}
