@@ -12,6 +12,7 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -19,13 +20,15 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_pro = Column(Boolean, default=False)
 
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 def seed_user():
     db = SessionLocal()
     email = "test@example.com"
     password = "password123"
-    
+
     existing_user = db.query(User).filter(User.email == email).first()
     if existing_user:
         print(f"User {email} already exists.")
@@ -37,6 +40,7 @@ def seed_user():
     db.commit()
     print(f"User {email} created with password: {password}")
     db.close()
+
 
 if __name__ == "__main__":
     seed_user()
