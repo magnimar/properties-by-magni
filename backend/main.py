@@ -102,11 +102,21 @@ async def login(data: UserLogin, db: Session = Depends(get_db)):
 @app.post("/register")
 async def register(data: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == data.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
     
     hashed_password = pwd_context.hash(data.password)
     verification_token = secrets.token_urlsafe(32)
+
+    if existing_user:
+        if existing_user.is_verified:
+            raise HTTPException(status_code=400, detail="Email already registered and verified")
+        else:
+            # Update the existing unverified user with new password and new token
+            existing_user.hashed_password = hashed_password
+            existing_user.verification_token = verification_token
+            db.commit()
+            db.refresh(existing_user)
+            send_verification_email(existing_user.email, verification_token)
+            return {"message": "Verification email resent. Please check your email.", "email": existing_user.email}
     
     new_user = User(
         email=data.email, 
