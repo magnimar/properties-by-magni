@@ -32,8 +32,8 @@ def send_verification_email(to_email, verification_token):
     </html>
     """
     
-    sender = {{"name": "Properties by Magni", "email": from_email}}
-    to = [{{"email": to_email}}]
+    sender = {"name": "Properties by Magni", "email": from_email}
+    to = [{"email": to_email}]
     
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
         to=to,
