@@ -8,7 +8,11 @@ export default defineConfig({
 	server: {
 		allowedHosts: ['propertiesbymagni.com', 'www.propertiesbymagni.com'],
 		host: true, // This allows the tunnel to connect to the local IP
-		port: 5000
+		port: 5000,
+		hmr: {
+			clientPort: 443,
+			host: 'propertiesbymagni.com'
+		}
 	},
 	test: {
 		expect: { requireAssertions: true },
