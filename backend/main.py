@@ -67,12 +67,19 @@ class UserCreate(BaseModel):
 
 
 # --- FastAPI App ---
-app = FastAPI()
+app = FastAPI(root_path="/api")
 
 # CORS configuration
+origins = [
+    "https://propertiesbymagni.com",
+    "https://www.propertiesbymagni.com",
+    "http://localhost:5000",
+    "http://localhost:5173",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
