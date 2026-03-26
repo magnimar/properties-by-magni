@@ -90,7 +90,7 @@
       git:
         repo: https://github.com/magnimar/properties-by-magni.git
         dest: /opt/properties-by-magni
-        version: everything_service
+        version: main
         clone: yes
         update: yes
         force: yes
