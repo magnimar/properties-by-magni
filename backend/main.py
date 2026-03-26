@@ -14,6 +14,10 @@ from email_service import send_verification_email
 
 load_dotenv()
 
+# --- Check for required environment variables ---
+if not os.getenv("BREVO_API_KEY"):
+    raise RuntimeError("BREVO_API_KEY is not set in the environment or .env file. The application cannot start without it.")
+
 # --- Database Configuration ---
 DATABASE_URL = os.getenv("DATABASE_URL")
 
