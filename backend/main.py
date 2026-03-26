@@ -45,13 +45,17 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
 # --- FastAPI App ---
 app = FastAPI()
 
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this for production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,6 +86,20 @@ async def login(data: UserLogin, db: Session = Depends(get_db)):
         "token": "fake-jwt-token-for-now",
         "user": {"email": user.email, "is_pro": user.is_pro}
     }
+
+@app.post("/register")
+async def register(data: UserCreate, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.email == data.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    hashed_password = pwd_context.hash(data.password)
+    new_user = User(email=data.email, hashed_password=hashed_password)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return {"message": "User created successfully", "email": new_user.email}
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, db: Session = Depends(get_db)):

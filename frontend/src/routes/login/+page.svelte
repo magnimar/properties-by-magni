@@ -50,5 +50,9 @@
     <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
       Login
     </button>
+
+    <p class="text-sm text-center mt-2">
+      Don't have an account? <a href="/register" class="text-blue-500 hover:underline">Register</a>
+    </p>
   </form>
 </div>
