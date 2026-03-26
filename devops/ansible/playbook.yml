@@ -17,8 +17,32 @@
           - python3-venv
           - python3-pip
           - libpq-dev
+          - postgresql
+          - postgresql-contrib
+          - python3-psycopg2
         state: present
         update_cache: yes
+
+    - name: Ensure PostgreSQL is started and enabled
+      ansible.builtin.systemd:
+        name: postgresql
+        state: started
+        enabled: yes
+
+    - name: Create database user 'magni'
+      become: yes
+      become_user: postgres
+      postgresql_user:
+        name: magni
+        password: "{{ secrets.DB_PASSWORD | default('Robotariamerika') }}"
+        role_attr_flags: SUPERUSER
+
+    - name: Create database 'properties'
+      become: yes
+      become_user: postgres
+      postgresql_db:
+        name: properties
+        owner: magni
 
     # --- Properties-by-Magni Repo Setup ---
     - name: Ensure /opt/properties-by-magni directory exists
