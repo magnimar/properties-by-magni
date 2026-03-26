@@ -116,6 +116,19 @@
       failed_when: check_api_url.rc != 0
       changed_when: false
 
+    # --- Backend Configuration Check ---
+    - name: Verify backend .env file exists
+      ansible.builtin.stat:
+        path: "{{ backend_dir }}/.env"
+      register: backend_env_file
+      failed_when: not backend_env_file.stat.exists
+
+    - name: Verify FRONTEND_URL is set in backend .env
+      ansible.builtin.shell: "grep -E '^FRONTEND_URL=' {{ backend_dir }}/.env"
+      register: check_frontend_url
+      failed_when: check_frontend_url.rc != 0
+      changed_when: false
+
     # --- Dependencies Installation ---
     - name: Install frontend npm dependencies
       ansible.builtin.shell:
