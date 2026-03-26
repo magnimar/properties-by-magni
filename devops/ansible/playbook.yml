@@ -71,6 +71,19 @@
         group: raspberrypi
         recurse: yes
 
+    # --- Frontend Configuration Check ---
+    - name: Verify frontend .env file exists
+      ansible.builtin.stat:
+        path: "{{ frontend_dir }}/.env"
+      register: frontend_env_file
+      failed_when: not frontend_env_file.stat.exists
+
+    - name: Verify VITE_API_URL or PUBLIC_API_URL is set in frontend .env
+      ansible.builtin.shell: "grep -E '^(VITE_API_URL|PUBLIC_API_URL)=' {{ frontend_dir }}/.env"
+      register: check_api_url
+      failed_when: check_api_url.rc != 0
+      changed_when: false
+
     # --- Dependencies Installation ---
     - name: Install frontend npm dependencies
       ansible.builtin.shell:

@@ -1,4 +1,6 @@
 <script>
+  import { getApiUrl } from '$lib/config';
+  
   let email = $state('');
   let password = $state('');
   let error = $state('');
@@ -6,7 +8,7 @@
   async function handleLogin() {
     error = '';
     try {
-      const res = await fetch('http://localhost:8000/login', {
+      const res = await fetch(`${getApiUrl()}/login`, {
         method: 'POST',
         body: JSON.stringify({ email, password }),
         headers: { 'Content-Type': 'application/json' }
