@@ -91,6 +91,16 @@
         - backend.service
         - scraper.service
 
+    - name: Validate systemd file syntax
+      ansible.builtin.command:
+        cmd: "systemd-analyze verify /etc/systemd/system/{{ item }}"
+      loop:
+        - frontend.service
+        - backend.service
+        - scraper.service
+      register: systemd_check
+      failed_when: systemd_check.rc != 0
+
     - name: Reload systemd
       ansible.builtin.systemd:
         daemon_reload: true
