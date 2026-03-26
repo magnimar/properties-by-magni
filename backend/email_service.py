@@ -10,7 +10,7 @@ def send_verification_email(to_email, verification_token):
     api_key = os.getenv("BREVO_API_KEY")
     from_email = os.getenv("FROM_EMAIL", "magnimarboss@gmail.com")
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
-    
+
     if not api_key:
         print("BREVO_API_KEY not found in environment. Email not sent.")
         return False
