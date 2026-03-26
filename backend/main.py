@@ -67,12 +67,13 @@ class UserCreate(BaseModel):
 
 
 # --- FastAPI App ---
-app = FastAPI(root_path="/api")
+app = FastAPI()
 
 # CORS configuration
 origins = [
     "https://propertiesbymagni.com",
     "https://www.propertiesbymagni.com",
+    "https://api.propertiesbymagni.com",
     "http://localhost:5000",
     "http://localhost:5173",
 ]
