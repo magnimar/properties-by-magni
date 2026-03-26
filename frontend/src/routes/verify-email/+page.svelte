@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { getApiUrl } from '$lib/config';
   
     let status = $state('Verifying your email...');
     let error = $state('');
@@ -15,7 +16,7 @@
       }
   
       try {
-          const res = await fetch(`http://localhost:8000/verify-email?token=${token}`);
+          const res = await fetch(`${getApiUrl()}/verify-email?token=${token}`);
           const data = await res.json();
   
           if (res.ok) {

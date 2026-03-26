@@ -4,20 +4,80 @@
   become: yes
   vars:
     frontend_dir: /opt/properties-by-magni/frontend
+    backend_dir: /opt/properties-by-magni/backend
+    scraper_dir: /opt/properties-by-magni/scraper
   tasks:
-    - name: Ensure git is installed
-      apt:
-        name: git
-        state: present
-
-    - name: Ensure Node.js and npm are installed
+    - name: Ensure required packages are installed
       apt:
         name:
+          - git
           - nodejs
           - npm
+          - python3
+          - python3-venv
+          - python3-pip
+          - libpq-dev
+          - postgresql
+          - postgresql-contrib
+          - python3-psycopg2
+          - acl
+          - cloudflared
         state: present
         update_cache: yes
 
+    - name: Ensure PostgreSQL is started and enabled
+      ansible.builtin.systemd:
+        name: postgresql
+        state: started
+        enabled: yes
+
+    - name: Create database user 'magni'
+      become: yes
+      become_user: postgres
+      postgresql_user:
+        name: magni
+        password: "{{ secrets.DB_PASSWORD | default('Robotariamerika') }}"
+        role_attr_flags: SUPERUSER
+
+    - name: Create database 'properties'
+      become: yes
+      become_user: postgres
+      postgresql_db:
+        name: properties
+        owner: magni
+
+    # --- Cloudflare Tunnel Setup ---
+    - name: Ensure cloudflared config directory exists
+      ansible.builtin.file:
+        path: /etc/cloudflared
+        state: directory
+        mode: '0755'
+
+    - name: Configure cloudflared tunnel routes
+      ansible.builtin.copy:
+        dest: /etc/cloudflared/config.yml
+        content: |
+          tunnel: 4696dc77-d6cc-40e4-a6fb-46840055a959
+          credentials-file: /etc/cloudflared/4696dc77-d6cc-40e4-a6fb-46840055a959.json
+
+          ingress:
+            - hostname: propertiesbymagni.com
+              service: http://127.0.0.1:5000
+            - hostname: www.propertiesbymagni.com
+              service: http://127.0.0.1:5000
+            - hostname: api.propertiesbymagni.com
+              service: http://127.0.0.1:8000
+            - service: http_status:404
+        mode: '0644'
+      notify: Restart cloudflared
+
+    - name: Ensure cloudflared service is enabled and started
+      ansible.builtin.systemd:
+        name: cloudflared
+        state: started
+        enabled: yes
+
+    # --- Properties-by-Magni Repo Setup ---
     - name: Ensure /opt/properties-by-magni directory exists
       ansible.builtin.file:
         path: /opt/properties-by-magni
@@ -26,16 +86,16 @@
         owner: raspberrypi
         group: raspberrypi
 
-    - name: Clone or pull the repository
+    - name: Clone or pull the properties-by-magni repository
       git:
         repo: https://github.com/magnimar/properties-by-magni.git
         dest: /opt/properties-by-magni
-        version: add_services
+        version: main
         clone: yes
         update: yes
         force: yes
 
-    - name: Change ownership of cloned files
+    - name: Change ownership of cloned properties-by-magni files
       ansible.builtin.file:
         path: /opt/properties-by-magni
         state: directory
@@ -43,33 +103,109 @@
         group: raspberrypi
         recurse: yes
 
-    - name: Install npm dependencies
+    # --- Frontend Configuration Check ---
+    - name: Verify frontend .env file exists
+      ansible.builtin.stat:
+        path: "{{ frontend_dir }}/.env"
+      register: frontend_env_file
+      failed_when: not frontend_env_file.stat.exists
+
+    - name: Verify VITE_API_URL or PUBLIC_API_URL is set in frontend .env
+      ansible.builtin.shell: "grep -E '^(VITE_API_URL|PUBLIC_API_URL)=' {{ frontend_dir }}/.env"
+      register: check_api_url
+      failed_when: check_api_url.rc != 0
+      changed_when: false
+
+    # --- Backend Configuration Check ---
+    - name: Verify backend .env file exists
+      ansible.builtin.stat:
+        path: "{{ backend_dir }}/.env"
+      register: backend_env_file
+      failed_when: not backend_env_file.stat.exists
+
+    - name: Verify FRONTEND_URL is set in backend .env
+      ansible.builtin.shell: "grep -E '^FRONTEND_URL=' {{ backend_dir }}/.env"
+      register: check_frontend_url
+      failed_when: check_frontend_url.rc != 0
+      changed_when: false
+
+    # --- Dependencies Installation ---
+    - name: Install frontend npm dependencies
       ansible.builtin.shell:
         cmd: npm ci
         chdir: "{{ frontend_dir }}"
       become_user: raspberrypi
 
-    - name: Ensure frontend log file exists and has correct ownership
+    - name: Build frontend production bundle
+      ansible.builtin.shell:
+        cmd: npm run build
+        chdir: "{{ frontend_dir }}"
+      become_user: raspberrypi
+
+    - name: Install backend python dependencies
+      pip:
+        requirements: "{{ backend_dir }}/requirements.txt"
+        virtualenv: "{{ backend_dir }}/venv"
+        virtualenv_command: /usr/bin/python3 -m venv
+      become_user: raspberrypi
+
+    - name: Install scraper python dependencies
+      pip:
+        requirements: "{{ scraper_dir }}/requirements.txt"
+        virtualenv: "{{ scraper_dir }}/venv"
+        virtualenv_command: /usr/bin/python3 -m venv
+      become_user: raspberrypi
+
+    # --- Service File Setup & Logging ---
+    - name: Ensure log files exist and have correct ownership
       ansible.builtin.file:
-        path: /var/log/frontend.log
+        path: "{{ item }}"
         state: touch
         owner: raspberrypi
         group: raspberrypi
         mode: '0644'
+      loop:
+        - /var/log/frontend.log
+        - /var/log/backend.log
+        - /var/log/scraper.log
 
-    - name: Copy frontend service file
+    - name: Copy service files
       ansible.builtin.copy:
-        src: /opt/properties-by-magni/services/frontend.service
-        dest: /etc/systemd/system/frontend.service
+        src: "/opt/properties-by-magni/services/{{ item }}"
+        dest: "/etc/systemd/system/{{ item }}"
         mode: '0644'
         remote_src: yes
+      loop:
+        - frontend.service
+        - backend.service
+        - scraper.service
+
+    - name: Validate systemd file syntax
+      ansible.builtin.command:
+        cmd: "systemd-analyze verify /etc/systemd/system/{{ item }}"
+      loop:
+        - frontend.service
+        - backend.service
+        - scraper.service
+      register: systemd_check
+      failed_when: systemd_check.rc != 0
 
     - name: Reload systemd
       ansible.builtin.systemd:
         daemon_reload: true
 
-    - name: Enable and restart frontend service
+    - name: Enable and restart services
       ansible.builtin.systemd:
-        name: frontend
+        name: "{{ item }}"
         state: restarted
         enabled: yes
+      loop:
+        - frontend
+        - backend
+        - scraper
+
+  handlers:
+    - name: Restart cloudflared
+      ansible.builtin.systemd:
+        name: cloudflared
+        state: restarted

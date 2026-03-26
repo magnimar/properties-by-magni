@@ -1,4 +1,6 @@
 <script>
+  import { getApiUrl } from '$lib/config';
+  
   let email = $state('');
   let password = $state('');
   let confirmPassword = $state('');
@@ -16,7 +18,7 @@
     }
 
     try {
-      const res = await fetch('http://localhost:8000/register', {
+      const res = await fetch(`${getApiUrl()}/register`, {
         method: 'POST',
         body: JSON.stringify({ email, password }),
         headers: { 'Content-Type': 'application/json' }
