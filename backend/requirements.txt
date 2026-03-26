@@ -1,0 +1,8 @@
+fastapi
+sqlalchemy
+python-dotenv
+uvicorn
+psycopg2-binary
+pydantic
+passlib
+bcrypt==4.0.1

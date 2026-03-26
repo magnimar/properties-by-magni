@@ -1,7 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy import create_engine, Column, Integer, String, text
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
+from pydantic import BaseModel
+from passlib.context import CryptContext
 
 import os
 from dotenv import load_dotenv
@@ -9,8 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # --- Database Configuration ---
-# Replace with your actual database credentials
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@host:port/database")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # --- SQLAlchemy Setup ---
 engine = create_engine(DATABASE_URL)
@@ -24,11 +26,36 @@ class Item(Base):
     name = Column(String, index=True)
     description = Column(String, index=True)
 
-# Create the table if it doesn't exist
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_pro = Column(Boolean, default=False)
+    created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
+# Create tables
 Base.metadata.create_all(bind=engine)
+
+# --- Password Hashing ---
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# --- Schemas ---
+class UserLogin(BaseModel):
+    email: str
+    password: str
 
 # --- FastAPI App ---
 app = FastAPI()
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Dependencies ---
 def get_db():
@@ -42,6 +69,19 @@ def get_db():
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+@app.post("/login")
+async def login(data: UserLogin, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    
+    if not user or not pwd_context.verify(data.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    
+    return {
+        "message": "Login successful", 
+        "token": "fake-jwt-token-for-now",
+        "user": {"email": user.email, "is_pro": user.is_pro}
+    }
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, db: Session = Depends(get_db)):
