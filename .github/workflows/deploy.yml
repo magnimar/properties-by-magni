@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - add_services
+      - everything_service
 
 jobs:
   deploy:

@@ -33,7 +33,7 @@
       git:
         repo: https://github.com/magnimar/properties-by-magni.git
         dest: /opt/properties-by-magni
-        version: add_login
+        version: everything_service
         clone: yes
         update: yes
         force: yes
