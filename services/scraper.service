@@ -1,0 +1,19 @@
+[Unit]
+Description=Property Scraper Service
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+User=raspberrypi
+Group=raspberrypi
+WorkingDirectory=/opt/property_scraper
+Environment="PATH=/opt/property_scraper/venv/bin"
+ExecStart=/opt/property_scraper/venv/bin/python main.py
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/property-scraper.log
+StandardError=append:/var/log/property-scraper.log
+SyslogIdentifier=property-scraper
+
+[Install]
+WantedBy=multi-user.target

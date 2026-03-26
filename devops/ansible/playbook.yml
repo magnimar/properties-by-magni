@@ -4,20 +4,23 @@
   become: yes
   vars:
     frontend_dir: /opt/properties-by-magni/frontend
+    backend_dir: /opt/properties-by-magni/backend
+    scraper_dir: /opt/property_scraper
   tasks:
-    - name: Ensure git is installed
-      apt:
-        name: git
-        state: present
-
-    - name: Ensure Node.js and npm are installed
+    - name: Ensure required packages are installed
       apt:
         name:
+          - git
           - nodejs
           - npm
+          - python3
+          - python3-venv
+          - python3-pip
+          - libpq-dev
         state: present
         update_cache: yes
 
+    # --- Properties-by-Magni Repo Setup ---
     - name: Ensure /opt/properties-by-magni directory exists
       ansible.builtin.file:
         path: /opt/properties-by-magni
@@ -26,16 +29,16 @@
         owner: raspberrypi
         group: raspberrypi
 
-    - name: Clone or pull the repository
+    - name: Clone or pull the properties-by-magni repository
       git:
         repo: https://github.com/magnimar/properties-by-magni.git
         dest: /opt/properties-by-magni
-        version: add_services
+        version: add_login
         clone: yes
         update: yes
         force: yes
 
-    - name: Change ownership of cloned files
+    - name: Change ownership of cloned properties-by-magni files
       ansible.builtin.file:
         path: /opt/properties-by-magni
         state: directory
@@ -43,33 +46,87 @@
         group: raspberrypi
         recurse: yes
 
-    - name: Install npm dependencies
+    # --- Scraper Repo Setup ---
+    - name: Ensure /opt/property_scraper directory exists
+      ansible.builtin.file:
+        path: /opt/property_scraper
+        state: directory
+        mode: '0755'
+        owner: raspberrypi
+        group: raspberrypi
+
+    - name: Clone or pull the property_scraper repository
+      git:
+        repo: https://github.com/magnimar/property_scraper.git
+        dest: /opt/property_scraper
+        version: main
+        clone: yes
+        update: yes
+        force: yes
+
+    - name: Change ownership of cloned scraper files
+      ansible.builtin.file:
+        path: /opt/property_scraper
+        state: directory
+        owner: raspberrypi
+        group: raspberrypi
+        recurse: yes
+
+    # --- Dependencies Installation ---
+    - name: Install frontend npm dependencies
       ansible.builtin.shell:
         cmd: npm ci
         chdir: "{{ frontend_dir }}"
       become_user: raspberrypi
 
-    - name: Ensure frontend log file exists and has correct ownership
+    - name: Install backend python dependencies
+      pip:
+        requirements: "{{ backend_dir }}/requirements.txt"
+        virtualenv: "{{ backend_dir }}/venv"
+        virtualenv_command: /usr/bin/python3 -m venv
+      become_user: raspberrypi
+
+    - name: Install scraper python dependencies
+      pip:
+        requirements: "{{ scraper_dir }}/requirements.txt"
+        virtualenv: "{{ scraper_dir }}/venv"
+        virtualenv_command: /usr/bin/python3 -m venv
+      become_user: raspberrypi
+
+    # --- Service File Setup & Logging ---
+    - name: Ensure log files exist and have correct ownership
       ansible.builtin.file:
-        path: /var/log/frontend.log
+        path: "{{ item }}"
         state: touch
         owner: raspberrypi
         group: raspberrypi
         mode: '0644'
+      loop:
+        - /var/log/frontend.log
+        - /var/log/properties-backend.log
+        - /var/log/property-scraper.log
 
-    - name: Copy frontend service file
+    - name: Copy service files
       ansible.builtin.copy:
-        src: /opt/properties-by-magni/services/frontend.service
-        dest: /etc/systemd/system/frontend.service
+        src: "/opt/properties-by-magni/services/{{ item }}"
+        dest: "/etc/systemd/system/{{ item }}"
         mode: '0644'
         remote_src: yes
+      loop:
+        - frontend.service
+        - backend.service
+        - scraper.service
 
     - name: Reload systemd
       ansible.builtin.systemd:
         daemon_reload: true
 
-    - name: Enable and restart frontend service
+    - name: Enable and restart services
       ansible.builtin.systemd:
-        name: frontend
+        name: "{{ item }}"
         state: restarted
         enabled: yes
+      loop:
+        - frontend
+        - backend
+        - scraper
