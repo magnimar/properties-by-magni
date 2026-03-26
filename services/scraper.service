@@ -11,8 +11,8 @@ Environment="PATH=/opt/properties-by-magni/property_scraper/venv/bin"
 ExecStart=/opt/properties-by-magni/property_scraper/venv/bin/python main.py
 Restart=always
 RestartSec=10
-StandardOutput=append:/var/log/property-scraper.log
-StandardError=append:/var/log/property-scraper.log
+StandardOutput=append:/var/log/scraper.log
+StandardError=append:/var/log/scraper.log
 SyslogIdentifier=property-scraper
 
 [Install]

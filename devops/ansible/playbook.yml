@@ -78,7 +78,7 @@
       loop:
         - /var/log/frontend.log
         - /var/log/backend.log
-        - /var/log/property-scraper.log
+        - /var/log/scraper.log
 
     - name: Copy service files
       ansible.builtin.copy:
