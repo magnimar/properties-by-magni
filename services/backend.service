@@ -11,8 +11,8 @@ Environment="PATH=/opt/properties-by-magni/backend/venv/bin"
 ExecStart=/opt/properties-by-magni/backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=10
-StandardOutput=append:/var/log/properties-backend.log
-StandardError=append:/var/log/properties-backend.log
+StandardOutput=append:/var/log/backend.log
+StandardError=append:/var/log/backend.log
 SyslogIdentifier=properties-backend
 
 [Install]

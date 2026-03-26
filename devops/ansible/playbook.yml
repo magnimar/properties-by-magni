@@ -77,7 +77,7 @@
         mode: '0644'
       loop:
         - /var/log/frontend.log
-        - /var/log/properties-backend.log
+        - /var/log/backend.log
         - /var/log/property-scraper.log
 
     - name: Copy service files
