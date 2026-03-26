@@ -4,11 +4,10 @@ on:
   push:
     branches:
       - main
-      - add_services
-      - everything_service
   pull_request:
     branches:
       - main
+      - everything_service
 
 jobs:
   python_lint_and_check:
