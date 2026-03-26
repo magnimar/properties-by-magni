@@ -10,6 +10,8 @@ import os
 import secrets
 from dotenv import load_dotenv
 
+from email_service import send_verification_email
+
 load_dotenv()
 
 # --- Database Configuration ---
@@ -111,14 +113,10 @@ async def register(data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     
-    # MOCK EMAIL SENDING
-    print("\n" + "="*40)
-    print(f"MOCK EMAIL TO: {new_user.email}")
-    print("SUBJECT: Verify your Properties by Magni account")
-    print(f"LINK: http://localhost:5173/verify-email?token={verification_token}")
-    print("="*40 + "\n")
+    # Send actual email via Brevo
+    send_verification_email(new_user.email, verification_token)
     
-    return {"message": "User created successfully", "email": new_user.email}
+    return {"message": "User created successfully. Please check your email.", "email": new_user.email}
 
 @app.get("/verify-email")
 async def verify_email(token: str = Query(...), db: Session = Depends(get_db)):
