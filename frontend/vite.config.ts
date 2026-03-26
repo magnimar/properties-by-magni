@@ -5,6 +5,11 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	server: {
+		allowedHosts: ['propertiesbymagni.com', 'www.propertiesbymagni.com'],
+		host: true, // This allows the tunnel to connect to the local IP
+		port: 5000
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
