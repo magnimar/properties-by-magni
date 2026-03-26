@@ -1,0 +1,4 @@
+beautifulsoup4
+requests
+python-dotenv
+sib-api-v3-sdk
