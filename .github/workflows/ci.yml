@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  python_lint_and_check:
+  lint_and_check:
     runs-on: ubuntu-latest
     strategy:
       matrix:
