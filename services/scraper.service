@@ -6,9 +6,9 @@ Requires=postgresql.service
 [Service]
 User=raspberrypi
 Group=raspberrypi
-WorkingDirectory=/opt/property_scraper
-Environment="PATH=/opt/property_scraper/venv/bin"
-ExecStart=/opt/property_scraper/venv/bin/python main.py
+WorkingDirectory=/opt/properties-by-magni/property_scraper
+Environment="PATH=/opt/properties-by-magni/property_scraper/venv/bin"
+ExecStart=/opt/properties-by-magni/property_scraper/venv/bin/python main.py
 Restart=always
 RestartSec=10
 StandardOutput=append:/var/log/property-scraper.log
