@@ -497,7 +497,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label for="minPrice" class="block text-sm font-medium text-gray-700 mb-1">Minimum Price (ISK)</label>
+                    <label for="minPrice" class="block text-sm font-medium text-gray-700 mb-1">Lágmarksverð (ISK)</label>
                     <input 
                         type="text" 
                         inputmode="numeric"
@@ -508,7 +508,7 @@
                     />
                 </div>
                 <div>
-                    <label for="maxPrice" class="block text-sm font-medium text-gray-700 mb-1">Maximum Price (ISK)</label>
+                    <label for="maxPrice" class="block text-sm font-medium text-gray-700 mb-1">Hámarksverð (ISK)</label>
                     <input 
                         type="text" 
                         inputmode="numeric"
