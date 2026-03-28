@@ -480,7 +480,7 @@
 
 <div class="p-8 max-w-2xl mx-auto">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold">Properties Dashboard</h1>
+        <h1 class="text-3xl font-bold">Finndu fasteign sem segir já!</h1>
         <button 
             onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/login'; }}
             class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
@@ -493,12 +493,11 @@
         <p>Loading your profile...</p>
     {:else if user}
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <h2 class="text-xl font-semibold mb-4">Search Preferences</h2>
-            <p class="text-sm text-gray-600 mb-6">Set your price and bedroom range to filter property alerts.</p>
+            <h2 class="text-xl font-semibold mb-4">Leitarskilyrði</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label for="minPrice" class="block text-sm font-medium text-gray-700 mb-1">Minimum Price (ISK)</label>
+                    <label for="minPrice" class="block text-sm font-medium text-gray-700 mb-1">Lágmarksverð (ISK)</label>
                     <input 
                         type="text" 
                         inputmode="numeric"
@@ -509,7 +508,7 @@
                     />
                 </div>
                 <div>
-                    <label for="maxPrice" class="block text-sm font-medium text-gray-700 mb-1">Maximum Price (ISK)</label>
+                    <label for="maxPrice" class="block text-sm font-medium text-gray-700 mb-1">Hámarksverð (ISK)</label>
                     <input 
                         type="text" 
                         inputmode="numeric"
@@ -520,7 +519,7 @@
                     />
                 </div>
                 <div>
-                    <label for="minBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Minimum Bedrooms</label>
+                    <label for="minBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Lágmarksfjöldi svefnherbergja</label>
                     <input 
                         type="number" 
                         id="minBedrooms" 
@@ -529,7 +528,7 @@
                     />
                 </div>
                 <div>
-                    <label for="maxBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Maximum Bedrooms</label>
+                    <label for="maxBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Hámarksfjöldi svefnherbergja</label>
                     <input 
                         type="number" 
                         id="maxBedrooms" 
@@ -540,7 +539,7 @@
             </div>
 
             <div class="mb-6 relative">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Zip Codes</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Póstnúmer</label>
                 <div class="relative">
                     <button 
                         type="button"
@@ -553,7 +552,7 @@
                                     const opt = zipOptions.find(o => o.code === String(code));
                                     return opt ? `${opt.code} ${opt.name}` : code;
                                 }).join(', ') 
-                                : 'Select Zip Codes...'}
+                                : 'Veldu póstnúmer...'}
                         </span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -647,7 +646,7 @@
             </div>
 
             <div class="mb-6">
-                <label for="street-search" class="block text-sm font-medium text-gray-700 mb-2">Ignored Streets</label>
+                <label for="street-search" class="block text-sm font-medium text-gray-700 mb-2">Götur sem á að hunsa</label>
                 <div class="mb-3 flex items-center gap-2">
                     <div class="w-full flex-grow" use:setupPlaces>
                         <!-- Google Maps PlaceAutocompleteElement will inject here -->
@@ -658,7 +657,7 @@
                         disabled={!pendingStreetName}
                         class="bg-blue-600 text-white px-4 py-2 h-[42px] rounded font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
                     >
-                        Add
+                        Bæta við
                     </button>
                 </div>
                 
@@ -671,7 +670,7 @@
                                     type="button"
                                     onclick={() => removeStreet(street)}
                                     class="ml-2 text-gray-500 hover:text-red-500 focus:outline-none"
-                                    title="Remove street"
+                                    title="Fjarlægja götu"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -684,54 +683,54 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Property Types</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tegundir eigna</label>
+                <div class="flex flex-col gap-3">
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={einbylishus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Einbýlishús (Single-family home)</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={fjolbylishus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Fjölbýlishús (Apartment building)</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={atvinnuhusnaedi} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Atvinnuhúsnæði (Commercial)</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={radhus_parhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Raðhús/Parhús (Terraced/Semi-detached)</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={sumarhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Sumarhús (Summer house)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Einbýlishús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={parhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Parhús (Semi-detached)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Parhús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={jord_lod} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Jörð/Lóð (Land/Lot)</span>
+                        <input type="checkbox" bind:checked={radhus_parhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Raðhús</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" bind:checked={fjolbylishus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Fjölbýlishús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={haed} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Hæð (Floor/Story)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Hæð</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" bind:checked={atvinnuhusnaedi} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Atvinnuhúsnæði</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" bind:checked={sumarhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Sumarhús</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" bind:checked={jord_lod} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Jörð/Lóð</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={hesthus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Hesthús (Stable)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Hesthús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={oflokkad} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Óflokkað (Unclassified)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Óflokkað</span>
                     </label>
                 </div>
             </div>
 
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Svalir og garður</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <div class="flex flex-col gap-3 mb-4">
                     <label class="flex items-center cursor-pointer">
                         <input type="radio" name="outdoorFilter" value="balcony" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
                         <span class="ml-3 text-sm font-medium text-gray-700">Bara svalir</span>
