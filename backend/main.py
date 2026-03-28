@@ -23,6 +23,7 @@ import secrets
 from dotenv import load_dotenv
 
 from email_service import send_verification_email
+from sqlalchemy import inspect
 
 load_dotenv()
 
@@ -85,7 +86,6 @@ class User(Base):
 Base.metadata.create_all(bind=engine)
 
 # --- Quick & Dirty Schema Migration ---
-from sqlalchemy import inspect
 
 inspector = inspect(engine)
 existing_columns = [c["name"] for c in inspector.get_columns("users")]
