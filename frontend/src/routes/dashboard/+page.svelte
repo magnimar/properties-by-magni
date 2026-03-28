@@ -646,7 +646,7 @@
             </div>
 
             <div class="mb-6">
-                <label for="street-search" class="block text-sm font-medium text-gray-700 mb-2">Ignored Streets</label>
+                <label for="street-search" class="block text-sm font-medium text-gray-700 mb-2">Götur sem á að hunsa</label>
                 <div class="mb-3 flex items-center gap-2">
                     <div class="w-full flex-grow" use:setupPlaces>
                         <!-- Google Maps PlaceAutocompleteElement will inject here -->
@@ -657,7 +657,7 @@
                         disabled={!pendingStreetName}
                         class="bg-blue-600 text-white px-4 py-2 h-[42px] rounded font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
                     >
-                        Add
+                        Bæta við
                     </button>
                 </div>
                 
@@ -670,7 +670,7 @@
                                     type="button"
                                     onclick={() => removeStreet(street)}
                                     class="ml-2 text-gray-500 hover:text-red-500 focus:outline-none"
-                                    title="Remove street"
+                                    title="Fjarlægja götu"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
