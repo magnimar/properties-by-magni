@@ -62,6 +62,7 @@
                         const streetName = place.displayName ? place.displayName.text : place.formattedAddress;
                         
                         if (streetName) {
+                            // Reassign to trigger Svelte 5 reactivity
                             pendingStreetName = streetName;
                         }
                     } catch (err) {
@@ -69,8 +70,23 @@
                     }
                 });
 
+                // Also capture manual typing just in case they don't click a suggestion
+                autocompleteEl.addEventListener('input', (e) => {
+                    const val = e.target?.inputValue || e.target?.value;
+                    if (val) {
+                        pendingStreetName = val;
+                    } else {
+                        pendingStreetName = '';
+                    }
+                });
+
                 autocompleteEl.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') e.preventDefault();
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (pendingStreetName) {
+                            addPendingStreet();
+                        }
+                    }
                 });
 
                 return true;
@@ -94,20 +110,28 @@
     }
 
     function addPendingStreet() {
-        if (pendingStreetName && !ignoredStreets.includes(pendingStreetName)) {
-            ignoredStreets = [...ignoredStreets, pendingStreetName];
+        if (!pendingStreetName) return;
+        
+        // Remove trailing commas if any from manual typing
+        const cleanName = pendingStreetName.split(',')[0].trim();
+        
+        if (cleanName && !ignoredStreets.includes(cleanName)) {
+            ignoredStreets = [...ignoredStreets, cleanName];
             pendingStreetName = '';
             
-            // Clear the input in the shadow DOM
+            // Clear the Google web component input
             const autocompleteEl = document.getElementById('street-search');
             if (autocompleteEl) {
                 // @ts-ignore
-                autocompleteEl.value = '';
-                // @ts-ignore
-                autocompleteEl.inputValue = '';
+                if (autocompleteEl.inputValue !== undefined) {
+                    // @ts-ignore
+                    autocompleteEl.inputValue = '';
+                } else {
+                    // @ts-ignore
+                    autocompleteEl.value = '';
+                }
             }
             
-            // Auto-save to the database
             savePreferences();
         }
     }
