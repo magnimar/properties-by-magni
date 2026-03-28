@@ -480,7 +480,7 @@
 
 <div class="p-8 max-w-2xl mx-auto">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold">Properties Dashboard</h1>
+        <h1 class="text-3xl font-bold">Finndu fasteign sem segir já!</h1>
         <button 
             onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/login'; }}
             class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
