@@ -22,6 +22,7 @@
     let message = $state('');
     let loading = $state(true);
     let showZipDropdown = $state(false);
+    let pendingStreetName = $state('');
 
     const googleMapsApiKey = "AIzaSyAAJL11FGR1AImjuxi9kYcxmBTovEZqS7s";
 
@@ -36,16 +37,13 @@
             }
 
             try {
-                // Remove the old input element inside the container
                 node.innerHTML = '';
                 
-                // Create the new PlaceAutocompleteElement
                 autocompleteEl = new win.google.maps.places.PlaceAutocompleteElement({
                     componentRestrictions: { country: ['is'] },
                     requestedLanguage: 'is'
                 });
 
-                // Style the component to match our previous input
                 autocompleteEl.id = "street-search";
                 autocompleteEl.style.width = "100%";
                 autocompleteEl.style.padding = "0.5rem";
@@ -53,30 +51,24 @@
                 autocompleteEl.style.borderRadius = "0.25rem";
                 autocompleteEl.style.outline = "none";
                 
-                // Append the web component to our node container
                 node.appendChild(autocompleteEl);
 
                 autocompleteEl.addEventListener('gmp-placeselect', async (e) => {
                     const place = e.place;
                     if (!place) return;
 
-                    // New Places API requires explicit fetching of fields
-                    await place.fetchFields({ fields: ['addressComponents'] });
-
-                    if (place.addressComponents) {
-                        const street = place.addressComponents.find((c) => c.types.includes('route'));
-                        if (street) {
-                            const streetName = street.longText; // It's longText now, not long_name
-                            if (!ignoredStreets.includes(streetName)) {
-                                ignoredStreets = [...ignoredStreets, streetName];
-                            }
-                            // Clear the autocomplete selection
-                            autocompleteEl.value = '';
+                    try {
+                        await place.fetchFields({ fields: ['displayName', 'formattedAddress'] });
+                        const streetName = place.displayName ? place.displayName.text : place.formattedAddress;
+                        
+                        if (streetName) {
+                            pendingStreetName = streetName;
                         }
+                    } catch (err) {
+                        console.error("Error fetching place details:", err);
                     }
                 });
 
-                // Prevent form submission on enter within the shadow DOM if possible
                 autocompleteEl.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') e.preventDefault();
                 });
@@ -84,7 +76,7 @@
                 return true;
             } catch (err) {
                 console.error("Error initializing PlaceAutocompleteElement:", err);
-                return true; // Stop polling on error
+                return true;
             }
         }
 
@@ -99,6 +91,22 @@
                 if (checkGoogle) clearInterval(checkGoogle);
             }
         };
+    }
+
+    function addPendingStreet() {
+        if (pendingStreetName && !ignoredStreets.includes(pendingStreetName)) {
+            ignoredStreets = [...ignoredStreets, pendingStreetName];
+            pendingStreetName = '';
+            
+            // Clear the input in the shadow DOM
+            const autocompleteEl = document.getElementById('street-search');
+            if (autocompleteEl) {
+                // @ts-ignore
+                autocompleteEl.value = '';
+                // @ts-ignore
+                autocompleteEl.inputValue = '';
+            }
+        }
     }
 
     function removeStreet(street) {
@@ -334,8 +342,18 @@
 
             <div class="mb-6">
                 <label for="street-search" class="block text-sm font-medium text-gray-700 mb-2">Ignored Streets</label>
-                <div class="mb-3" use:setupPlaces>
-                    <!-- Google Maps PlaceAutocompleteElement will inject here -->
+                <div class="mb-3 flex items-center gap-2">
+                    <div class="w-full flex-grow" use:setupPlaces>
+                        <!-- Google Maps PlaceAutocompleteElement will inject here -->
+                    </div>
+                    <button 
+                        type="button"
+                        onclick={addPendingStreet}
+                        disabled={!pendingStreetName}
+                        class="bg-blue-600 text-white px-4 py-2 h-[42px] rounded font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                    >
+                        Add
+                    </button>
                 </div>
                 
                 {#if ignoredStreets.length > 0}
