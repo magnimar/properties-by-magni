@@ -493,8 +493,7 @@
         <p>Loading your profile...</p>
     {:else if user}
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <h2 class="text-xl font-semibold mb-4">Search Preferences</h2>
-            <p class="text-sm text-gray-600 mb-6">Set your price and bedroom range to filter property alerts.</p>
+            <h2 class="text-xl font-semibold mb-4">Leitarskilyrði</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
