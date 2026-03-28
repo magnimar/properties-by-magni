@@ -255,7 +255,9 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
             current_user.zip_codes.split(",") if current_user.zip_codes else []
         ),
         "ignored_streets": (
-            current_user.ignored_streets.split(",") if current_user.ignored_streets else []
+            current_user.ignored_streets.split(",")
+            if current_user.ignored_streets
+            else []
         ),
         "einbylishus": current_user.einbylishus,
         "fjolbylishus": current_user.fjolbylishus,
