@@ -683,47 +683,47 @@
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Property Types</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tegundir eigna</label>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={einbylishus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Einbýlishús (Single-family home)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Einbýlishús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={fjolbylishus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Fjölbýlishús (Apartment building)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Fjölbýlishús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={atvinnuhusnaedi} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Atvinnuhúsnæði (Commercial)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Atvinnuhúsnæði</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={radhus_parhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Raðhús/Parhús (Terraced/Semi-detached)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Raðhús/Parhús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={sumarhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Sumarhús (Summer house)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Sumarhús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={parhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Parhús (Semi-detached)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Parhús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={jord_lod} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Jörð/Lóð (Land/Lot)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Jörð/Lóð</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={haed} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Hæð (Floor/Story)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Hæð</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={hesthus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Hesthús (Stable)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Hesthús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={oflokkad} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Óflokkað (Unclassified)</span>
+                        <span class="ml-3 text-sm font-medium text-gray-700">Óflokkað</span>
                     </label>
                 </div>
             </div>
