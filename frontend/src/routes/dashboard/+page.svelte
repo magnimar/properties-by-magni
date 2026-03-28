@@ -106,11 +106,16 @@
                 // @ts-ignore
                 autocompleteEl.inputValue = '';
             }
+            
+            // Auto-save to the database
+            savePreferences();
         }
     }
 
     function removeStreet(street) {
         ignoredStreets = ignoredStreets.filter(s => s !== street);
+        // Auto-save to the database
+        savePreferences();
     }
 
     const zipOptions = [
