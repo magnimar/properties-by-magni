@@ -63,7 +63,7 @@
                         
                         if (streetName) {
                             // Reassign to trigger Svelte 5 reactivity
-                            pendingStreetName = streetName;
+                            pendingStreetName = streetName.split(',')[0].trim();
                         }
                     } catch (err) {
                         console.error("Error fetching place details:", err);
@@ -72,12 +72,16 @@
 
                 // Also capture manual typing just in case they don't click a suggestion
                 autocompleteEl.addEventListener('input', (e) => {
-                    const val = e.target?.inputValue || e.target?.value;
-                    if (val) {
-                        pendingStreetName = val;
-                    } else {
-                        pendingStreetName = '';
-                    }
+                    // Delay slightly so gmp-placeselect can fire first if they clicked a suggestion
+                    setTimeout(() => {
+                        const val = e.target?.inputValue || e.target?.value;
+                        if (val && !pendingStreetName.startsWith(val)) { 
+                            // Only overwrite if it doesn't match the start of a recently selected suggestion
+                            pendingStreetName = val;
+                        } else if (!val) {
+                            pendingStreetName = '';
+                        }
+                    }, 50);
                 });
 
                 autocompleteEl.addEventListener('keydown', (e) => {
