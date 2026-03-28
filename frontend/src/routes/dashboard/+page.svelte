@@ -528,7 +528,7 @@
                     />
                 </div>
                 <div>
-                    <label for="maxBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Maximum Bedrooms</label>
+                    <label for="maxBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Hámarksfjöldi svefnherbergja</label>
                     <input 
                         type="number" 
                         id="maxBedrooms" 
