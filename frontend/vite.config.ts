@@ -6,13 +6,14 @@ import { sveltekit } from '@sveltejs/kit/vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
-		allowedHosts: ['propertiesbymagni.com', 'www.propertiesbymagni.com'],
+		allowedHosts: ['propertiesbymagni.com', 'www.propertiesbymagni.com', 'localhost'],
 		host: true, // This allows the tunnel to connect to the local IP
 		port: 5000,
-		hmr: {
-			clientPort: 443,
-			host: 'propertiesbymagni.com'
-		}
+		// Commented out to fix local development WebSocket connection
+		// hmr: {
+		// 	clientPort: 443,
+		// 	host: 'propertiesbymagni.com'
+		// }
 	},
 	test: {
 		expect: { requireAssertions: true },
