@@ -158,64 +158,94 @@
         savePreferences();
     }
 
-    const zipOptionsGrouped = {
-        "Reykjavík": [
-            { code: "101", name: "Reykjavík" }, { code: "102", name: "Reykjavík" },
-            { code: "103", name: "Reykjavík" }, { code: "104", name: "Reykjavík" },
-            { code: "105", name: "Reykjavík" }, { code: "107", name: "Reykjavík" },
-            { code: "108", name: "Reykjavík" }, { code: "109", name: "Reykjavík" },
-            { code: "110", name: "Reykjavík" }, { code: "111", name: "Reykjavík" },
-            { code: "112", name: "Reykjavík" }, { code: "113", name: "Reykjavík" },
-            { code: "116", name: "Reykjavík" }, { code: "161", name: "Reykjavík" },
-            { code: "162", name: "Reykjavík" }
-        ],
-        "Kópavogur": [
-            { code: "200", name: "Kópavogur" }, { code: "201", name: "Kópavogur" },
-            { code: "202", name: "Kópavogur" }, { code: "203", name: "Kópavogur" },
-            { code: "206", name: "Kópavogur" }
-        ],
-        "Garðabær": [
-            { code: "210", name: "Garðabær" }, { code: "212", name: "Garðabær" },
-            { code: "225", name: "Garðabær" }
-        ],
-        "Hafnarfjörður": [
-            { code: "220", name: "Hafnarfjörður" }, { code: "221", name: "Hafnarfjörður" },
-            { code: "222", name: "Hafnarfjörður" }
-        ],
-        "Mosfellsbær": [
-            { code: "270", name: "Mosfellsbær" }, { code: "271", name: "Mosfellsbær" },
-            { code: "276", name: "Mosfellsbær" }
-        ],
-        "Seltjarnarnes": [
-            { code: "170", name: "Seltjarnarnes" }
-        ],
-        "Suðurland": [
-            { code: "800", name: "Selfoss" }, { code: "801", name: "Selfoss" },
-            { code: "802", name: "Selfoss" }, { code: "803", name: "Selfoss" },
-            { code: "804", name: "Selfoss" }, { code: "805", name: "Selfoss" },
-            { code: "806", name: "Selfoss" }, { code: "810", name: "Hveragerði" },
-            { code: "815", name: "Þorlákshöfn" }, { code: "816", name: "Ölfus" },
-            { code: "820", name: "Eyrarbakki" }, { code: "825", name: "Stokkseyri" },
-            { code: "840", name: "Laugarvatn" }, { code: "845", name: "Flúðir" },
-            { code: "846", name: "Flúðir" }, { code: "850", name: "Hella" },
-            { code: "851", name: "Hella" }, { code: "860", name: "Hvolsvöllur" },
-            { code: "861", name: "Hvolsvöllur" }, { code: "870", name: "Vík" },
-            { code: "871", name: "Vík" }, { code: "880", name: "Kirkjubæjarklaustur" },
-            { code: "881", name: "Kirkjubæjarklaustur" }, { code: "900", name: "Vestmannaeyjar" },
-            { code: "901", name: "Vestmannaeyjabær" }
-        ],
-        "Annað": [
-            { code: "190", name: "Vogar" }, { code: "191", name: "Vogar" },
-            { code: "230", name: "Keflavík" }, { code: "232", name: "Keflavík" },
-            { code: "233", name: "Hafnir" }, { code: "240", name: "Grindavík" },
-            { code: "241", name: "Grindavík" }, { code: "245", name: "Suðurnesjabær" },
-            { code: "246", name: "Suðurnesjabær" }, { code: "250", name: "Suðurnesjabær" },
-            { code: "251", name: "Suðurnesjabær" }, { code: "260", name: "Njarðvík" },
-            { code: "262", name: "Reykjanesbær" }
-        ]
-    };
+    const zipOptionsGrouped = [
+        {
+            name: "Höfuðborgarsvæðið",
+            subgroups: [
+                {
+                    name: "Reykjavík",
+                    options: [
+                        { code: "101", name: "Reykjavík" }, { code: "102", name: "Reykjavík" },
+                        { code: "103", name: "Reykjavík" }, { code: "104", name: "Reykjavík" },
+                        { code: "105", name: "Reykjavík" }, { code: "107", name: "Reykjavík" },
+                        { code: "108", name: "Reykjavík" }, { code: "109", name: "Reykjavík" },
+                        { code: "110", name: "Reykjavík" }, { code: "111", name: "Reykjavík" },
+                        { code: "112", name: "Reykjavík" }, { code: "113", name: "Reykjavík" },
+                        { code: "116", name: "Reykjavík" }, { code: "161", name: "Reykjavík" },
+                        { code: "162", name: "Reykjavík" }
+                    ]
+                },
+                {
+                    name: "Kópavogur",
+                    options: [
+                        { code: "200", name: "Kópavogur" }, { code: "201", name: "Kópavogur" },
+                        { code: "202", name: "Kópavogur" }, { code: "203", name: "Kópavogur" },
+                        { code: "206", name: "Kópavogur" }
+                    ]
+                },
+                {
+                    name: "Garðabær",
+                    options: [
+                        { code: "210", name: "Garðabær" }, { code: "212", name: "Garðabær" },
+                        { code: "225", name: "Garðabær" }
+                    ]
+                },
+                {
+                    name: "Hafnarfjörður",
+                    options: [
+                        { code: "220", name: "Hafnarfjörður" }, { code: "221", name: "Hafnarfjörður" },
+                        { code: "222", name: "Hafnarfjörður" }
+                    ]
+                },
+                {
+                    name: "Mosfellsbær",
+                    options: [
+                        { code: "270", name: "Mosfellsbær" }, { code: "271", name: "Mosfellsbær" },
+                        { code: "276", name: "Mosfellsbær" }
+                    ]
+                },
+                {
+                    name: "Seltjarnarnes",
+                    options: [
+                        { code: "170", name: "Seltjarnarnes" }
+                    ]
+                }
+            ]
+        },
+        {
+            name: "Suðurland",
+            options: [
+                { code: "800", name: "Selfoss" }, { code: "801", name: "Selfoss" },
+                { code: "802", name: "Selfoss" }, { code: "803", name: "Selfoss" },
+                { code: "804", name: "Selfoss" }, { code: "805", name: "Selfoss" },
+                { code: "806", name: "Selfoss" }, { code: "810", name: "Hveragerði" },
+                { code: "815", name: "Þorlákshöfn" }, { code: "816", name: "Ölfus" },
+                { code: "820", name: "Eyrarbakki" }, { code: "825", name: "Stokkseyri" },
+                { code: "840", name: "Laugarvatn" }, { code: "845", name: "Flúðir" },
+                { code: "846", name: "Flúðir" }, { code: "850", name: "Hella" },
+                { code: "851", name: "Hella" }, { code: "860", name: "Hvolsvöllur" },
+                { code: "861", name: "Hvolsvöllur" }, { code: "870", name: "Vík" },
+                { code: "871", name: "Vík" }, { code: "880", name: "Kirkjubæjarklaustur" },
+                { code: "881", name: "Kirkjubæjarklaustur" }, { code: "900", name: "Vestmannaeyjar" },
+                { code: "901", name: "Vestmannaeyjabær" }
+            ]
+        },
+        {
+            name: "Suðurnes",
+            options: [
+                { code: "190", name: "Vogar" }, { code: "191", name: "Vogar" },
+                { code: "230", name: "Keflavík" }, { code: "232", name: "Keflavík" },
+                { code: "233", name: "Hafnir" }, { code: "240", name: "Grindavík" },
+                { code: "241", name: "Grindavík" }, { code: "245", name: "Suðurnesjabær" },
+                { code: "246", name: "Suðurnesjabær" }, { code: "250", name: "Suðurnesjabær" },
+                { code: "251", name: "Suðurnesjabær" }, { code: "260", name: "Njarðvík" },
+                { code: "262", name: "Reykjanesbær" }
+            ]
+        }
+    ];
 
     let expandedZipGroups = $state({
+        "Höfuðborgarsvæðið": false,
         "Reykjavík": false,
         "Kópavogur": false,
         "Garðabær": false,
@@ -223,10 +253,10 @@
         "Mosfellsbær": false,
         "Seltjarnarnes": false,
         "Suðurland": false,
-        "Annað": false
+        "Suðurnes": false
     });
 
-    const zipOptions = Object.values(zipOptionsGrouped).flat();
+    const zipOptions = zipOptionsGrouped.flatMap(g => g.subgroups ? g.subgroups.flatMap(sg => sg.options) : g.options);
 
     function toggleZipCode(zipCode) {
         if (selectedZipCodes.includes(zipCode)) {
@@ -446,38 +476,79 @@
                     {#if showZipDropdown}
                         <div class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg">
                             <ul class="max-h-80 overflow-auto py-1">
-                                {#each Object.entries(zipOptionsGrouped) as [groupName, options]}
+                                {#each zipOptionsGrouped as group}
                                     <li>
                                         <button 
                                             type="button" 
-                                            onclick={() => toggleZipGroup(groupName)}
+                                            onclick={() => toggleZipGroup(group.name)}
                                             class="flex justify-between items-center w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 font-semibold text-gray-700 text-left cursor-pointer border-b border-gray-200"
                                         >
-                                            <span>{groupName}</span>
+                                            <span>{group.name}</span>
                                             <svg 
                                                 xmlns="http://www.w3.org/2000/svg" 
-                                                class="h-4 w-4 transform transition-transform {expandedZipGroups[groupName] ? 'rotate-180' : ''}" 
+                                                class="h-4 w-4 transform transition-transform {expandedZipGroups[group.name] ? 'rotate-180' : ''}" 
                                                 viewBox="0 0 20 20" 
                                                 fill="currentColor"
                                             >
                                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                             </svg>
                                         </button>
-                                        {#if expandedZipGroups[groupName]}
-                                            <ul class="pl-4 border-b border-gray-100 pb-1">
-                                                {#each options as option}
-                                                    <li>
-                                                        <label class="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                                            <input 
-                                                                type="checkbox" 
-                                                                class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                                                checked={selectedZipCodes.includes(option.code)}
-                                                                onchange={() => toggleZipCode(option.code)}
-                                                            />
-                                                            <span class="ml-3 text-sm text-gray-700">{option.code} {option.name}</span>
-                                                        </label>
-                                                    </li>
-                                                {/each}
+                                        {#if expandedZipGroups[group.name]}
+                                            <ul class="border-b border-gray-100 pb-1">
+                                                {#if group.subgroups}
+                                                    {#each group.subgroups as subgroup}
+                                                        <li>
+                                                            <button 
+                                                                type="button" 
+                                                                onclick={() => toggleZipGroup(subgroup.name)}
+                                                                class="flex justify-between items-center w-full px-6 py-2 bg-white hover:bg-gray-50 font-medium text-gray-600 text-left cursor-pointer border-t border-gray-100"
+                                                            >
+                                                                <span>{subgroup.name}</span>
+                                                                <svg 
+                                                                    xmlns="http://www.w3.org/2000/svg" 
+                                                                    class="h-3 w-3 transform transition-transform {expandedZipGroups[subgroup.name] ? 'rotate-180' : ''}" 
+                                                                    viewBox="0 0 20 20" 
+                                                                    fill="currentColor"
+                                                                >
+                                                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                                </svg>
+                                                            </button>
+                                                            {#if expandedZipGroups[subgroup.name]}
+                                                                <ul class="pl-6 border-t border-gray-100 py-1 bg-gray-50 bg-opacity-50">
+                                                                    {#each subgroup.options as option}
+                                                                        <li>
+                                                                            <label class="flex items-center px-4 py-1.5 hover:bg-gray-100 cursor-pointer">
+                                                                                <input 
+                                                                                    type="checkbox" 
+                                                                                    class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                                                    checked={selectedZipCodes.includes(option.code)}
+                                                                                    onchange={() => toggleZipCode(option.code)}
+                                                                                />
+                                                                                <span class="ml-3 text-sm text-gray-700">{option.code} {option.name}</span>
+                                                                            </label>
+                                                                        </li>
+                                                                    {/each}
+                                                                </ul>
+                                                            {/if}
+                                                        </li>
+                                                    {/each}
+                                                {:else}
+                                                    <ul class="pl-4 py-1">
+                                                        {#each group.options as option}
+                                                            <li>
+                                                                <label class="flex items-center px-4 py-1.5 hover:bg-gray-100 cursor-pointer">
+                                                                    <input 
+                                                                        type="checkbox" 
+                                                                        class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                                        checked={selectedZipCodes.includes(option.code)}
+                                                                        onchange={() => toggleZipCode(option.code)}
+                                                                    />
+                                                                    <span class="ml-3 text-sm text-gray-700">{option.code} {option.name}</span>
+                                                                </label>
+                                                            </li>
+                                                        {/each}
+                                                    </ul>
+                                                {/if}
                                             </ul>
                                         {/if}
                                     </li>
