@@ -213,6 +213,36 @@
             ]
         },
         {
+            name: "Norðurland",
+            options: [
+                { code: "500", name: "Staður" }, { code: "510", name: "Hólmavík" },
+                { code: "511", name: "Hólmavík" }, { code: "512", name: "Hólmavík" },
+                { code: "520", name: "Drangsnes" }, { code: "522", name: "Kjörvogur" },
+                { code: "523", name: "Bær" }, { code: "524", name: "Norðurfjörður" },
+                { code: "530", name: "Hvammstangi" }, { code: "531", name: "Hvammstangi" },
+                { code: "540", name: "Blönduós" }, { code: "541", name: "Blönduós" },
+                { code: "545", name: "Skagaströnd" }, { code: "546", name: "Skagaströnd" },
+                { code: "550", name: "Sauðárkrókur" }, { code: "551", name: "Sauðárkrókur" },
+                { code: "560", name: "Varmahlíð" }, { code: "561", name: "Varmahlíð" },
+                { code: "565", name: "Hofsós" }, { code: "566", name: "Hofsós" },
+                { code: "570", name: "Fljót" }, { code: "580", name: "Siglufjörður" },
+                { code: "581", name: "Siglufjörður" }, { code: "600", name: "Akureyri" },
+                { code: "601", name: "Akureyri" }, { code: "602", name: "Akureyri" },
+                { code: "603", name: "Akureyri" }, { code: "604", name: "Akureyri" },
+                { code: "605", name: "Akureyri" }, { code: "606", name: "Akureyri" },
+                { code: "607", name: "Akureyri" }, { code: "610", name: "Árskógssandur" },
+                { code: "611", name: "Grímsey" }, { code: "616", name: "Grenivík" },
+                { code: "620", name: "Dalvík" }, { code: "621", name: "Dalvík" },
+                { code: "625", name: "Ólafsfjörður" }, { code: "626", name: "Ólafsfjörður" },
+                { code: "630", name: "Hrísey" }, { code: "640", name: "Húsavík" },
+                { code: "641", name: "Húsavík" }, { code: "645", name: "Fosshóll" },
+                { code: "650", name: "Laugar" }, { code: "660", name: "Mývatn" },
+                { code: "670", name: "Kópasker" }, { code: "671", name: "Kópasker" },
+                { code: "675", name: "Raufarhöfn" }, { code: "680", name: "Þórshöfn" },
+                { code: "681", name: "Þórshöfn" }
+            ]
+        },
+        {
             name: "Suðurland",
             options: [
                 { code: "800", name: "Selfoss" }, { code: "801", name: "Selfoss" },
@@ -253,7 +283,9 @@
         "Mosfellsbær": false,
         "Seltjarnarnes": false,
         "Suðurland": false,
-        "Suðurnes": false
+        "Suðurnes": false,
+        "Norðurland": false,
+        "Annað": false
     });
 
     const zipOptions = zipOptionsGrouped.flatMap(g => g.subgroups ? g.subgroups.flatMap(sg => sg.options) : g.options);
