@@ -666,6 +666,12 @@ class Scraper:
             "881": ("Kirkjubæjarklaustur", "Kirkjubæjarklaustri"),
             "900": ("Vestmannaeyjar", "Vestmannaeyjum"),
             "901": ("Vestmannaeyjabær", "Vestmannaeyjabæ"),
+            "950": ("Útlönd", "Útlöndum"), "951": ("Útlönd", "Útlöndum"),
+            "952": ("Útlönd", "Útlöndum"), "953": ("Útlönd", "Útlöndum"),
+            "954": ("Útlönd", "Útlöndum"), "955": ("Útlönd", "Útlöndum"),
+            "956": ("Útlönd", "Útlöndum"), "970": ("Útlönd", "Útlöndum"),
+            "971": ("Útlönd", "Útlöndum"), "980": ("Útlönd", "Útlöndum"),
+            "999": ("Útlönd", "Útlöndum"),
         }
         return locations.get(zip_code, ("", ""))
 

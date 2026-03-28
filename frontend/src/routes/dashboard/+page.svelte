@@ -311,6 +311,17 @@
                 { code: "251", name: "Suðurnesjabær" }, { code: "260", name: "Njarðvík" },
                 { code: "262", name: "Reykjanesbær" }
             ]
+        },
+        {
+            name: "Útlönd",
+            options: [
+                { code: "950", name: "Útlönd" }, { code: "951", name: "Útlönd" },
+                { code: "952", name: "Útlönd" }, { code: "953", name: "Útlönd" },
+                { code: "954", name: "Útlönd" }, { code: "955", name: "Útlönd" },
+                { code: "956", name: "Útlönd" }, { code: "970", name: "Útlönd" },
+                { code: "971", name: "Útlönd" }, { code: "980", name: "Útlönd" },
+                { code: "999", name: "Útlönd" }
+            ]
         }
     ];
 
@@ -328,6 +339,7 @@
         "Austurland": false,
         "Suðurland": false,
         "Suðurnes": false,
+        "Útlönd": false,
         "Annað": false
     });
 
