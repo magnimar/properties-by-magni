@@ -6,7 +6,7 @@
         if (token) {
             window.location.href = '/dashboard';
         } else {
-            window.location.href = '/login';
+            window.location.href = '/home';
         }
     });
 </script>
