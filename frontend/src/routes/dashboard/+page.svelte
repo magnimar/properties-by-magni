@@ -730,7 +730,7 @@
 
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Svalir og garður</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <div class="flex flex-col gap-3 mb-4">
                     <label class="flex items-center cursor-pointer">
                         <input type="radio" name="outdoorFilter" value="balcony" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
                         <span class="ml-3 text-sm font-medium text-gray-700">Bara svalir</span>
