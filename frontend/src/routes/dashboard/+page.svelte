@@ -519,7 +519,7 @@
                     />
                 </div>
                 <div>
-                    <label for="minBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Minimum Bedrooms</label>
+                    <label for="minBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Lágmarksfjöldi svefnherbergja</label>
                     <input 
                         type="number" 
                         id="minBedrooms" 
