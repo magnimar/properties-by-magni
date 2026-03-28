@@ -1,6 +1,6 @@
 # Property scraper
 
-Scrapes [Fasteignir.is](https://fasteignir.visir.is) listings for configured users and can email summaries (Brevo).
+Scrapes [Fasteignir.is](https://fasteignir.visir.is) listings for verified users in the database and sends email summaries via Brevo.
 
 ## Setup
 
@@ -10,36 +10,33 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### `config.json` (required shape)
+### Environment Variables (`.env`)
 
-`config.json` must be a **JSON array** of user objects (not an object keyed by name). Each object must include a string **`"user"`** id (used with `--user`) plus the same fields as before (`BREVO_API_KEY`, `FROM_EMAIL`, `TO_EMAIL`, `MIN_PRICE`, `MAX_PRICE`, `MIN_BEDROOMS`, `MAX_BEDROOMS`, `ZIP_CODES`, optional `ignored_strings`, etc.).
+The scraper requires a `.env` file in the `scraper/` directory with the following variables:
 
-If the file is not an array, or is empty, or any entry is invalid, the program **exits with an error**.
-
-Copy `config.example.json` to `config.json` and fill in real values (`config.json` is gitignored).
-
-**`--schedule`** runs users in **array order** (first object first, then the next, …).
-
-Optional: a **`.env`** file in the project root for schedule mode (see below).
-
----
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | SQLAlchemy-compatible database URL (e.g., `postgresql://user:pass@localhost/dbname`) |
+| `BREVO_API_KEY` | Yes | API key for sending emails via Brevo |
+| `FROM_EMAIL` | Yes | The email address shown as the sender |
+| `SCRAPER_HOUR` | No | Hour (0–23) to run daily in `--schedule` mode (Default: 10) |
+| `SCRAPER_MINUTE` | No | Minute (0–59) to run daily in `--schedule` mode (Default: 0) |
 
 ## Usage
 
+The scraper now fetches user preferences directly from the `users` table in the database. Only **verified** users (`is_verified = True`) are processed.
+
 ### One-off run (single user)
 
-Runs the scrape + filters + email once for the given user id:
+Runs the scrape, filters, and emails once for the given user's email:
 
 ```bash
-python scraper.py --user magni
-python scraper.py --user gabriela
+python scraper.py --user test@example.com
 ```
-
-`--user` must match the **`"user"`** field of exactly one object in the `config.json` array.
 
 ### Scheduled runs (daemon)
 
-Runs forever: **once per calendar day** when the clock matches `SCRAPER_HOUR`/`SCRAPER_MINUTE`, it reloads `config.json` and runs **`Scraper` for every object in the array**, in order, with **60 seconds** between users.
+Runs indefinitely, executing once per calendar day at the specified time (defaulting to 10:00 AM). It processes all verified users in parallel.
 
 ```bash
 python scraper.py --schedule
@@ -47,56 +44,24 @@ python scraper.py --schedule
 
 **Do not** pass `--user` together with `--schedule`.
 
-**Environment variables** (e.g. in `.env`; `python-dotenv` loads them automatically in schedule mode):
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `SCRAPER_HOUR` | Yes | Hour (0–23), local time |
-| `SCRAPER_MINUTE` | Yes | Minute (0–59), local time |
-
-Example `.env`:
-
-```env
-SCRAPER_HOUR=22
-SCRAPER_MINUTE=0
-```
-
-If one user run fails, the loop logs the error and continues with the next user in the list.
-
 ### systemd (Raspberry Pi / server)
 
-The sample unit in `service/property_scraper.service` starts:
+A systemd service file is provided in `services/scraper.service`. It is configured to run in `--schedule` mode.
 
-```text
-python -u /opt/property_scraper/scraper.py --schedule
-```
-
-Set `WorkingDirectory` to the repo, ensure `.env` with `SCRAPER_HOUR` / `SCRAPER_MINUTE` is present there (or export vars in the unit). Then:
-
+To install:
+1. Ensure `DATABASE_URL`, `BREVO_API_KEY`, and `FROM_EMAIL` are in `/opt/properties-by-magni/scraper/.env`.
+2. Copy the service file: `sudo cp services/scraper.service /etc/systemd/system/`
+3. Enable and start:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now property_scraper.service
+sudo systemctl enable --now scraper.service
 ```
 
 ---
 
-## Examples
+## Technical Details
 
-**Magni**
-
-```bash
-python scraper.py --user magni
-```
-
-**Gabríela**
-
-```bash
-python scraper.py --user gabriela
-```
-
-**Daily 22:00 for everyone in `config.json` (in list order)**
-
-```bash
-# .env: SCRAPER_HOUR=22 SCRAPER_MINUTE=0
-python scraper.py --schedule
-```
+- **Database**: Uses SQLAlchemy to connect to the shared application database.
+- **Concurrency**: Uses `ThreadPoolExecutor` to fetch property details and process multiple users in parallel.
+- **Filters**: Supports filtering by price, bedrooms, zip codes, property types (house, apartment, etc.), outdoor space (balcony/garden), and garage.
+- **Emails**: Sends rich HTML emails with property images (embedded as data URIs) and price statistics.

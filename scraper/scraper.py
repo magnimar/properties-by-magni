@@ -19,103 +19,100 @@ import re
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def _configure_logging():
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
+# --- Database Setup ---
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    logging.error("DATABASE_URL not found in environment.")
+    # We'll raise error only when trying to connect, to allow for local testing if needed.
 
-DEFAULT_CONFIG_PATH = "config.json"
+Base = declarative_base()
 
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    is_verified = Column(Boolean, default=False)
+    min_price = Column(Float, nullable=True)
+    max_price = Column(Float, nullable=True)
+    min_bedrooms = Column(Integer, nullable=True)
+    max_bedrooms = Column(Integer, nullable=True)
+    zip_codes = Column(String, nullable=True)
+    ignored_streets = Column(String, nullable=True)
+    einbylishus = Column(Boolean, default=False)
+    fjolbylishus = Column(Boolean, default=False)
+    atvinnuhusnaedi = Column(Boolean, default=False)
+    radhus_parhus = Column(Boolean, default=False)
+    sumarhus = Column(Boolean, default=False)
+    parhus = Column(Boolean, default=False)
+    jord_lod = Column(Boolean, default=False)
+    haed = Column(Boolean, default=False)
+    hesthus = Column(Boolean, default=False)
+    oflokkad = Column(Boolean, default=False)
+    outdoor_filter = Column(String, default="none")
+    want_garage = Column(Boolean, default=False)
 
-def load_config_user_list(config_path: Optional[str] = None) -> list:
-    """Load config.json: must be a JSON array of user objects (see config.example.json)."""
-    path = config_path or DEFAULT_CONFIG_PATH
-    if not os.path.exists(path):
-        logging.error("Configuration file '%s' not found.", path)
-        raise SystemExit(1)
-    with open(path, "r", encoding="utf-8") as f:
-        try:
-            data = json.load(f)
-        except json.JSONDecodeError:
-            logging.error("Could not decode JSON from '%s'.", path)
-            raise SystemExit(1) from None
+def get_db_users() -> list[dict]:
+    """Fetch verified users and their preferences from the database."""
+    if not DATABASE_URL:
+        logging.error("DATABASE_URL is missing. Cannot fetch users from DB.")
+        return []
 
-    if not isinstance(data, list):
-        logging.error(
-            "config.json must be a JSON array (list) of user objects, not %s.",
-            type(data).__name__,
-        )
-        raise SystemExit(1)
-
-    if len(data) == 0:
-        logging.error("config.json user list is empty; add at least one user object.")
-        raise SystemExit(1)
-
-    seen_users: dict[str, int] = {}
-    for i, item in enumerate(data):
-        if not isinstance(item, dict):
-            logging.error(
-                "config.json[%d] must be a JSON object, not %s.",
-                i,
-                type(item).__name__,
-            )
-            raise SystemExit(1)
-        uid = item.get("user")
-        if not uid or not isinstance(uid, str):
-            logging.error(
-                'config.json[%d] must include a non-empty string "user" id.',
-                i,
-            )
-            raise SystemExit(1)
-        if uid in seen_users:
-            logging.error(
-                'Duplicate "user" %r in config.json at indices %d and %d.',
-                uid,
-                seen_users[uid],
-                i,
-            )
-            raise SystemExit(1)
-        seen_users[uid] = i
-
-    return data
-
-
-def find_user_config(user_id: str, config_path: Optional[str] = None) -> dict:
-    """Return the config object for --user (must match the \"user\" field)."""
-    for item in load_config_user_list(config_path):
-        if item.get("user") == user_id:
-            return item
-    logging.error(
-        "User %r not found in '%s' (no matching \"user\" field).",
-        user_id,
-        config_path or DEFAULT_CONFIG_PATH,
-    )
-    raise SystemExit(1)
-
+    engine = create_engine(DATABASE_URL)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db = SessionLocal()
+    try:
+        users = db.query(User).filter(User.is_verified == True).all()
+        user_configs = []
+        for u in users:
+            config = {
+                "user": u.email,
+                "TO_EMAIL": u.email,
+                "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
+                "FROM_EMAIL": os.getenv("FROM_EMAIL"),
+                "MIN_PRICE": int(u.min_price) if u.min_price is not None else 0,
+                "MAX_PRICE": int(u.max_price) if u.max_price is not None else 1000000000,
+                "MIN_BEDROOMS": u.min_bedrooms if u.min_bedrooms is not None else 0,
+                "MAX_BEDROOMS": u.max_bedrooms if u.max_bedrooms is not None else 10,
+                "ZIP_CODES": u.zip_codes if u.zip_codes else "101,107",
+                "outdoor_filter": u.outdoor_filter or "none",
+                "want_garage": u.want_garage or False,
+                "ignored_strings": (u.ignored_streets.split(",") if u.ignored_streets else []),
+                "EINBYLISHUS": "yes" if u.einbylishus else "no",
+                "FJOLBYLISHUS": "yes" if u.fjolbylishus else "no",
+                "ATVINNUHUSNAEDI": "yes" if u.atvinnuhusnaedi else "no",
+                "RADHUS_PARHUS": "yes" if u.radhus_parhus else "no",
+                "SUMARHUS": "yes" if u.sumarhus else "no",
+                "PARHUS": "yes" if u.parhus else "no",
+                "JORD_LOD": "yes" if u.jord_lod else "no",
+                "HAED": "yes" if u.haed else "no",
+                "HESTHUS": "yes" if u.hesthus else "no",
+                "OFLOKKAD": "yes" if u.oflokkad else "no",
+            }
+            user_configs.append(config)
+        return user_configs
+    finally:
+        db.close()
 
 def run_schedule_loop():
-    """Wait until SCRAPER_HOUR:SCRAPER_MINUTE daily, then run Scraper for each config user in parallel."""
-    from dotenv import load_dotenv
-
-    load_dotenv()
-
-    try:
-        hour = int(os.environ["SCRAPER_HOUR"])
-        minute = int(os.environ["SCRAPER_MINUTE"])
-    except KeyError:
-        logging.error(
-            "Schedule mode requires SCRAPER_HOUR and SCRAPER_MINUTE in the environment "
-            "(e.g. in a .env file)."
-        )
-        raise SystemExit(1) from None
-    except ValueError:
-        logging.error("SCRAPER_HOUR and SCRAPER_MINUTE must be integers.")
-        raise SystemExit(1) from None
+    """Wait until 10:00 daily, then run Scraper for each user in parallel."""
+    # Use 10:00 as default as per request
+    hour = int(os.getenv("SCRAPER_HOUR", "10"))
+    minute = int(os.getenv("SCRAPER_MINUTE", "0"))
 
     logging.info(
-        "Schedule mode: will run daily at %02d:%02d for each user in config.json (in parallel).",
+        "Schedule mode: will run daily at %02d:%02d for all verified users (in parallel).",
         hour,
         minute,
     )
@@ -129,17 +126,15 @@ def run_schedule_loop():
                 continue
             last_run_date = now.date()
 
-            try:
-                user_configs = load_config_user_list()
-            except SystemExit:
-                logging.error(
-                    "Invalid config.json; skipping today's scheduled batch.",
-                )
+            user_configs = get_db_users()
+            if not user_configs:
+                logging.info("No verified users found in database; skipping today's run.")
                 time.sleep(60)
                 continue
 
             logging.info(
-                "Running scheduled batch for: %s",
+                "Running scheduled batch for %d user(s): %s",
+                len(user_configs),
                 ", ".join(c["user"] for c in user_configs),
             )
 
@@ -172,7 +167,7 @@ def _run_scraper_for_user(user_config: dict):
 
 class Scraper:
     def __init__(self, user_config: dict):
-        """user_config: one element from the config.json array (must include \"user\" and settings)."""
+        """user_config: one element from the database mapping (must include \"user\" and settings)."""
         self.user_config = user_config
         self.args = argparse.Namespace(user=user_config["user"])
 
@@ -247,7 +242,7 @@ class Scraper:
     def send_email_notification(self, subject, html_body):
         if not all([self.API_KEY, self.FROM_EMAIL, self.TO_EMAIL]):
             logging.warning(
-                "Email sending skipped due to missing API_KEY, FROM_EMAIL, or TO_EMAIL in config."
+                "Email sending skipped due to missing API_KEY, FROM_EMAIL, or TO_EMAIL in config/env."
             )
             return False
 
@@ -282,16 +277,6 @@ class Scraper:
 
     def _search_listings_query_params(self, page: int) -> dict:
         """Query string for /ajaxsearch/getresults (same keys as the in-browser hash route)."""
-        # 1 is einbýlishús
-        # 2 is fjölbýlishús
-        # 3 is atvinnuhúsnæði
-        # 4 is raðhús / parhús
-        # 6 is sumarhús
-        # 7 is parhús
-        # 8 is jörð / lóð
-        # 17 is hæð
-        # 35 is hesthús
-        # 36 is óflokkað
         return {
             "stype": "sale",
             "zip": self.ZIP_CODES,
@@ -390,14 +375,14 @@ class Scraper:
 
         if not all(
             [
-                self.MIN_PRICE,
-                self.MAX_PRICE,
-                self.MIN_BEDROOMS,
-                self.MAX_BEDROOMS,
+                self.MIN_PRICE is not None,
+                self.MAX_PRICE is not None,
+                self.MIN_BEDROOMS is not None,
+                self.MAX_BEDROOMS is not None,
                 self.ZIP_CODES,
             ]
         ):
-            logging.error("Missing search parameters in config file.")
+            logging.error("Missing search parameters in config.")
             return [], None
 
         skip_address_substrings = self.user_config.get("ignored_strings", [])
@@ -561,106 +546,45 @@ class Scraper:
     @staticmethod
     def _get_location_names(zip_code: str) -> tuple[str, str]:
         """Returns (nominative_name, dative_name) for a given zip code."""
-        reykjavik_zips = {
-            "101",
-            "102",
-            "103",
-            "104",
-            "105",
-            "107",
-            "108",
-            "109",
-            "110",
-            "111",
-            "112",
-            "113",
-            "116",
-            "161",
-            "162",
+        locations = {
+            "101": ("Reykjavík", "Reykjavík"), "102": ("Reykjavík", "Reykjavík"),
+            "103": ("Reykjavík", "Reykjavík"), "104": ("Reykjavík", "Reykjavík"),
+            "105": ("Reykjavík", "Reykjavík"), "107": ("Reykjavík", "Reykjavík"),
+            "108": ("Reykjavík", "Reykjavík"), "109": ("Reykjavík", "Reykjavík"),
+            "110": ("Reykjavík", "Reykjavík"), "111": ("Reykjavík", "Reykjavík"),
+            "112": ("Reykjavík", "Reykjavík"), "113": ("Reykjavík", "Reykjavík"),
+            "116": ("Reykjavík", "Reykjavík"), "161": ("Reykjavík", "Reykjavík"),
+            "162": ("Reykjavík", "Reykjavík"), "200": ("Kópavogur", "Kópavogi"),
+            "201": ("Kópavogur", "Kópavogi"), "202": ("Kópavogur", "Kópavogi"),
+            "203": ("Kópavogur", "Kópavogi"), "206": ("Kópavogur", "Kópavogi"),
+            "210": ("Garðabær", "Garðabæ"), "212": ("Garðabær", "Garðabæ"),
+            "225": ("Garðabær", "Garðabæ"), "220": ("Hafnarfjörður", "Hafnarfirði"),
+            "221": ("Hafnarfjörður", "Hafnarfirði"), "222": ("Hafnarfjörður", "Hafnarfirði"),
+            "270": ("Mosfellsbær", "Mosfellsbæ"), "271": ("Mosfellsbær", "Mosfellsbæ"),
+            "276": ("Mosfellsbær", "Mosfellsbæ"), "170": ("Seltjarnarnes", "Seltjarnarnesi"),
+            "230": ("Keflavík", "Keflavík"), "232": ("Keflavík", "Keflavík"),
+            "233": ("Hafnir", "Höfnum"), "262": ("Reykjanesbær", "Reykjanesbæ"),
+            "240": ("Grindavík", "Grindavík"), "241": ("Grindavík", "Grindavík"),
+            "245": ("Suðurnesjabær", "Suðurnesjabæ"), "246": ("Suðurnesjabær", "Suðurnesjabæ"),
+            "250": ("Suðurnesjabær", "Suðurnesjabæ"), "251": ("Suðurnesjabær", "Suðurnesjabæ"),
+            "260": ("Njarðvík", "Njarðvík"), "190": ("Vogar", "Vogum"),
+            "191": ("Vogar", "Vogum"), "800": ("Selfoss", "Selfossi"),
+            "801": ("Selfoss", "Selfossi"), "802": ("Selfoss", "Selfossi"),
+            "803": ("Selfoss", "Selfossi"), "804": ("Selfoss", "Selfossi"),
+            "805": ("Selfoss", "Selfossi"), "806": ("Selfoss", "Selfossi"),
+            "810": ("Hveragerði", "Hveragerði"), "815": ("Þorlákshöfn", "Þorlákshöfn"),
+            "816": ("Ölfus", "Ölfusi"), "820": ("Eyrarbakki", "Eyrarbakka"),
+            "825": ("Stokkseyri", "Stokkseyri"), "840": ("Laugarvatn", "Laugarvatni"),
+            "845": ("Flúðir", "Flúðum"), "846": ("Flúðir", "Flúðum"),
+            "850": ("Hella", "Hellu"), "851": ("Hella", "Hellu"),
+            "860": ("Hvolsvöllur", "Hvolsvelli"), "861": ("Hvolsvöllur", "Hvolsvelli"),
+            "870": ("Vík", "Vík"), "871": ("Vík", "Vík"),
+            "880": ("Kirkjubæjarklaustur", "Kirkjubæjarklaustri"),
+            "881": ("Kirkjubæjarklaustur", "Kirkjubæjarklaustri"),
+            "900": ("Vestmannaeyjar", "Vestmannaeyjum"),
+            "901": ("Vestmannaeyjabær", "Vestmannaeyjabæ"),
         }
-        kopavogur_zips = {"200", "201", "202", "203", "206"}
-        gardabaer_zips = {"210", "212", "225"}
-        hafnarfjordur_zips = {"220", "221", "222"}
-        mosfellsbaer_zips = {"270", "271", "276"}
-        seltjarnarnes_zips = {"170"}
-        keflavik_zips = {"230", "232"}
-        hafnir_zips = {"233"}
-        reykjanesbaer_zips = {"262"}
-        grindavik_zips = {"240", "241"}
-        sudurnesjabaer_zips = {"245", "246", "250", "251"}
-        njardvik_zips = {"260"}
-        vogar_zips = {"190", "191"}
-        selfoss_zips = {"800", "801", "802", "803", "804", "805", "806"}
-        hveragerdi_zips = {"810"}
-        thorlakshofn_zips = {"815"}
-        olfus_zips = {"816"}
-        eyrarbakki_zips = {"820"}
-        stokkseyri_zips = {"825"}
-        laugarvatn_zips = {"840"}
-        fludir_zips = {"845", "846"}
-        hella_zips = {"850", "851"}
-        hvolsvollur_zips = {"860", "861"}
-        vik_zips = {"870", "871"}
-        kirkjubaejarklaustur_zips = {"880", "881"}
-        vestmannaeyjar_zips = {"900"}
-        vestmannaeyjabaer_zips = {"901"}
-
-        if zip_code in reykjavik_zips:
-            return "Reykjavík", "Reykjavík"
-        if zip_code in kopavogur_zips:
-            return "Kópavogur", "Kópavogi"
-        if zip_code in gardabaer_zips:
-            return "Garðabær", "Garðabæ"
-        if zip_code in hafnarfjordur_zips:
-            return "Hafnarfjörður", "Hafnarfirði"
-        if zip_code in mosfellsbaer_zips:
-            return "Mosfellsbær", "Mosfellsbæ"
-        if zip_code in seltjarnarnes_zips:
-            return "Seltjarnarnes", "Seltjarnarnesi"
-        if zip_code in keflavik_zips:
-            return "Keflavík", "Keflavík"
-        if zip_code in hafnir_zips:
-            return "Hafnir", "Höfnum"
-        if zip_code in reykjanesbaer_zips:
-            return "Reykjanesbær", "Reykjanesbæ"
-        if zip_code in grindavik_zips:
-            return "Grindavík", "Grindavík"
-        if zip_code in sudurnesjabaer_zips:
-            return "Suðurnesjabær", "Suðurnesjabæ"
-        if zip_code in njardvik_zips:
-            return "Njarðvík", "Njarðvík"
-        if zip_code in vogar_zips:
-            return "Vogar", "Vogum"
-        if zip_code in selfoss_zips:
-            return "Selfoss", "Selfossi"
-        if zip_code in hveragerdi_zips:
-            return "Hveragerði", "Hveragerði"
-        if zip_code in thorlakshofn_zips:
-            return "Þorlákshöfn", "Þorlákshöfn"
-        if zip_code in olfus_zips:
-            return "Ölfus", "Ölfusi"
-        if zip_code in eyrarbakki_zips:
-            return "Eyrarbakki", "Eyrarbakka"
-        if zip_code in stokkseyri_zips:
-            return "Stokkseyri", "Stokkseyri"
-        if zip_code in laugarvatn_zips:
-            return "Laugarvatn", "Laugarvatni"
-        if zip_code in fludir_zips:
-            return "Flúðir", "Flúðum"
-        if zip_code in hella_zips:
-            return "Hella", "Hellu"
-        if zip_code in hvolsvollur_zips:
-            return "Hvolsvöllur", "Hvolsvelli"
-        if zip_code in vik_zips:
-            return "Vík", "Vík"
-        if zip_code in kirkjubaejarklaustur_zips:
-            return "Kirkjubæjarklaustur", "Kirkjubæjarklaustri"
-        if zip_code in vestmannaeyjar_zips:
-            return "Vestmannaeyjar", "Vestmannaeyjum"
-        if zip_code in vestmannaeyjabaer_zips:
-            return "Vestmannaeyjabær", "Vestmannaeyjabæ"
-
-        return "", ""
+        return locations.get(zip_code, ("", ""))
 
     def generate_property_html(self, properties, title):
         html = f"<h2>{title}</h2>"
@@ -676,7 +600,6 @@ class Scraper:
             html += f"<p><strong>Stærð:</strong> {prop['size_m2']}</p>"
             html += f"<p><strong>Svefnherbergi:</strong> {prop['bedrooms']}</p>"
 
-            # Calculate monthly payment for an 80% non-indexed loan over 40 years
             try:
                 numeric_price = int(prop["price"].replace(".", "").replace(" kr", ""))
                 loan_70 = numeric_price * 0.70
@@ -687,9 +610,7 @@ class Scraper:
                     (loan_70 * 0.007116666666666666) + (loan_10 * 0.007708333333333334)
                 )
                 principal_payment = int(loan_80 * 0.00023890801001251563)
-
                 monthly_payment = interest_payment + principal_payment
-
                 monthly_formatted = f"{monthly_payment:,}".replace(",", ".")
 
                 html += f"<p><strong>Mánaðarleg afborgun (Óverðtryggt, 40 ár, 80% lán):</strong> {monthly_formatted} kr.</p>"
@@ -706,7 +627,7 @@ class Scraper:
                 html += f"<p><strong>Bílskúr:</strong> {'Já' if prop['has_garage'] else 'Nei'}</p>"
             if prop.get("image_url"):
                 html += f"<img src='{prop['image_url']}' alt='Property image' style='max-width: 600px; height: auto; margin: 10px 0;' />"
-            html += f"<p><a href='{prop['link']}'>View Property</a></p>"
+            html += f"<p><a href='{prop['link']}'>Skoða eign</a></p>"
             html += "</div>"
         return html
 
@@ -734,9 +655,7 @@ class Scraper:
                     (loan_70 * 0.007116666666666666) + (loan_10 * 0.007708333333333334)
                 )
                 principal_payment = int(loan_80 * 0.00023890801001251563)
-
                 monthly_payment = interest_payment + principal_payment
-
                 monthly_formatted = f"{monthly_payment:,}".replace(",", ".")
                 principal_formatted = f"{principal_payment:,}".replace(",", ".")
 
@@ -758,9 +677,8 @@ class Scraper:
             logging.info(f"  Link: {prop['link']}")
 
     def main(self):
-        logging.info(f"Start time: {time.time()}")
-        new_properties, _driver = self.scrape_visir_properties()
-        logging.info(f"After having properties, time: {time.time()}")
+        logging.info(f"Scraper main start for {self.user_config['user']}")
+        new_properties, _ = self.scrape_visir_properties()
 
         def needs_detail_check(prop):
             return (
@@ -775,7 +693,7 @@ class Scraper:
 
         to_check = [p for p in new_properties if needs_detail_check(p)]
         logging.info(
-            "Checking %d / %d properties in parallel (requests)...",
+            "Checking %d / %d properties in parallel...",
             len(to_check),
             len(new_properties),
         )
@@ -784,38 +702,26 @@ class Scraper:
                 list(executor.map(self.check_property_details, to_check))
 
         new_properties.sort(key=lambda x: self.get_numeric_price(x["price"]))
-        logging.info(f"After sorting properties, time: {time.time()}")
 
         # Filter based on outdoor preferences and garage
         filtered_properties = []
         for prop in new_properties:
-            # Check garage
             if self.WANT_GARAGE and not prop.get("has_garage"):
                 continue
-
-            # Check outdoor space
             if self.OUTDOOR_FILTER == "balcony":
-                if not prop.get("has_balcony"):
-                    continue
+                if not prop.get("has_balcony"): continue
             elif self.OUTDOOR_FILTER == "garden":
-                if not prop.get("has_terrace"):
-                    continue
+                if not prop.get("has_terrace"): continue
             elif self.OUTDOOR_FILTER == "either":
-                if not (prop.get("has_balcony") or prop.get("has_terrace")):
-                    continue
+                if not (prop.get("has_balcony") or prop.get("has_terrace")): continue
             elif self.OUTDOOR_FILTER == "both":
-                if not (prop.get("has_balcony") and prop.get("has_terrace")):
-                    continue
-
+                if not (prop.get("has_balcony") and prop.get("has_terrace")): continue
             filtered_properties.append(prop)
 
         new_properties = filtered_properties
         logging.info(
             f"Found {len(new_properties)} properties matching outdoor/garage filters."
         )
-
-        # --- Split properties by zip code ---
-        import re
 
         allowed_zips = [
             z.strip() for z in (self.ZIP_CODES or "").split(",") if z.strip()
@@ -834,7 +740,6 @@ class Scraper:
                     if not prefix.endswith(","):
                         prop["address"] = prefix + ", " + prop["address"][start:]
                     break
-
             properties_by_zip.setdefault(zip_code, []).append(prop)
 
         for zip_code, props in properties_by_zip.items():
@@ -855,7 +760,9 @@ class Scraper:
 
         if new_properties:
             subject = f"Fann {len(new_properties)} eignir fyrir þig"
-
+            html_body = "<html><body>"
+            
+            # --- Average Price Statistics ---
             avg_price_per_m2 = {}
             bedroom_counts = {}
             for prop in new_properties:
@@ -863,141 +770,58 @@ class Scraper:
                 if bedrooms not in avg_price_per_m2:
                     avg_price_per_m2[bedrooms] = 0
                     bedroom_counts[bedrooms] = 0
-
                 if prop.get("price_per_m2"):
                     avg_price_per_m2[bedrooms] += prop["price_per_m2"]
                     bedroom_counts[bedrooms] += 1
 
             for bedrooms, total_price in avg_price_per_m2.items():
                 if bedroom_counts[bedrooms] > 0:
-                    avg_price_per_m2[bedrooms] = int(
-                        total_price / bedroom_counts[bedrooms]
-                    )
+                    avg_price_per_m2[bedrooms] = int(total_price / bedroom_counts[bedrooms])
 
-            logging.info("Embedding property images for email...")
-            for prop in new_properties:
-                if prop.get("image_url"):
-                    self.fetch_image_as_data_uri(
-                        prop["image_url"], referer=prop.get("link")
-                    )
-
-            html_body = "<html><body>"
-
-            html_body += "<h2>Meðalfermetraverð eftir hverfi:</h2>"
-            html_body += "<ul>"
-
+            html_body += "<h2>Meðalfermetraverð eftir hverfi:</h2><ul>"
             for zip_code in allowed_zips + ["Annað"]:
                 if zip_code in properties_by_zip:
                     zip_props = properties_by_zip[zip_code]
-                    zip_total_m2_price = sum(
-                        p.get("price_per_m2", 0)
-                        for p in zip_props
-                        if p.get("price_per_m2")
-                    )
-                    zip_props_with_m2 = sum(
-                        1 for p in zip_props if p.get("price_per_m2")
-                    )
-
+                    zip_total_m2_price = sum(p.get("price_per_m2", 0) for p in zip_props if p.get("price_per_m2"))
+                    zip_props_with_m2 = sum(1 for p in zip_props if p.get("price_per_m2"))
                     if zip_props_with_m2 > 0:
                         zip_avg_m2 = int(zip_total_m2_price / zip_props_with_m2)
                         zip_avg_m2_formatted = f"{zip_avg_m2:,}".replace(",", ".")
-
                         base_name, _ = self._get_location_names(zip_code)
-                        if base_name:
-                            zip_label = f"{zip_code} {base_name}"
-                        elif zip_code != "Annað":
-                            zip_label = zip_code
-                        else:
-                            zip_label = "Óþekkt"
-
+                        zip_label = f"{zip_code} {base_name}" if base_name else (zip_code if zip_code != "Annað" else "Óþekkt")
                         html_body += f"<li><strong>{zip_label}:</strong> {zip_avg_m2_formatted} kr.</li>"
             html_body += "</ul>"
 
-            html_body += "<h2>Meðalfermetraverð eftir herbergjafjölda:</h2>"
-            html_body += "<ul>"
+            html_body += "<h2>Meðalfermetraverð eftir herbergjafjölda:</h2><ul>"
             for bedrooms, avg_price in sorted(avg_price_per_m2.items()):
                 avg_price_formatted = f"{avg_price:,}".replace(",", ".")
                 html_body += f"<li><strong>{bedrooms} svefnherbergi:</strong> {avg_price_formatted} kr.</li>"
-            html_body += "</ul>"
+            html_body += "</ul><hr>"
 
-            html_body += "<h2>Meðalfermetraverð eftir herbergjafjölda og hverfi:</h2>"
-            for bedrooms in sorted(avg_price_per_m2.keys()):
-                html_body += f"<h3>{bedrooms} svefnherbergi:</h3>"
-                html_body += "<ul>"
-                for zip_code in allowed_zips + ["Annað"]:
-                    if zip_code in properties_by_zip:
-                        zip_props = properties_by_zip[zip_code]
-                        zip_props_bed = [
-                            p for p in zip_props if p.get("bedrooms", "N/A") == bedrooms
-                        ]
-
-                        zip_total_m2_price_bed = sum(
-                            p.get("price_per_m2", 0)
-                            for p in zip_props_bed
-                            if p.get("price_per_m2")
-                        )
-                        zip_props_with_m2_bed = sum(
-                            1 for p in zip_props_bed if p.get("price_per_m2")
-                        )
-
-                        if zip_props_with_m2_bed > 0:
-                            zip_avg_m2_bed = int(
-                                zip_total_m2_price_bed / zip_props_with_m2_bed
-                            )
-                            zip_avg_m2_formatted_bed = f"{zip_avg_m2_bed:,}".replace(
-                                ",", "."
-                            )
-
-                            base_name, _ = self._get_location_names(zip_code)
-                            if base_name:
-                                zip_label = f"{zip_code} {base_name}"
-                            elif zip_code != "Annað":
-                                zip_label = zip_code
-                            else:
-                                zip_label = "Óþekkt"
-
-                            html_body += f"<li><strong>{zip_label}:</strong> {zip_avg_m2_formatted_bed} kr.</li>"
-                html_body += "</ul>"
-
-            html_body += "<hr>"
-
+            # --- Property Listings ---
             for zip_code in allowed_zips + ["Annað"]:
                 if zip_code in properties_by_zip:
                     base_name, dative_name = self._get_location_names(zip_code)
-                    if base_name:
-                        title = f"Fasteignir í {zip_code} {dative_name}"
-                    elif zip_code != "Annað":
-                        title = f"Fasteignir í {zip_code}"
-                    else:
-                        title = "Fasteignir (óþekkt póstnúmer)"
-
-                    # Calculate average price per m2 for this specific zip code
-                    zip_props = properties_by_zip[zip_code]
-
-                    html_body += self.generate_property_html(zip_props, title)
+                    title = f"Fasteignir í {zip_code} {dative_name}" if base_name else (f"Fasteignir í {zip_code}" if zip_code != "Annað" else "Fasteignir (óþekkt póstnúmer)")
+                    html_body += self.generate_property_html(properties_by_zip[zip_code], title)
                     html_body += "<hr>"
 
             html_body += "</body></html>"
-
-            logging.info("\nAttempting to send email notification...")
             self.send_email_notification(subject, html_body)
         else:
-            logging.info("\nNo properties found. No email notification sent.")
+            logging.info("No properties found for user.")
 
 
 def _parse_args():
     parser = argparse.ArgumentParser(description="Scrape real estate listings.")
     parser.add_argument(
         "--user",
-        help='Match the "user" field of one object in the config.json array.',
+        help='Email of the user to run the scraper for.',
     )
     parser.add_argument(
         "--schedule",
         action="store_true",
-        help=(
-            "Run in a loop: each day at SCRAPER_HOUR:SCRAPER_MINUTE (from .env), "
-            "run once per user in config.json list order."
-        ),
+        help="Run in a loop: each day at 10:00 (default), run for all verified users.",
     )
     return parser.parse_args()
 
@@ -1006,12 +830,17 @@ if __name__ == "__main__":
     _configure_logging()
     args = _parse_args()
     if args.schedule:
-        if args.user:
-            logging.error("Do not pass --user with --schedule.")
-            raise SystemExit(2)
         run_schedule_loop()
+    elif args.user:
+        # Fetch specific user from DB
+        all_users = get_db_users()
+        user_config = next((u for u in all_users if u["user"] == args.user), None)
+        if user_config:
+            Scraper(user_config).main()
+        else:
+            logging.error(f"Verified user {args.user} not found in database.")
+            raise SystemExit(1)
     else:
-        if not args.user:
-            logging.error("Either --user NAME or --schedule is required.")
-            raise SystemExit(2)
-        Scraper(find_user_config(args.user)).main()
+        # Default to running once for all users if no args provided? 
+        # Or just show help. Let's show help.
+        print("Usage: scraper.py --schedule OR scraper.py --user EMAIL")
