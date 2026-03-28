@@ -684,7 +684,7 @@
 
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Tegundir eigna</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="flex flex-col gap-3">
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={einbylishus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                         <span class="ml-3 text-sm font-medium text-gray-700">Einbýlishús</span>
