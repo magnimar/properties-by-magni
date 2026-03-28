@@ -375,7 +375,7 @@
     async function fetchProfile() {
         const token = getToken();
         if (!token) {
-            window.location.href = '/login';
+            window.location.href = '/home';
             return;
         }
 
@@ -412,7 +412,7 @@
             } else {
                 // Token might be invalid/expired
                 document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                window.location.href = '/login';
+                window.location.href = '/home';
             }
         } catch (e) {
             message = 'Error connecting to server';
@@ -482,7 +482,7 @@
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold">Finndu fasteign sem segir já!</h1>
         <button 
-            onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/login'; }}
+            onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}
             class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
         >
             Logout
