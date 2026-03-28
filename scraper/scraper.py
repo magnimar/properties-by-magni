@@ -5,31 +5,31 @@ import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from typing import Optional
 
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
 import base64
 import os
-import json
 import requests
 import re
 
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, text
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 def _configure_logging():
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
+
 
 # --- Database Setup ---
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -38,6 +38,7 @@ if not DATABASE_URL:
     # We'll raise error only when trying to connect, to allow for local testing if needed.
 
 Base = declarative_base()
+
 
 class User(Base):
     __tablename__ = "users"
@@ -63,6 +64,7 @@ class User(Base):
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
 
+
 def get_db_users() -> list[dict]:
     """Fetch verified users and their preferences from the database."""
     if not DATABASE_URL:
@@ -73,7 +75,7 @@ def get_db_users() -> list[dict]:
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     db = SessionLocal()
     try:
-        users = db.query(User).filter(User.is_verified == True).all()
+        users = db.query(User).filter(User.is_verified).all()
         user_configs = []
         for u in users:
             config = {
@@ -82,13 +84,17 @@ def get_db_users() -> list[dict]:
                 "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
                 "FROM_EMAIL": os.getenv("FROM_EMAIL"),
                 "MIN_PRICE": int(u.min_price) if u.min_price is not None else 0,
-                "MAX_PRICE": int(u.max_price) if u.max_price is not None else 1000000000,
+                "MAX_PRICE": (
+                    int(u.max_price) if u.max_price is not None else 1000000000
+                ),
                 "MIN_BEDROOMS": u.min_bedrooms if u.min_bedrooms is not None else 0,
                 "MAX_BEDROOMS": u.max_bedrooms if u.max_bedrooms is not None else 10,
                 "ZIP_CODES": u.zip_codes if u.zip_codes else "101,107",
                 "outdoor_filter": u.outdoor_filter or "none",
                 "want_garage": u.want_garage or False,
-                "ignored_strings": (u.ignored_streets.split(",") if u.ignored_streets else []),
+                "ignored_strings": (
+                    u.ignored_streets.split(",") if u.ignored_streets else []
+                ),
                 "EINBYLISHUS": "yes" if u.einbylishus else "no",
                 "FJOLBYLISHUS": "yes" if u.fjolbylishus else "no",
                 "ATVINNUHUSNAEDI": "yes" if u.atvinnuhusnaedi else "no",
@@ -104,6 +110,7 @@ def get_db_users() -> list[dict]:
         return user_configs
     finally:
         db.close()
+
 
 def run_schedule_loop():
     """Wait until 10:00 daily, then run Scraper for each user in parallel."""
@@ -128,7 +135,9 @@ def run_schedule_loop():
 
             user_configs = get_db_users()
             if not user_configs:
-                logging.info("No verified users found in database; skipping today's run.")
+                logging.info(
+                    "No verified users found in database; skipping today's run."
+                )
                 time.sleep(60)
                 continue
 
@@ -547,38 +556,70 @@ class Scraper:
     def _get_location_names(zip_code: str) -> tuple[str, str]:
         """Returns (nominative_name, dative_name) for a given zip code."""
         locations = {
-            "101": ("Reykjavík", "Reykjavík"), "102": ("Reykjavík", "Reykjavík"),
-            "103": ("Reykjavík", "Reykjavík"), "104": ("Reykjavík", "Reykjavík"),
-            "105": ("Reykjavík", "Reykjavík"), "107": ("Reykjavík", "Reykjavík"),
-            "108": ("Reykjavík", "Reykjavík"), "109": ("Reykjavík", "Reykjavík"),
-            "110": ("Reykjavík", "Reykjavík"), "111": ("Reykjavík", "Reykjavík"),
-            "112": ("Reykjavík", "Reykjavík"), "113": ("Reykjavík", "Reykjavík"),
-            "116": ("Reykjavík", "Reykjavík"), "161": ("Reykjavík", "Reykjavík"),
-            "162": ("Reykjavík", "Reykjavík"), "200": ("Kópavogur", "Kópavogi"),
-            "201": ("Kópavogur", "Kópavogi"), "202": ("Kópavogur", "Kópavogi"),
-            "203": ("Kópavogur", "Kópavogi"), "206": ("Kópavogur", "Kópavogi"),
-            "210": ("Garðabær", "Garðabæ"), "212": ("Garðabær", "Garðabæ"),
-            "225": ("Garðabær", "Garðabæ"), "220": ("Hafnarfjörður", "Hafnarfirði"),
-            "221": ("Hafnarfjörður", "Hafnarfirði"), "222": ("Hafnarfjörður", "Hafnarfirði"),
-            "270": ("Mosfellsbær", "Mosfellsbæ"), "271": ("Mosfellsbær", "Mosfellsbæ"),
-            "276": ("Mosfellsbær", "Mosfellsbæ"), "170": ("Seltjarnarnes", "Seltjarnarnesi"),
-            "230": ("Keflavík", "Keflavík"), "232": ("Keflavík", "Keflavík"),
-            "233": ("Hafnir", "Höfnum"), "262": ("Reykjanesbær", "Reykjanesbæ"),
-            "240": ("Grindavík", "Grindavík"), "241": ("Grindavík", "Grindavík"),
-            "245": ("Suðurnesjabær", "Suðurnesjabæ"), "246": ("Suðurnesjabær", "Suðurnesjabæ"),
-            "250": ("Suðurnesjabær", "Suðurnesjabæ"), "251": ("Suðurnesjabær", "Suðurnesjabæ"),
-            "260": ("Njarðvík", "Njarðvík"), "190": ("Vogar", "Vogum"),
-            "191": ("Vogar", "Vogum"), "800": ("Selfoss", "Selfossi"),
-            "801": ("Selfoss", "Selfossi"), "802": ("Selfoss", "Selfossi"),
-            "803": ("Selfoss", "Selfossi"), "804": ("Selfoss", "Selfossi"),
-            "805": ("Selfoss", "Selfossi"), "806": ("Selfoss", "Selfossi"),
-            "810": ("Hveragerði", "Hveragerði"), "815": ("Þorlákshöfn", "Þorlákshöfn"),
-            "816": ("Ölfus", "Ölfusi"), "820": ("Eyrarbakki", "Eyrarbakka"),
-            "825": ("Stokkseyri", "Stokkseyri"), "840": ("Laugarvatn", "Laugarvatni"),
-            "845": ("Flúðir", "Flúðum"), "846": ("Flúðir", "Flúðum"),
-            "850": ("Hella", "Hellu"), "851": ("Hella", "Hellu"),
-            "860": ("Hvolsvöllur", "Hvolsvelli"), "861": ("Hvolsvöllur", "Hvolsvelli"),
-            "870": ("Vík", "Vík"), "871": ("Vík", "Vík"),
+            "101": ("Reykjavík", "Reykjavík"),
+            "102": ("Reykjavík", "Reykjavík"),
+            "103": ("Reykjavík", "Reykjavík"),
+            "104": ("Reykjavík", "Reykjavík"),
+            "105": ("Reykjavík", "Reykjavík"),
+            "107": ("Reykjavík", "Reykjavík"),
+            "108": ("Reykjavík", "Reykjavík"),
+            "109": ("Reykjavík", "Reykjavík"),
+            "110": ("Reykjavík", "Reykjavík"),
+            "111": ("Reykjavík", "Reykjavík"),
+            "112": ("Reykjavík", "Reykjavík"),
+            "113": ("Reykjavík", "Reykjavík"),
+            "116": ("Reykjavík", "Reykjavík"),
+            "161": ("Reykjavík", "Reykjavík"),
+            "162": ("Reykjavík", "Reykjavík"),
+            "200": ("Kópavogur", "Kópavogi"),
+            "201": ("Kópavogur", "Kópavogi"),
+            "202": ("Kópavogur", "Kópavogi"),
+            "203": ("Kópavogur", "Kópavogi"),
+            "206": ("Kópavogur", "Kópavogi"),
+            "210": ("Garðabær", "Garðabæ"),
+            "212": ("Garðabær", "Garðabæ"),
+            "225": ("Garðabær", "Garðabæ"),
+            "220": ("Hafnarfjörður", "Hafnarfirði"),
+            "221": ("Hafnarfjörður", "Hafnarfirði"),
+            "222": ("Hafnarfjörður", "Hafnarfirði"),
+            "270": ("Mosfellsbær", "Mosfellsbæ"),
+            "271": ("Mosfellsbær", "Mosfellsbæ"),
+            "276": ("Mosfellsbær", "Mosfellsbæ"),
+            "170": ("Seltjarnarnes", "Seltjarnarnesi"),
+            "230": ("Keflavík", "Keflavík"),
+            "232": ("Keflavík", "Keflavík"),
+            "233": ("Hafnir", "Höfnum"),
+            "262": ("Reykjanesbær", "Reykjanesbæ"),
+            "240": ("Grindavík", "Grindavík"),
+            "241": ("Grindavík", "Grindavík"),
+            "245": ("Suðurnesjabær", "Suðurnesjabæ"),
+            "246": ("Suðurnesjabær", "Suðurnesjabæ"),
+            "250": ("Suðurnesjabær", "Suðurnesjabæ"),
+            "251": ("Suðurnesjabær", "Suðurnesjabæ"),
+            "260": ("Njarðvík", "Njarðvík"),
+            "190": ("Vogar", "Vogum"),
+            "191": ("Vogar", "Vogum"),
+            "800": ("Selfoss", "Selfossi"),
+            "801": ("Selfoss", "Selfossi"),
+            "802": ("Selfoss", "Selfossi"),
+            "803": ("Selfoss", "Selfossi"),
+            "804": ("Selfoss", "Selfossi"),
+            "805": ("Selfoss", "Selfossi"),
+            "806": ("Selfoss", "Selfossi"),
+            "810": ("Hveragerði", "Hveragerði"),
+            "815": ("Þorlákshöfn", "Þorlákshöfn"),
+            "816": ("Ölfus", "Ölfusi"),
+            "820": ("Eyrarbakki", "Eyrarbakka"),
+            "825": ("Stokkseyri", "Stokkseyri"),
+            "840": ("Laugarvatn", "Laugarvatni"),
+            "845": ("Flúðir", "Flúðum"),
+            "846": ("Flúðir", "Flúðum"),
+            "850": ("Hella", "Hellu"),
+            "851": ("Hella", "Hellu"),
+            "860": ("Hvolsvöllur", "Hvolsvelli"),
+            "861": ("Hvolsvöllur", "Hvolsvelli"),
+            "870": ("Vík", "Vík"),
+            "871": ("Vík", "Vík"),
             "880": ("Kirkjubæjarklaustur", "Kirkjubæjarklaustri"),
             "881": ("Kirkjubæjarklaustur", "Kirkjubæjarklaustri"),
             "900": ("Vestmannaeyjar", "Vestmannaeyjum"),
@@ -634,7 +675,7 @@ class Scraper:
     def print_properties(self, properties, title):
         logging.info(f"\n--- {title} ---")
         for i, prop in enumerate(properties):
-            logging.info(f"\nProperty #{i+1}")
+            logging.info(f"\nProperty #{i + 1}")
             logging.info(f"  Address: {prop['address']}")
             logging.info(f"  Price: {prop['price']}")
             if prop.get("fasteignamat") and prop["fasteignamat"] != "N/A":
@@ -709,13 +750,17 @@ class Scraper:
             if self.WANT_GARAGE and not prop.get("has_garage"):
                 continue
             if self.OUTDOOR_FILTER == "balcony":
-                if not prop.get("has_balcony"): continue
+                if not prop.get("has_balcony"):
+                    continue
             elif self.OUTDOOR_FILTER == "garden":
-                if not prop.get("has_terrace"): continue
+                if not prop.get("has_terrace"):
+                    continue
             elif self.OUTDOOR_FILTER == "either":
-                if not (prop.get("has_balcony") or prop.get("has_terrace")): continue
+                if not (prop.get("has_balcony") or prop.get("has_terrace")):
+                    continue
             elif self.OUTDOOR_FILTER == "both":
-                if not (prop.get("has_balcony") and prop.get("has_terrace")): continue
+                if not (prop.get("has_balcony") and prop.get("has_terrace")):
+                    continue
             filtered_properties.append(prop)
 
         new_properties = filtered_properties
@@ -761,7 +806,7 @@ class Scraper:
         if new_properties:
             subject = f"Fann {len(new_properties)} eignir fyrir þig"
             html_body = "<html><body>"
-            
+
             # --- Average Price Statistics ---
             avg_price_per_m2 = {}
             bedroom_counts = {}
@@ -776,19 +821,31 @@ class Scraper:
 
             for bedrooms, total_price in avg_price_per_m2.items():
                 if bedroom_counts[bedrooms] > 0:
-                    avg_price_per_m2[bedrooms] = int(total_price / bedroom_counts[bedrooms])
+                    avg_price_per_m2[bedrooms] = int(
+                        total_price / bedroom_counts[bedrooms]
+                    )
 
             html_body += "<h2>Meðalfermetraverð eftir hverfi:</h2><ul>"
             for zip_code in allowed_zips + ["Annað"]:
                 if zip_code in properties_by_zip:
                     zip_props = properties_by_zip[zip_code]
-                    zip_total_m2_price = sum(p.get("price_per_m2", 0) for p in zip_props if p.get("price_per_m2"))
-                    zip_props_with_m2 = sum(1 for p in zip_props if p.get("price_per_m2"))
+                    zip_total_m2_price = sum(
+                        p.get("price_per_m2", 0)
+                        for p in zip_props
+                        if p.get("price_per_m2")
+                    )
+                    zip_props_with_m2 = sum(
+                        1 for p in zip_props if p.get("price_per_m2")
+                    )
                     if zip_props_with_m2 > 0:
                         zip_avg_m2 = int(zip_total_m2_price / zip_props_with_m2)
                         zip_avg_m2_formatted = f"{zip_avg_m2:,}".replace(",", ".")
                         base_name, _ = self._get_location_names(zip_code)
-                        zip_label = f"{zip_code} {base_name}" if base_name else (zip_code if zip_code != "Annað" else "Óþekkt")
+                        zip_label = (
+                            f"{zip_code} {base_name}"
+                            if base_name
+                            else (zip_code if zip_code != "Annað" else "Óþekkt")
+                        )
                         html_body += f"<li><strong>{zip_label}:</strong> {zip_avg_m2_formatted} kr.</li>"
             html_body += "</ul>"
 
@@ -802,8 +859,18 @@ class Scraper:
             for zip_code in allowed_zips + ["Annað"]:
                 if zip_code in properties_by_zip:
                     base_name, dative_name = self._get_location_names(zip_code)
-                    title = f"Fasteignir í {zip_code} {dative_name}" if base_name else (f"Fasteignir í {zip_code}" if zip_code != "Annað" else "Fasteignir (óþekkt póstnúmer)")
-                    html_body += self.generate_property_html(properties_by_zip[zip_code], title)
+                    title = (
+                        f"Fasteignir í {zip_code} {dative_name}"
+                        if base_name
+                        else (
+                            f"Fasteignir í {zip_code}"
+                            if zip_code != "Annað"
+                            else "Fasteignir (óþekkt póstnúmer)"
+                        )
+                    )
+                    html_body += self.generate_property_html(
+                        properties_by_zip[zip_code], title
+                    )
                     html_body += "<hr>"
 
             html_body += "</body></html>"
@@ -816,7 +883,7 @@ def _parse_args():
     parser = argparse.ArgumentParser(description="Scrape real estate listings.")
     parser.add_argument(
         "--user",
-        help='Email of the user to run the scraper for.',
+        help="Email of the user to run the scraper for.",
     )
     parser.add_argument(
         "--schedule",
@@ -841,6 +908,6 @@ if __name__ == "__main__":
             logging.error(f"Verified user {args.user} not found in database.")
             raise SystemExit(1)
     else:
-        # Default to running once for all users if no args provided? 
+        # Default to running once for all users if no args provided?
         # Or just show help. Let's show help.
         print("Usage: scraper.py --schedule OR scraper.py --user EMAIL")
