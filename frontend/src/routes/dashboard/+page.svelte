@@ -19,6 +19,8 @@
     let haed = $state(false);
     let hesthus = $state(false);
     let oflokkad = $state(false);
+    let outdoorFilter = $state('none');
+    let want_garage = $state(false);
     let message = $state('');
     let loading = $state(true);
     let showZipDropdown = $state(false);
@@ -217,6 +219,8 @@
                 haed = user.haed || false;
                 hesthus = user.hesthus || false;
                 oflokkad = user.oflokkad || false;
+                outdoorFilter = user.outdoor_filter || 'none';
+                want_garage = user.want_garage || false;
             } else {
                 // Token might be invalid/expired
                 document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -256,7 +260,9 @@
                     jord_lod: jord_lod,
                     haed: haed,
                     hesthus: hesthus,
-                    oflokkad: oflokkad
+                    oflokkad: oflokkad,
+                    outdoor_filter: outdoorFilter,
+                    want_garage: want_garage
                 })
             });
 
@@ -462,6 +468,40 @@
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={oflokkad} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                         <span class="ml-3 text-sm font-medium text-gray-700">Óflokkað (Unclassified)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Svalir og garður</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="outdoorFilter" value="balcony" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Bara svalir</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="outdoorFilter" value="garden" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Bara garður</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="outdoorFilter" value="either" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Annað hvort</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="outdoorFilter" value="both" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Bæði</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="outdoorFilter" value="none" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Skiptir ekki máli</span>
+                    </label>
+                </div>
+
+                <label class="block text-sm font-medium text-gray-700 mb-2">Annað</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" bind:checked={want_garage} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Bílskúr (Garage)</span>
                     </label>
                 </div>
             </div>

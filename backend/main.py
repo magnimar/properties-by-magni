@@ -80,6 +80,8 @@ class User(Base):
     haed = Column(Boolean, default=False)
     hesthus = Column(Boolean, default=False)
     oflokkad = Column(Boolean, default=False)
+    outdoor_filter = Column(String, default="none")
+    want_garage = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 
@@ -139,6 +141,14 @@ with engine.begin() as conn:
         conn.execute(
             text("ALTER TABLE users ADD COLUMN oflokkad BOOLEAN DEFAULT FALSE;")
         )
+    if "outdoor_filter" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN outdoor_filter TEXT DEFAULT 'none';")
+        )
+    if "want_garage" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN want_garage BOOLEAN DEFAULT FALSE;")
+        )
 
 # --- Password Hashing ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -183,6 +193,8 @@ class UserPreferences(BaseModel):
     haed: bool = False
     hesthus: bool = False
     oflokkad: bool = False
+    outdoor_filter: str = "none"
+    want_garage: bool = False
 
 
 # --- FastAPI App ---
@@ -269,6 +281,8 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
         "haed": current_user.haed,
         "hesthus": current_user.hesthus,
         "oflokkad": current_user.oflokkad,
+        "outdoor_filter": current_user.outdoor_filter,
+        "want_garage": current_user.want_garage,
     }
 
 
@@ -292,6 +306,8 @@ async def update_my_preferences(
     current_user.haed = prefs.haed
     current_user.hesthus = prefs.hesthus
     current_user.oflokkad = prefs.oflokkad
+    current_user.outdoor_filter = prefs.outdoor_filter
+    current_user.want_garage = prefs.want_garage
     if prefs.zip_codes is not None:
         current_user.zip_codes = ",".join(prefs.zip_codes)
     if prefs.ignored_streets is not None:

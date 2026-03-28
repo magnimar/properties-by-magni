@@ -184,6 +184,8 @@ class Scraper:
         self.MIN_BEDROOMS = self.user_config.get("MIN_BEDROOMS")
         self.MAX_BEDROOMS = self.user_config.get("MAX_BEDROOMS")
         self.ZIP_CODES = self.user_config.get("ZIP_CODES")
+        self.OUTDOOR_FILTER = self.user_config.get("outdoor_filter", "none")
+        self.WANT_GARAGE = self.user_config.get("want_garage", False)
 
         # Property categories
         categories = []
@@ -784,16 +786,32 @@ class Scraper:
         new_properties.sort(key=lambda x: self.get_numeric_price(x["price"]))
         logging.info(f"After sorting properties, time: {time.time()}")
 
-        # only keep properties with a balcony, terrace or garage
-        new_properties = [
-            prop
-            for prop in new_properties
-            if prop.get("has_balcony")
-            or prop.get("has_terrace")
-            or prop.get("has_garage")
-        ]
+        # Filter based on outdoor preferences and garage
+        filtered_properties = []
+        for prop in new_properties:
+            # Check garage
+            if self.WANT_GARAGE and not prop.get("has_garage"):
+                continue
+            
+            # Check outdoor space
+            if self.OUTDOOR_FILTER == "balcony":
+                if not prop.get("has_balcony"):
+                    continue
+            elif self.OUTDOOR_FILTER == "garden":
+                if not prop.get("has_terrace"):
+                    continue
+            elif self.OUTDOOR_FILTER == "either":
+                if not (prop.get("has_balcony") or prop.get("has_terrace")):
+                    continue
+            elif self.OUTDOOR_FILTER == "both":
+                if not (prop.get("has_balcony") and prop.get("has_terrace")):
+                    continue
+            
+            filtered_properties.append(prop)
+        
+        new_properties = filtered_properties
         logging.info(
-            f"Found {len(new_properties)} properties with a balcony, terrace or garage."
+            f"Found {len(new_properties)} properties matching outdoor/garage filters."
         )
 
         # --- Split properties by zip code ---
