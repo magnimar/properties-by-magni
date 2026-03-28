@@ -69,6 +69,7 @@ class User(Base):
     min_bedrooms = Column(Integer, nullable=True)
     max_bedrooms = Column(Integer, nullable=True)
     zip_codes = Column(String, nullable=True)  # Comma separated list
+    ignored_streets = Column(String, nullable=True)  # Comma separated list
     einbylishus = Column(Boolean, default=False)
     fjolbylishus = Column(Boolean, default=False)
     atvinnuhusnaedi = Column(Boolean, default=False)
@@ -100,6 +101,8 @@ with engine.begin() as conn:
         conn.execute(text("ALTER TABLE users ADD COLUMN max_bedrooms INTEGER;"))
     if "zip_codes" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN zip_codes TEXT;"))
+    if "ignored_streets" not in existing_columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN ignored_streets TEXT;"))
     if "einbylishus" not in existing_columns:
         conn.execute(
             text("ALTER TABLE users ADD COLUMN einbylishus BOOLEAN DEFAULT FALSE;")
@@ -169,6 +172,7 @@ class UserPreferences(BaseModel):
     min_bedrooms: int | None = None
     max_bedrooms: int | None = None
     zip_codes: list[str] | None = None
+    ignored_streets: list[str] | None = None
     einbylishus: bool = False
     fjolbylishus: bool = False
     atvinnuhusnaedi: bool = False
@@ -250,6 +254,11 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
         "zip_codes": (
             current_user.zip_codes.split(",") if current_user.zip_codes else []
         ),
+        "ignored_streets": (
+            current_user.ignored_streets.split(",")
+            if current_user.ignored_streets
+            else []
+        ),
         "einbylishus": current_user.einbylishus,
         "fjolbylishus": current_user.fjolbylishus,
         "atvinnuhusnaedi": current_user.atvinnuhusnaedi,
@@ -285,6 +294,8 @@ async def update_my_preferences(
     current_user.oflokkad = prefs.oflokkad
     if prefs.zip_codes is not None:
         current_user.zip_codes = ",".join(prefs.zip_codes)
+    if prefs.ignored_streets is not None:
+        current_user.ignored_streets = ",".join(prefs.ignored_streets)
     db.commit()
     return {"message": "Preferences updated successfully"}
 

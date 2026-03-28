@@ -8,6 +8,7 @@
     let minBedrooms = $state(1);
     let maxBedrooms = $state(1);
     let selectedZipCodes = $state([]);
+    let ignoredStreets = $state([]);
     let einbylishus = $state(false);
     let fjolbylishus = $state(false);
     let atvinnuhusnaedi = $state(false);
@@ -21,6 +22,139 @@
     let message = $state('');
     let loading = $state(true);
     let showZipDropdown = $state(false);
+    let pendingStreetName = $state('');
+    let selectedPlaceObject = $state(null);
+
+    const googleMapsApiKey = "AIzaSyAAJL11FGR1AImjuxi9kYcxmBTovEZqS7s";
+
+    function setupPlaces(node) {
+        let checkGoogle;
+        let autocompleteEl;
+        
+        async function init() {
+            const win = /** @type {any} */ (window);
+            if (!win.google || !win.google.maps || !win.google.maps.places) {
+                return false;
+            }
+
+            try {
+                node.innerHTML = '';
+                
+                autocompleteEl = new win.google.maps.places.PlaceAutocompleteElement({
+                    componentRestrictions: { country: ['is'] },
+                    requestedLanguage: 'is'
+                });
+
+                autocompleteEl.id = "street-search";
+                autocompleteEl.style.width = "100%";
+                autocompleteEl.style.padding = "0.5rem";
+                autocompleteEl.style.border = "1px solid #D1D5DB";
+                autocompleteEl.style.borderRadius = "0.25rem";
+                autocompleteEl.style.outline = "none";
+                
+                node.appendChild(autocompleteEl);
+
+                autocompleteEl.addEventListener('gmp-placeselect', async (e) => {
+                    const place = e.place;
+                    if (!place) return;
+
+                    try {
+                        // Store the actual place object
+                        selectedPlaceObject = place;
+                        
+                        // Prefetch fields
+                        await place.fetchFields({ fields: ['displayName', 'formattedAddress'] });
+                        
+                        const streetName = place.displayName ? place.displayName.text : place.formattedAddress;
+                        if (streetName) {
+                            pendingStreetName = streetName.split(',')[0].trim();
+                        }
+                    } catch (err) {
+                        console.error("Error fetching place details:", err);
+                    }
+                });
+
+                // Also capture manual typing just in case they don't click a suggestion
+                autocompleteEl.addEventListener('input', (e) => {
+                    // Reset the selected object because they are typing manually now
+                    selectedPlaceObject = null;
+                    pendingStreetName = e.target?.value || '';
+                });
+
+                autocompleteEl.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        // Add a tiny delay to allow placeselect to win if it just happened
+                        setTimeout(addPendingStreet, 50);
+                    }
+                });
+
+                return true;
+            } catch (err) {
+                console.error("Error initializing PlaceAutocompleteElement:", err);
+                return true;
+            }
+        }
+
+        if (!init()) {
+            checkGoogle = setInterval(() => {
+                if (init()) clearInterval(checkGoogle);
+            }, 100);
+        }
+
+        return {
+            destroy() {
+                if (checkGoogle) clearInterval(checkGoogle);
+            }
+        };
+    }
+
+    async function addPendingStreet() {
+        const el = /** @type {any} */ (document.getElementById('street-search'));
+        let streetToSave = '';
+
+        if (selectedPlaceObject) {
+            // Google Place wins
+            try {
+                // @ts-ignore
+                await selectedPlaceObject.fetchFields({ fields: ['displayName'] });
+                // @ts-ignore
+                streetToSave = selectedPlaceObject.displayName?.text || selectedPlaceObject.formattedAddress;
+            } catch (e) {
+                // Fallback
+                streetToSave = el?.value || pendingStreetName;
+            }
+        } else {
+            // Manual typing
+            streetToSave = el?.value || pendingStreetName;
+        }
+
+        if (!streetToSave) return;
+        
+        // Remove trailing commas if any (e.g. from manual entry)
+        const cleanName = streetToSave.split(',')[0].trim();
+        
+        if (cleanName && !ignoredStreets.includes(cleanName)) {
+            ignoredStreets = [...ignoredStreets, cleanName];
+            
+            // RESET EVERYTHING
+            pendingStreetName = '';
+            selectedPlaceObject = null;
+            
+            if (el) {
+                el.value = '';
+                if (el.inputValue !== undefined) el.inputValue = '';
+            }
+            
+            savePreferences();
+        }
+    }
+
+    function removeStreet(street) {
+        ignoredStreets = ignoredStreets.filter(s => s !== street);
+        // Auto-save to the database
+        savePreferences();
+    }
 
     const zipOptions = [
         "104 Reykjavík",
@@ -72,6 +206,7 @@
                 minBedrooms = user.min_bedrooms || 1;
                 maxBedrooms = user.max_bedrooms || 1;
                 selectedZipCodes = user.zip_codes || [];
+                ignoredStreets = user.ignored_streets || [];
                 einbylishus = user.einbylishus || false;
                 fjolbylishus = user.fjolbylishus || false;
                 atvinnuhusnaedi = user.atvinnuhusnaedi || false;
@@ -111,6 +246,7 @@
                     min_bedrooms: minBedrooms,
                     max_bedrooms: maxBedrooms,
                     zip_codes: selectedZipCodes,
+                    ignored_streets: ignoredStreets,
                     einbylishus: einbylishus,
                     fjolbylishus: fjolbylishus,
                     atvinnuhusnaedi: atvinnuhusnaedi,
@@ -137,6 +273,14 @@
 
     onMount(() => {
         fetchProfile();
+
+        if (!window.google) {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places&loading=async`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
     });
 </script>
 
@@ -237,6 +381,43 @@
                         </div>
                     {/if}
                 </div>
+            </div>
+
+            <div class="mb-6">
+                <label for="street-search" class="block text-sm font-medium text-gray-700 mb-2">Ignored Streets</label>
+                <div class="mb-3 flex items-center gap-2">
+                    <div class="w-full flex-grow" use:setupPlaces>
+                        <!-- Google Maps PlaceAutocompleteElement will inject here -->
+                    </div>
+                    <button 
+                        type="button"
+                        onclick={addPendingStreet}
+                        disabled={!pendingStreetName}
+                        class="bg-blue-600 text-white px-4 py-2 h-[42px] rounded font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                    >
+                        Add
+                    </button>
+                </div>
+                
+                {#if ignoredStreets.length > 0}
+                    <div class="flex flex-wrap gap-2">
+                        {#each ignoredStreets as street}
+                            <span class="inline-flex items-center bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded-full border border-gray-300">
+                                {street}
+                                <button 
+                                    type="button"
+                                    onclick={() => removeStreet(street)}
+                                    class="ml-2 text-gray-500 hover:text-red-500 focus:outline-none"
+                                    title="Remove street"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </span>
+                        {/each}
+                    </div>
+                {/if}
             </div>
 
             <div class="mb-6">
