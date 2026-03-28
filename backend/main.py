@@ -1,7 +1,16 @@
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, Float, text
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Boolean,
+    DateTime,
+    Float,
+    text,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
@@ -20,7 +29,7 @@ load_dotenv()
 # --- JWT Config ---
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # --- Check for required environment variables ---
@@ -58,7 +67,7 @@ class User(Base):
     max_price = Column(Float, nullable=True)
     min_bedrooms = Column(Integer, nullable=True)
     max_bedrooms = Column(Integer, nullable=True)
-    zip_codes = Column(String, nullable=True) # Comma separated list
+    zip_codes = Column(String, nullable=True)  # Comma separated list
     einbylishus = Column(Boolean, default=False)
     fjolbylishus = Column(Boolean, default=False)
     atvinnuhusnaedi = Column(Boolean, default=False)
@@ -77,42 +86,60 @@ Base.metadata.create_all(bind=engine)
 
 # --- Quick & Dirty Schema Migration ---
 from sqlalchemy import inspect
+
 inspector = inspect(engine)
-existing_columns = [c['name'] for c in inspector.get_columns('users')]
+existing_columns = [c["name"] for c in inspector.get_columns("users")]
 with engine.begin() as conn:
-    if 'min_price' not in existing_columns:
+    if "min_price" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_price FLOAT;"))
-    if 'max_price' not in existing_columns:
+    if "max_price" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN max_price FLOAT;"))
-    if 'min_bedrooms' not in existing_columns:
+    if "min_bedrooms" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_bedrooms INTEGER;"))
-    if 'max_bedrooms' not in existing_columns:
+    if "max_bedrooms" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN max_bedrooms INTEGER;"))
-    if 'zip_codes' not in existing_columns:
+    if "zip_codes" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN zip_codes TEXT;"))
-    if 'einbylishus' not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN einbylishus BOOLEAN DEFAULT FALSE;"))
-    if 'fjolbylishus' not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN fjolbylishus BOOLEAN DEFAULT FALSE;"))
-    if 'atvinnuhusnaedi' not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN atvinnuhusnaedi BOOLEAN DEFAULT FALSE;"))
-    if 'radhus_parhus' not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN radhus_parhus BOOLEAN DEFAULT FALSE;"))
-    if 'sumarhus' not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN sumarhus BOOLEAN DEFAULT FALSE;"))
-    if 'parhus' not in existing_columns:
+    if "einbylishus" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN einbylishus BOOLEAN DEFAULT FALSE;")
+        )
+    if "fjolbylishus" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN fjolbylishus BOOLEAN DEFAULT FALSE;")
+        )
+    if "atvinnuhusnaedi" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN atvinnuhusnaedi BOOLEAN DEFAULT FALSE;")
+        )
+    if "radhus_parhus" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN radhus_parhus BOOLEAN DEFAULT FALSE;")
+        )
+    if "sumarhus" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN sumarhus BOOLEAN DEFAULT FALSE;")
+        )
+    if "parhus" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN parhus BOOLEAN DEFAULT FALSE;"))
-    if 'jord_lod' not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN jord_lod BOOLEAN DEFAULT FALSE;"))
-    if 'haed' not in existing_columns:
+    if "jord_lod" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN jord_lod BOOLEAN DEFAULT FALSE;")
+        )
+    if "haed" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN haed BOOLEAN DEFAULT FALSE;"))
-    if 'hesthus' not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN hesthus BOOLEAN DEFAULT FALSE;"))
-    if 'oflokkad' not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN oflokkad BOOLEAN DEFAULT FALSE;"))
+    if "hesthus" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN hesthus BOOLEAN DEFAULT FALSE;")
+        )
+    if "oflokkad" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN oflokkad BOOLEAN DEFAULT FALSE;")
+        )
 
 # --- Password Hashing ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -124,14 +151,17 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+
 # --- Schemas ---
 class UserLogin(BaseModel):
     email: str
     password: str
 
+
 class UserCreate(BaseModel):
     email: str
     password: str
+
 
 class UserPreferences(BaseModel):
     min_price: float | None = None
@@ -149,6 +179,7 @@ class UserPreferences(BaseModel):
     haed: bool = False
     hesthus: bool = False
     oflokkad: bool = False
+
 
 # --- FastAPI App ---
 app = FastAPI()
@@ -179,7 +210,10 @@ def get_db():
     finally:
         db.close()
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+
+def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+):
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
@@ -197,10 +231,12 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
     return user
 
+
 # --- Routes ---
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
 
 @app.get("/me")
 async def get_my_profile(current_user: User = Depends(get_current_user)):
@@ -211,7 +247,9 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
         "max_price": current_user.max_price,
         "min_bedrooms": current_user.min_bedrooms,
         "max_bedrooms": current_user.max_bedrooms,
-        "zip_codes": current_user.zip_codes.split(',') if current_user.zip_codes else [],
+        "zip_codes": (
+            current_user.zip_codes.split(",") if current_user.zip_codes else []
+        ),
         "einbylishus": current_user.einbylishus,
         "fjolbylishus": current_user.fjolbylishus,
         "atvinnuhusnaedi": current_user.atvinnuhusnaedi,
@@ -221,11 +259,16 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
         "jord_lod": current_user.jord_lod,
         "haed": current_user.haed,
         "hesthus": current_user.hesthus,
-        "oflokkad": current_user.oflokkad
+        "oflokkad": current_user.oflokkad,
     }
 
+
 @app.post("/me/preferences")
-async def update_my_preferences(prefs: UserPreferences, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def update_my_preferences(
+    prefs: UserPreferences,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     current_user.min_price = prefs.min_price
     current_user.max_price = prefs.max_price
     current_user.min_bedrooms = prefs.min_bedrooms
@@ -241,9 +284,10 @@ async def update_my_preferences(prefs: UserPreferences, current_user: User = Dep
     current_user.hesthus = prefs.hesthus
     current_user.oflokkad = prefs.oflokkad
     if prefs.zip_codes is not None:
-        current_user.zip_codes = ','.join(prefs.zip_codes)
+        current_user.zip_codes = ",".join(prefs.zip_codes)
     db.commit()
     return {"message": "Preferences updated successfully"}
+
 
 @app.post("/login")
 async def login(data: UserLogin, db: Session = Depends(get_db)):
@@ -256,7 +300,7 @@ async def login(data: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=400, detail="Email not verified. Please check your inbox."
         )
-        
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
