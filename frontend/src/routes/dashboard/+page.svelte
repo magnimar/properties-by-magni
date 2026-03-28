@@ -690,16 +690,16 @@
                         <span class="ml-3 text-sm font-medium text-gray-700">Einbýlishús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" bind:checked={radhus_parhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-3 text-sm font-medium text-gray-700">Raðhús/Parhús</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={fjolbylishus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                         <span class="ml-3 text-sm font-medium text-gray-700">Fjölbýlishús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={atvinnuhusnaedi} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
                         <span class="ml-3 text-sm font-medium text-gray-700">Atvinnuhúsnæði</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={radhus_parhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Raðhús/Parhús</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="checkbox" bind:checked={sumarhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
