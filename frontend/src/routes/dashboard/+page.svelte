@@ -25,39 +25,52 @@
 
     const googleMapsApiKey = "AIzaSyAAJL11FGR1AImjuxi9kYcxmBTovEZqS7s";
 
-    function initAutocomplete() {
-        const win = /** @type {any} */ (window);
-        if (!win.google || !win.google.maps || !win.google.maps.places) {
-            console.error('Google Maps Places library not loaded');
-            return;
-        }
+    function setupPlaces(node) {
+        let checkGoogle;
         
-        const input = /** @type {HTMLInputElement} */ (document.getElementById('street-search'));
-        if (!input) return;
-
-        const autocomplete = new win.google.maps.places.Autocomplete(input, {
-            types: ['address'],
-            componentRestrictions: { country: 'is' }
-        });
-
-        // Prevent form submission on enter
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') e.preventDefault();
-        });
-
-        autocomplete.addListener('place_changed', () => {
-            const place = autocomplete.getPlace();
-            if (place.address_components) {
-                const street = place.address_components.find((c) => c.types.includes('route'));
-                if (street) {
-                    const streetName = street.long_name;
-                    if (!ignoredStreets.includes(streetName)) {
-                        ignoredStreets = [...ignoredStreets, streetName];
-                    }
-                    input.value = '';
-                }
+        function init() {
+            const win = /** @type {any} */ (window);
+            if (!win.google || !win.google.maps || !win.google.maps.places) {
+                return false;
             }
-        });
+
+            const autocomplete = new win.google.maps.places.Autocomplete(node, {
+                types: ['address'],
+                componentRestrictions: { country: 'is' }
+            });
+
+            node.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') e.preventDefault();
+            });
+
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (place.address_components) {
+                    const street = place.address_components.find((c) => c.types.includes('route'));
+                    if (street) {
+                        const streetName = street.long_name;
+                        if (!ignoredStreets.includes(streetName)) {
+                            ignoredStreets = [...ignoredStreets, streetName];
+                        }
+                        node.value = '';
+                    }
+                }
+            });
+            
+            return true;
+        }
+
+        if (!init()) {
+            checkGoogle = setInterval(() => {
+                if (init()) clearInterval(checkGoogle);
+            }, 100);
+        }
+
+        return {
+            destroy() {
+                if (checkGoogle) clearInterval(checkGoogle);
+            }
+        };
     }
 
     function removeStreet(street) {
@@ -184,13 +197,10 @@
 
         if (!window.google) {
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places&loading=async`;
             script.async = true;
             script.defer = true;
-            script.onload = initAutocomplete;
             document.head.appendChild(script);
-        } else {
-            initAutocomplete();
         }
     });
 </script>
@@ -300,6 +310,7 @@
                     <input 
                         type="text" 
                         id="street-search" 
+                        use:setupPlaces
                         placeholder="Search for a street to ignore..."
                         class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                     />
