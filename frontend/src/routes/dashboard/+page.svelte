@@ -8,6 +8,7 @@
     let minBedrooms = $state(1);
     let maxBedrooms = $state(1);
     let selectedZipCodes = $state([]);
+    let ignoredStreets = $state([]);
     let einbylishus = $state(false);
     let fjolbylishus = $state(false);
     let atvinnuhusnaedi = $state(false);
@@ -21,6 +22,47 @@
     let message = $state('');
     let loading = $state(true);
     let showZipDropdown = $state(false);
+
+    const googleMapsApiKey = "AIzaSyAAJL11FGR1AImjuxi9kYcxmBTovEZqS7s";
+
+    function initAutocomplete() {
+        const win = /** @type {any} */ (window);
+        if (!win.google || !win.google.maps || !win.google.maps.places) {
+            console.error('Google Maps Places library not loaded');
+            return;
+        }
+        
+        const input = /** @type {HTMLInputElement} */ (document.getElementById('street-search'));
+        if (!input) return;
+
+        const autocomplete = new win.google.maps.places.Autocomplete(input, {
+            types: ['address'],
+            componentRestrictions: { country: 'is' }
+        });
+
+        // Prevent form submission on enter
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') e.preventDefault();
+        });
+
+        autocomplete.addListener('place_changed', () => {
+            const place = autocomplete.getPlace();
+            if (place.address_components) {
+                const street = place.address_components.find((c) => c.types.includes('route'));
+                if (street) {
+                    const streetName = street.long_name;
+                    if (!ignoredStreets.includes(streetName)) {
+                        ignoredStreets = [...ignoredStreets, streetName];
+                    }
+                    input.value = '';
+                }
+            }
+        });
+    }
+
+    function removeStreet(street) {
+        ignoredStreets = ignoredStreets.filter(s => s !== street);
+    }
 
     const zipOptions = [
         "104 Reykjavík",
@@ -72,6 +114,7 @@
                 minBedrooms = user.min_bedrooms || 1;
                 maxBedrooms = user.max_bedrooms || 1;
                 selectedZipCodes = user.zip_codes || [];
+                ignoredStreets = user.ignored_streets || [];
                 einbylishus = user.einbylishus || false;
                 fjolbylishus = user.fjolbylishus || false;
                 atvinnuhusnaedi = user.atvinnuhusnaedi || false;
@@ -111,6 +154,7 @@
                     min_bedrooms: minBedrooms,
                     max_bedrooms: maxBedrooms,
                     zip_codes: selectedZipCodes,
+                    ignored_streets: ignoredStreets,
                     einbylishus: einbylishus,
                     fjolbylishus: fjolbylishus,
                     atvinnuhusnaedi: atvinnuhusnaedi,
@@ -137,6 +181,17 @@
 
     onMount(() => {
         fetchProfile();
+
+        if (!window.google) {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            script.onload = initAutocomplete;
+            document.head.appendChild(script);
+        } else {
+            initAutocomplete();
+        }
     });
 </script>
 
@@ -237,6 +292,37 @@
                         </div>
                     {/if}
                 </div>
+            </div>
+
+            <div class="mb-6">
+                <label for="street-search" class="block text-sm font-medium text-gray-700 mb-2">Ignored Streets</label>
+                <div class="mb-3">
+                    <input 
+                        type="text" 
+                        id="street-search" 
+                        placeholder="Search for a street to ignore..."
+                        class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                </div>
+                
+                {#if ignoredStreets.length > 0}
+                    <div class="flex flex-wrap gap-2">
+                        {#each ignoredStreets as street}
+                            <span class="inline-flex items-center bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded-full border border-gray-300">
+                                {street}
+                                <button 
+                                    type="button"
+                                    onclick={() => removeStreet(street)}
+                                    class="ml-2 text-gray-500 hover:text-red-500 focus:outline-none"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </span>
+                        {/each}
+                    </div>
+                {/if}
             </div>
 
             <div class="mb-6">
