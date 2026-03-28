@@ -23,6 +23,7 @@
     let loading = $state(true);
     let showZipDropdown = $state(false);
     let pendingStreetName = $state('');
+    let selectedPlaceObject = $state(null);
 
     const googleMapsApiKey = "AIzaSyAAJL11FGR1AImjuxi9kYcxmBTovEZqS7s";
 
@@ -58,11 +59,14 @@
                     if (!place) return;
 
                     try {
-                        await place.fetchFields({ fields: ['displayName', 'formattedAddress'] });
-                        const streetName = place.displayName ? place.displayName.text : place.formattedAddress;
+                        // Store the actual place object
+                        selectedPlaceObject = place;
                         
+                        // Prefetch fields
+                        await place.fetchFields({ fields: ['displayName', 'formattedAddress'] });
+                        
+                        const streetName = place.displayName ? place.displayName.text : place.formattedAddress;
                         if (streetName) {
-                            // Reassign to trigger Svelte 5 reactivity
                             pendingStreetName = streetName.split(',')[0].trim();
                         }
                     } catch (err) {
@@ -72,24 +76,16 @@
 
                 // Also capture manual typing just in case they don't click a suggestion
                 autocompleteEl.addEventListener('input', (e) => {
-                    // Delay slightly so gmp-placeselect can fire first if they clicked a suggestion
-                    setTimeout(() => {
-                        const val = e.target?.inputValue || e.target?.value;
-                        if (val && !pendingStreetName.startsWith(val)) { 
-                            // Only overwrite if it doesn't match the start of a recently selected suggestion
-                            pendingStreetName = val;
-                        } else if (!val) {
-                            pendingStreetName = '';
-                        }
-                    }, 50);
+                    // Reset the selected object because they are typing manually now
+                    selectedPlaceObject = null;
+                    pendingStreetName = e.target?.value || '';
                 });
 
                 autocompleteEl.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        if (pendingStreetName) {
-                            addPendingStreet();
-                        }
+                        // Add a tiny delay to allow placeselect to win if it just happened
+                        setTimeout(addPendingStreet, 50);
                     }
                 });
 
@@ -113,27 +109,41 @@
         };
     }
 
-    function addPendingStreet() {
-        if (!pendingStreetName) return;
+    async function addPendingStreet() {
+        const el = /** @type {any} */ (document.getElementById('street-search'));
+        let streetToSave = '';
+
+        if (selectedPlaceObject) {
+            // Google Place wins
+            try {
+                // @ts-ignore
+                await selectedPlaceObject.fetchFields({ fields: ['displayName'] });
+                // @ts-ignore
+                streetToSave = selectedPlaceObject.displayName?.text || selectedPlaceObject.formattedAddress;
+            } catch (e) {
+                // Fallback
+                streetToSave = el?.value || pendingStreetName;
+            }
+        } else {
+            // Manual typing
+            streetToSave = el?.value || pendingStreetName;
+        }
+
+        if (!streetToSave) return;
         
-        // Remove trailing commas if any from manual typing
-        const cleanName = pendingStreetName.split(',')[0].trim();
+        // Remove trailing commas if any (e.g. from manual entry)
+        const cleanName = streetToSave.split(',')[0].trim();
         
         if (cleanName && !ignoredStreets.includes(cleanName)) {
             ignoredStreets = [...ignoredStreets, cleanName];
-            pendingStreetName = '';
             
-            // Clear the Google web component input
-            const autocompleteEl = document.getElementById('street-search');
-            if (autocompleteEl) {
-                // @ts-ignore
-                if (autocompleteEl.inputValue !== undefined) {
-                    // @ts-ignore
-                    autocompleteEl.inputValue = '';
-                } else {
-                    // @ts-ignore
-                    autocompleteEl.value = '';
-                }
+            // RESET EVERYTHING
+            pendingStreetName = '';
+            selectedPlaceObject = null;
+            
+            if (el) {
+                el.value = '';
+                if (el.inputValue !== undefined) el.inputValue = '';
             }
             
             savePreferences();
