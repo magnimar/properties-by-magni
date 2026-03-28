@@ -792,7 +792,7 @@ class Scraper:
             # Check garage
             if self.WANT_GARAGE and not prop.get("has_garage"):
                 continue
-            
+
             # Check outdoor space
             if self.OUTDOOR_FILTER == "balcony":
                 if not prop.get("has_balcony"):
@@ -806,9 +806,9 @@ class Scraper:
             elif self.OUTDOOR_FILTER == "both":
                 if not (prop.get("has_balcony") and prop.get("has_terrace")):
                     continue
-            
+
             filtered_properties.append(prop)
-        
+
         new_properties = filtered_properties
         logging.info(
             f"Found {len(new_properties)} properties matching outdoor/garage filters."
