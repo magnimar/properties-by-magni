@@ -213,6 +213,33 @@
             ]
         },
         {
+            name: "Vesturland",
+            options: [
+                { code: "300", name: "Akranes" }, { code: "301", name: "Akranes" },
+                { code: "310", name: "Borgarnes" }, { code: "311", name: "Borgarnes" },
+                { code: "320", name: "Reykholt" }, { code: "340", name: "Stykkishólmur" },
+                { code: "345", name: "Flatey" }, { code: "350", name: "Grundarfjörður" },
+                { code: "355", name: "Ólafsvík" }, { code: "356", name: "Snæfellsbær" },
+                { code: "360", name: "Hellissandur" }, { code: "370", name: "Búðardalur" },
+                { code: "371", name: "Búðardalur" }, { code: "380", name: "Reykhólahreppur" }
+            ]
+        },
+        {
+            name: "Vestfirðir",
+            options: [
+                { code: "400", name: "Ísafjörður" }, { code: "401", name: "Ísafjörður" },
+                { code: "410", name: "Hnífsdalur" }, { code: "415", name: "Bolungarvík" },
+                { code: "416", name: "Bolungarvík" }, { code: "420", name: "Súðavík" },
+                { code: "421", name: "Súðavík" }, { code: "425", name: "Flateyri" },
+                { code: "426", name: "Flateyri" }, { code: "430", name: "Suðureyri" },
+                { code: "431", name: "Suðureyri" }, { code: "450", name: "Patreksfjörður" },
+                { code: "451", name: "Patreksfjörður" }, { code: "460", name: "Tálknafjörður" },
+                { code: "461", name: "Tálknafjörður" }, { code: "465", name: "Bíldudalur" },
+                { code: "466", name: "Bíldudalur" }, { code: "470", name: "Þingeyri" },
+                { code: "471", name: "Þingeyri" }
+            ]
+        },
+        {
             name: "Norðurland",
             options: [
                 { code: "500", name: "Staður" }, { code: "510", name: "Hólmavík" },
@@ -240,6 +267,19 @@
                 { code: "670", name: "Kópasker" }, { code: "671", name: "Kópasker" },
                 { code: "675", name: "Raufarhöfn" }, { code: "680", name: "Þórshöfn" },
                 { code: "681", name: "Þórshöfn" }
+            ]
+        },
+        {
+            name: "Austurland",
+            options: [
+                { code: "700", name: "Egilsstaðir" }, { code: "701", name: "Egilsstaðir" },
+                { code: "710", name: "Seyðisfjörður" }, { code: "715", name: "Mjóifjörður" },
+                { code: "720", name: "Borgarfjörður eystri" }, { code: "730", name: "Reyðarfjörður" },
+                { code: "735", name: "Eskifjörður" }, { code: "740", name: "Neskaupstaður" },
+                { code: "750", name: "Fáskrúðsfjörður" }, { code: "755", name: "Stöðvarfjörður" },
+                { code: "760", name: "Breiðdalsvík" }, { code: "765", name: "Djúpivogur" },
+                { code: "780", name: "Höfn í Hornafirði" }, { code: "781", name: "Höfn í Hornafirði" },
+                { code: "785", name: "Öræfi" }
             ]
         },
         {
@@ -282,9 +322,12 @@
         "Hafnarfjörður": false,
         "Mosfellsbær": false,
         "Seltjarnarnes": false,
+        "Vesturland": false,
+        "Vestfirðir": false,
+        "Norðurland": false,
+        "Austurland": false,
         "Suðurland": false,
         "Suðurnes": false,
-        "Norðurland": false,
         "Annað": false
     });
 
