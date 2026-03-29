@@ -2,8 +2,12 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
+import fs from 'fs';
+
+const envDir = fs.existsSync('/opt/properties-by-magni/.env') ? '/opt/properties-by-magni' : process.cwd();
 
 export default defineConfig({
+	envDir,
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
 		allowedHosts: ['propertiesbymagni.com', 'www.propertiesbymagni.com', 'localhost'],

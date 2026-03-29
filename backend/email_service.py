@@ -3,6 +3,7 @@ import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from dotenv import load_dotenv
 
+load_dotenv("/opt/properties-by-magni/.env")
 load_dotenv()
 
 

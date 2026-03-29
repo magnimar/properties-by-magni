@@ -7,6 +7,7 @@ Requires=postgresql.service
 User=raspberrypi
 Group=raspberrypi
 WorkingDirectory=/opt/properties-by-magni/scraper
+EnvironmentFile=/opt/properties-by-magni/.env
 Environment="PATH=/opt/properties-by-magni/scraper/venv/bin"
 ExecStart=/opt/properties-by-magni/scraper/venv/bin/python scraper.py --schedule
 Restart=always
