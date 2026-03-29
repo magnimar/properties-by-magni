@@ -8,7 +8,7 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <div class="absolute top-4 left-4 z-50">
-	<a href="/" class="block hover:opacity-80 transition-opacity">
+	<a href="/home" class="block hover:opacity-80 transition-opacity">
 		<img src="/logo/logo.png" alt="Properties by Magni Logo" class="h-24 w-auto" />
 	</a>
 </div>
