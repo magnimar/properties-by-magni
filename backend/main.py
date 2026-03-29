@@ -335,8 +335,11 @@ async def update_my_preferences(
 async def login(data: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
 
-    if not user or not pwd_context.verify(data.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    if not user:
+        raise HTTPException(status_code=400, detail="Tölvupóstur er ekki með aðgang")
+        
+    if not pwd_context.verify(data.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Vitlaust lykilorð")
 
     if not user.is_verified:
         raise HTTPException(
