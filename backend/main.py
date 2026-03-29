@@ -334,6 +334,16 @@ async def update_my_preferences(
     return {"message": "Preferences updated successfully"}
 
 
+@app.delete("/me")
+async def delete_my_account(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    db.delete(current_user)
+    db.commit()
+    return {"message": "Account deleted successfully"}
+
+
 @app.post("/login")
 async def login(data: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
