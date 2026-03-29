@@ -103,30 +103,21 @@
         group: raspberrypi
         recurse: yes
 
-    # --- Frontend Configuration Check ---
-    - name: Verify frontend .env file exists
+    # --- Global Configuration Check ---
+    - name: Verify root .env file exists
       ansible.builtin.stat:
-        path: "{{ frontend_dir }}/.env"
-      register: frontend_env_file
-      failed_when: not frontend_env_file.stat.exists
+        path: "/opt/properties-by-magni/.env"
+      register: root_env_file
+      failed_when: not root_env_file.stat.exists
 
-    - name: Verify VITE_API_URL or PUBLIC_API_URL is set in frontend .env
-      ansible.builtin.shell: "grep -E '^(VITE_API_URL|PUBLIC_API_URL)=' {{ frontend_dir }}/.env"
-      register: check_api_url
-      failed_when: check_api_url.rc != 0
-      changed_when: false
-
-    # --- Backend Configuration Check ---
-    - name: Verify backend .env file exists
-      ansible.builtin.stat:
-        path: "{{ backend_dir }}/.env"
-      register: backend_env_file
-      failed_when: not backend_env_file.stat.exists
-
-    - name: Verify FRONTEND_URL is set in backend .env
-      ansible.builtin.shell: "grep -E '^FRONTEND_URL=' {{ backend_dir }}/.env"
-      register: check_frontend_url
-      failed_when: check_frontend_url.rc != 0
+    - name: Verify all required environment variables are set in root .env
+      ansible.builtin.shell: "grep -E '^{{ item }}=' /opt/properties-by-magni/.env"
+      loop:
+        - DATABASE_URL
+        - FRONTEND_URL
+        - VITE_API_URL
+        - BREVO_API_KEY
+        - FROM_EMAIL
       changed_when: false
 
     # --- Dependencies Installation ---

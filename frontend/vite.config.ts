@@ -2,8 +2,19 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
+import fs from 'fs';
+
+const envPath = '/opt/properties-by-magni/.env';
+
+if (!fs.existsSync(envPath)) {
+	console.error(`CRITICAL ERROR: Environment file not found at ${envPath}`);
+	process.exit(1);
+}
+
+const envDir = '/opt/properties-by-magni';
 
 export default defineConfig({
+	envDir,
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
 		allowedHosts: ['propertiesbymagni.com', 'www.propertiesbymagni.com', 'localhost'],

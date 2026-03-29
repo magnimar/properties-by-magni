@@ -7,6 +7,7 @@ Requires=postgresql.service
 User=raspberrypi
 Group=raspberrypi
 WorkingDirectory=/opt/properties-by-magni/backend
+EnvironmentFile=/opt/properties-by-magni/.env
 Environment="PATH=/opt/properties-by-magni/backend/venv/bin"
 ExecStart=/opt/properties-by-magni/backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 Restart=always
