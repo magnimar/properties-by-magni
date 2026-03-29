@@ -35,11 +35,11 @@
     <!-- Hero Section -->
     <section class="relative py-20 lg:py-32 overflow-hidden border-b border-gray-100">
         <!-- Top Right Navigation -->
-        <div class="absolute top-6 right-6 md:top-8 md:right-8 z-50 flex flex-col sm:flex-row gap-4">
-            <a href="/login" class="px-8 py-4 bg-white text-gray-800 border-2 border-gray-200 rounded-full font-bold text-xl hover:bg-gray-50 transition-all shadow-md text-center">
+        <div class="absolute top-6 right-6 md:top-10 md:right-10 z-50 flex flex-col sm:flex-row gap-6">
+            <a href="/login" class="px-12 py-6 bg-white text-gray-800 border-2 border-gray-200 rounded-full font-bold text-2xl hover:bg-gray-50 transition-all shadow-md text-center">
                 Innskráning
             </a>
-            <a href="/register" class="px-8 py-4 bg-blue-600 text-white rounded-full font-bold text-xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 text-center">
+            <a href="/register" class="px-12 py-6 bg-blue-600 text-white rounded-full font-bold text-2xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 text-center">
                 Hefja leit
             </a>
         </div>
