@@ -9,7 +9,7 @@ load_dotenv("/opt/properties-by-magni/.env")
 def send_verification_email(to_email, verification_token):
     api_key = os.getenv("BREVO_API_KEY")
     from_email = os.getenv("FROM_EMAIL", "magnimarboss@gmail.com")
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 
     if not api_key:
         print("BREVO_API_KEY not found in environment. Email not sent.")
@@ -57,7 +57,7 @@ def send_verification_email(to_email, verification_token):
 def send_password_reset_email(to_email, reset_token):
     api_key = os.getenv("BREVO_API_KEY")
     from_email = os.getenv("FROM_EMAIL", "magnimarboss@gmail.com")
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 
     if not api_key:
         print("BREVO_API_KEY not found in environment. Email not sent.")
@@ -72,15 +72,15 @@ def send_password_reset_email(to_email, reset_token):
 
     reset_link = f"{frontend_url}/reset-password?token={reset_token}"
 
-    subject = "Reset your Properties by Magni password"
+    subject = "Endurstilla lykilorð fyrir Properties by Magni"
     html_content = f"""
     <html>
         <body>
-            <h1>Password Reset Request</h1>
-            <p>You requested to reset your password. Please click the link below to set a new password:</p>
+            <h1>Beiðni um endurstillingu lykilorðs</h1>
+            <p>Þú baðst um að endurstilla lykilorðið þitt. Vinsamlegast smelltu á hlekkinn hér að neðan til að velja nýtt lykilorð:</p>
             <p><a href="{reset_link}">{reset_link}</a></p>
-            <p>This link will expire in 1 hour.</p>
-            <p>If you did not request a password reset, you can safely ignore this email.</p>
+            <p>Þessi hlekkur rennur út eftir 1 klukkustund.</p>
+            <p>Ef þú baðst ekki um þetta getur þú hundsað þennan tölvupóst.</p>
         </body>
     </html>
     """
