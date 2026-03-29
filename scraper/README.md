@@ -19,8 +19,6 @@ The scraper requires a `.env` file in the `scraper/` directory with the followin
 | `DATABASE_URL` | Yes | SQLAlchemy-compatible database URL (e.g., `postgresql://user:pass@localhost/dbname`) |
 | `BREVO_API_KEY` | Yes | API key for sending emails via Brevo |
 | `FROM_EMAIL` | Yes | The email address shown as the sender |
-| `SCRAPER_HOUR` | No | Hour (0–23) to run daily in `--schedule` mode (Default: 10) |
-| `SCRAPER_MINUTE` | No | Minute (0–59) to run daily in `--schedule` mode (Default: 0) |
 
 ## Usage
 
