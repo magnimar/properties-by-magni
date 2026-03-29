@@ -6,7 +6,6 @@ from passlib.context import CryptContext
 from dotenv import load_dotenv
 
 load_dotenv("/opt/properties-by-magni/.env")
-load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)

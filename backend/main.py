@@ -26,7 +26,6 @@ from email_service import send_verification_email
 from sqlalchemy import inspect
 
 load_dotenv("/opt/properties-by-magni/.env")
-load_dotenv()
 
 # --- JWT Config ---
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")

@@ -23,7 +23,6 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
 load_dotenv("/opt/properties-by-magni/.env")
-load_dotenv()
 
 
 def _configure_logging():
