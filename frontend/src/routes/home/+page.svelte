@@ -34,7 +34,17 @@
 <div class="min-h-screen font-sans text-gray-900 bg-white selection:bg-blue-100">
     <!-- Hero Section -->
     <section class="relative py-20 lg:py-32 overflow-hidden border-b border-gray-100">
-        <div class="container mx-auto px-6 relative z-10">
+        <!-- Top Right Navigation -->
+        <div class="absolute top-6 right-6 md:top-10 md:right-10 z-50 flex flex-col sm:flex-row gap-6">
+            <a href="/login" class="px-12 py-6 bg-white text-gray-800 border-2 border-gray-200 rounded-full font-bold text-2xl hover:bg-gray-50 transition-all shadow-md text-center">
+                Innskráning
+            </a>
+            <a href="/register" class="px-12 py-6 bg-blue-600 text-white rounded-full font-bold text-2xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 text-center">
+                Hefja leit
+            </a>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10 mt-16 lg:mt-24">
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
                     Fyrir fólk sem veit <span class="text-blue-600 italic">nákvæmlega</span> hvað það vill.
@@ -42,14 +52,6 @@
                 <p class="text-xl lg:text-2xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
                     Settu upp þínar nákvæmu kröfur. Þú þarft ekki lengur að vafra endalaust um fasteignasíður – við skönnum þær allar fyrir þig og sendum þér tölvupóst daglega með eignum sem passa fullkomlega við þig.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/register" class="px-10 py-5 bg-blue-600 text-white rounded-full font-bold text-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        Hefja leit
-                    </a>
-                    <a href="/login" class="px-10 py-5 bg-gray-50 text-gray-700 border border-gray-200 rounded-full font-bold text-lg hover:bg-gray-100 transition-all">
-                        Innskráning
-                    </a>
-                </div>
             </div>
         </div>
         <!-- Decorative background element -->
