@@ -98,7 +98,7 @@ with engine.begin() as conn:
     if "reset_token" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN reset_token TEXT;"))
     if "reset_token_expires" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN reset_token_expires DATETIME;"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMP;"))
     if "min_price" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_price FLOAT;"))
     if "max_price" not in existing_columns:
