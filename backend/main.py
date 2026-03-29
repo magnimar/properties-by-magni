@@ -22,7 +22,7 @@ import os
 import secrets
 from dotenv import load_dotenv
 
-from email_service import send_verification_email
+from email_service import send_verification_email, send_password_reset_email
 from sqlalchemy import inspect
 
 load_dotenv("/opt/properties-by-magni/.env")
@@ -64,6 +64,8 @@ class User(Base):
     is_pro = Column(Boolean, default=False)
     is_verified = Column(Boolean, default=False)
     verification_token = Column(String, nullable=True, index=True)
+    reset_token = Column(String, nullable=True, index=True)
+    reset_token_expires = Column(DateTime, nullable=True)
     min_price = Column(Float, nullable=True)
     max_price = Column(Float, nullable=True)
     min_bedrooms = Column(Integer, nullable=True)
@@ -93,6 +95,10 @@ Base.metadata.create_all(bind=engine)
 inspector = inspect(engine)
 existing_columns = [c["name"] for c in inspector.get_columns("users")]
 with engine.begin() as conn:
+    if "reset_token" not in existing_columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN reset_token TEXT;"))
+    if "reset_token_expires" not in existing_columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN reset_token_expires DATETIME;"))
     if "min_price" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_price FLOAT;"))
     if "max_price" not in existing_columns:
@@ -169,6 +175,15 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 class UserLogin(BaseModel):
     email: str
     password: str
+
+
+class ForgotPassword(BaseModel):
+    email: str
+
+
+class ResetPassword(BaseModel):
+    token: str
+    new_password: str
 
 
 class UserCreate(BaseModel):
@@ -338,6 +353,41 @@ async def login(data: UserLogin, db: Session = Depends(get_db)):
         "token": access_token,
         "user": {"email": user.email, "is_pro": user.is_pro},
     }
+
+
+@app.post("/forgot-password")
+async def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+
+    if user:
+        reset_token = secrets.token_urlsafe(32)
+        user.reset_token = reset_token
+        user.reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
+        db.commit()
+        send_password_reset_email(user.email, reset_token)
+
+    # Always return a success message for security to avoid email enumeration
+    return {"message": "If your email is registered, you will receive a reset link."}
+
+
+@app.post("/reset-password")
+async def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
+    user = (
+        db.query(User)
+        .filter(User.reset_token == data.token)
+        .filter(User.reset_token_expires > datetime.now(timezone.utc))
+        .first()
+    )
+
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+
+    user.hashed_password = pwd_context.hash(data.new_password)
+    user.reset_token = None
+    user.reset_token_expires = None
+    db.commit()
+
+    return {"message": "Password reset successfully"}
 
 
 @app.post("/register")
