@@ -221,6 +221,7 @@ origins = [
     "https://www.propertiesbymagni.com",
     "https://api.propertiesbymagni.com",
     "http://localhost:5000",
+    "https://localhost:5000",
     "http://localhost:5173",
 ]
 
