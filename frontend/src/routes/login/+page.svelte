@@ -29,7 +29,7 @@
 
 <div class="flex flex-col items-center justify-center min-h-screen">
   <form onsubmit={(e) => { e.preventDefault(); handleLogin(); }} class="flex flex-col gap-4 p-8 border rounded-lg shadow-md bg-white">
-    <h1 class="text-2xl font-bold mb-4">Login</h1>
+    <h1 class="text-2xl font-bold mb-4">Innskráning</h1>
     
     {#if error}
       <p class="text-red-500 text-sm">{error}</p>
@@ -38,23 +38,26 @@
     <input 
       type="email" 
       bind:value={email} 
-      placeholder="Email" 
+      placeholder="Netfang" 
       required 
       class="p-2 border rounded"
     />
     <input 
       type="password" 
       bind:value={password} 
-      placeholder="Password" 
+      placeholder="Lykilorð" 
       required 
       class="p-2 border rounded"
     />
     <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
-      Login
+      Innskráning
     </button>
 
-    <p class="text-sm text-center mt-2">
-      Don't have an account? <a href="/register" class="text-blue-500 hover:underline">Register</a>
-    </p>
+    <div class="text-sm text-center mt-2 flex flex-col gap-2">
+      <a href="/forgot-password" class="text-blue-500 hover:underline">Gleymt lykilorð?</a>
+      <p>
+        Ertu ekki með aðgang? <a href="/register" class="text-blue-500 hover:underline">Nýskráning</a>
+      </p>
+    </div>
   </form>
 </div>
