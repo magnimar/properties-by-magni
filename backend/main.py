@@ -98,7 +98,9 @@ with engine.begin() as conn:
     if "reset_token" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN reset_token TEXT;"))
     if "reset_token_expires" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMP;"))
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMP;")
+        )
     if "min_price" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_price FLOAT;"))
     if "max_price" not in existing_columns:
@@ -338,7 +340,7 @@ async def login(data: UserLogin, db: Session = Depends(get_db)):
 
     if not user:
         raise HTTPException(status_code=400, detail="Tölvupóstur er ekki með aðgang")
-        
+
     if not pwd_context.verify(data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Vitlaust lykilorð")
 
