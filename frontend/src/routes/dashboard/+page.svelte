@@ -372,6 +372,33 @@
         return document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
     }
 
+    async function handleDeleteAccount() {
+        if (!confirm('Ertu viss um að þú viljir eyða aðganginum þínum? Þetta er óafturkræft.')) {
+            return;
+        }
+
+        const token = getToken();
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${getApiUrl()}/me`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = '/home';
+            } else {
+                message = 'Ekki tókst að eyða aðgangi.';
+            }
+        } catch (e) {
+            message = 'Villa við að tengjast þjóni.';
+        }
+    }
+
     async function fetchProfile() {
         const token = getToken();
         if (!token) {
@@ -481,12 +508,20 @@
 <div class="p-8 max-w-2xl mx-auto">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold">Finndu fasteign sem segir já!</h1>
-        <button 
-            onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}
-            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-        >
-            Logout
-        </button>
+        <div class="flex gap-2">
+            <button 
+                onclick={handleDeleteAccount}
+                class="bg-red-100 text-red-600 px-4 py-2 rounded hover:bg-red-200 transition-colors font-semibold text-sm"
+            >
+                Eyða aðgangi
+            </button>
+            <button 
+                onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}
+                class="bg-gray-100 text-gray-700 px-4 py-2 rounded border border-gray-300 hover:bg-gray-200 transition-colors font-semibold text-sm"
+            >
+                Útskráning
+            </button>
+        </div>
     </div>
 
     {#if loading}
