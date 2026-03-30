@@ -22,14 +22,9 @@
         { title: "Ekki missa af neinu", desc: "Við skönnum allar helstu fasteignasíður landsins." },
         { title: "Aðeins það sem þú vilt", desc: "Fáðu daglega uppfærslu með aðeins þeim eignum sem passa þér fullkomlega." },
         { title: "Faglegt og áreiðanlegt", desc: "Treystu á nákvæma og daglega uppfærslu frá sérhæfðu kerfi." }
-    ];
+        ];
+        </script>
 
-    const testimonials = [
-        { quote: "Ég var að leita að mjög sérstakri eign í Vesturbænum og var alveg búin að gefast upp. En Properties by Magni fann þessa frábæru eign sem ég hefði annars missa af.", author: "Sigríður, Vesturbæ" },
-        { quote: "Þetta sparar mér svo mikinn tíma. Ég fær tölvupóst á hverjum degi með nákvæmlega því sem ég er að leita að. Það er svo auðvelt!", author: "Jón, Kópavogur" },
-        { quote: "Frábær þjónusta fyrir alla sem eru að leita að nýju heimili. Mæli hiklaust með henni!", author: "Guðrún, Reykjavík" }
-    ];
-</script>
 
 <div class="min-h-screen font-sans text-gray-900 bg-white selection:bg-blue-100">
     <!-- Hero Section -->
@@ -47,11 +42,8 @@
         <div class="container mx-auto px-6 relative z-10 mt-16 lg:mt-24">
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
-                    Fyrir fólk sem veit <span class="text-blue-600 italic">nákvæmlega</span> hvað það vill.
+                    Fyrir fólk sem veit <span class="text-blue-600 italic">nákvæmlega</span> hvernig fasteign það vill.
                 </h1>
-                <p class="text-xl lg:text-2xl text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-                    Settu upp þínar nákvæmu kröfur. Þú þarft ekki lengur að vafra endalaust um fasteignasíður – við skönnum þær allar fyrir þig og sendum þér tölvupóst daglega með eignum sem passa fullkomlega við þig.
-                </p>
             </div>
         </div>
         <!-- Decorative background element -->
@@ -60,10 +52,20 @@
         </div>
     </section>
 
+    <!-- New Description Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto text-center">
+                <p class="text-xl lg:text-2xl text-gray-600 leading-relaxed">
+                    Þreyttur/þreytt á að vakta fasteignasíðurnar endalaust og skrolla í gegnum eignir sem þú hefur engan áhuga á? Skilgreindu fasteignina sem þú vilt hjá okkur og fáðu daglegan tölvupóst með þeim eignum sem henta þér.
+                </p>
+            </div>
+        </div>
+    </section>
+
     <!-- How It Works -->
     <section class="py-24 bg-gray-50">
         <div class="container mx-auto px-6">
-            <h2 class="text-3xl lg:text-4xl font-bold text-center mb-16">Hvernig það virkar</h2>
             <div class="grid md:grid-cols-3 gap-12">
                 {#each steps as step}
                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center group hover:shadow-md transition-shadow">
@@ -156,21 +158,6 @@
         </div>
     </section>
 
-    <!-- Testimonials -->
-    <section class="py-24 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <h2 class="text-3xl lg:text-4xl font-bold text-center mb-16">Hvað segja notendur okkar?</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                {#each testimonials as item}
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between italic hover:shadow-md transition-shadow">
-                        <p class="text-gray-600 mb-6 leading-relaxed">"{item.quote}"</p>
-                        <p class="text-sm font-bold text-gray-900 not-italic">— {item.author}</p>
-                    </div>
-                {/each}
-            </div>
-        </div>
-    </section>
-
     <!-- Footer CTA -->
     <section class="py-24 bg-white text-center">
         <div class="container mx-auto px-6">
@@ -188,12 +175,7 @@
     <footer class="py-12 border-t border-gray-100 text-gray-500 bg-white">
         <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
             <div class="font-bold text-gray-900 text-xl tracking-tight">Properties by Magni</div>
-            <div class="flex flex-wrap justify-center gap-8 text-sm font-medium">
-                <a href="#" class="hover:text-blue-600 transition-colors">Hafðu samband</a>
-                <a href="#" class="hover:text-blue-600 transition-colors">Skilmálar</a>
-                <a href="#" class="hover:text-blue-600 transition-colors">Persónuvernd</a>
-            </div>
-            <p class="text-xs">© 2024 Properties by Magni. Allur réttur áskilinn.</p>
+            <p class="text-xs">© 2026 Properties by Magni. Allur réttur áskilinn.</p>
         </div>
     </footer>
 </div>
