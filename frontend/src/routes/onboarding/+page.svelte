@@ -226,6 +226,18 @@
         expandedZipGroups[groupName] = !expandedZipGroups[groupName];
     }
 
+    function getSelectedPropertyTypes() {
+        const types = [];
+        if (einbylishus) types.push('Einbýlishús');
+        if (fjolbylishus) types.push('Fjölbýlishús');
+        if (radhus_parhus) types.push('Raðhús / Parhús');
+        if (haed) types.push('Hæð');
+        if (sumarhus) types.push('Sumarhús');
+        if (jord_lod) types.push('Jörð / Lóð');
+        if (atvinnuhusnaedi) types.push('Atvinnuhúsnæði');
+        return types.length > 0 ? types.join(', ') : 'Allar tegundir';
+    }
+
     onMount(() => {
         fetchProfile();
     });
@@ -467,6 +479,21 @@
                             <div class="flex justify-between border-b border-gray-200 pb-2">
                                 <span class="text-gray-500">Póstnúmer</span>
                                 <span class="font-bold">{selectedZipCodes.length} valin</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Eignategundir</span>
+                                <span class="font-bold text-right ml-4">{getSelectedPropertyTypes()}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Svalir eða garður</span>
+                                <span class="font-bold">
+                                    {#if outdoorFilter === 'none'}Skiptir ekki máli
+                                    {:else if outdoorFilter === 'balcony'}Bara svalir
+                                    {:else if outdoorFilter === 'garden'}Bara garður
+                                    {:else if outdoorFilter === 'either'}Annað hvort svalir eða garður
+                                    {:else if outdoorFilter === 'both'}Bæði svalir og garður
+                                    {/if}
+                                </span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-500">Bílskúr</span>
