@@ -13,7 +13,7 @@
     success = false;
     
     if (password !== confirmPassword) {
-      error = 'Passwords do not match';
+      error = 'Lykilorðin pössuðu ekki saman';
       return;
     }
 
@@ -27,42 +27,41 @@
       if (res.ok) {
           success = true;
       } else {
-          error = data.detail || 'Registration failed';
+          error = data.detail || 'Nýskráning tókst ekki';
       }
     } catch (e) {
-      error = 'Could not connect to server';
+      error = 'Gat ekki tengst þjóni';
     }
   }
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-  <form onsubmit={async (e) => { e.preventDefault(); await handleRegister(); }} class="flex flex-col gap-4 p-8 border rounded-lg shadow-md bg-white w-96">
-    <h1 class="text-2xl font-bold mb-4 text-center">Register</h1>
+  <form onsubmit={async (e) => { e.preventDefault(); await handleRegister(); }} class="flex flex-col gap-6 p-12 border rounded-xl shadow-xl bg-white w-[500px]">
+    <h1 class="text-3xl font-bold mb-4 text-center">Nýskráning</h1>
     
     {#if error}
       <p class="text-red-500 text-sm p-2 bg-red-50 rounded border border-red-200">{error}</p>
     {/if}
 
     {#if success}
-      <div class="p-4 bg-green-50 border border-green-200 rounded text-green-700 text-sm">
-        <p class="font-bold mb-1">Account created successfully!</p>
-        <p>Please check your email inbox to verify your account before logging in.</p>
+      <div class="p-8 bg-green-50 border-2 border-green-300 rounded-xl text-green-800 text-center">
+        <p class="text-xl font-bold">Skoðaðu tölvupóstinn þinn til þess að staðfesta netfangið þitt!</p>
       </div>
     {:else}
       <div class="flex flex-col gap-1">
-        <label for="email" class="text-sm font-medium text-gray-700">Email</label>
+        <label for="email" class="text-sm font-medium text-gray-700">Netfang</label>
         <input 
           id="email"
           type="email" 
           bind:value={email} 
-          placeholder="email@example.com" 
+          placeholder="netfang@daemi.is" 
           required 
           class="p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
         />
       </div>
 
       <div class="flex flex-col gap-1 relative">
-        <label for="password" class="text-sm font-medium text-gray-700">Password</label>
+        <label for="password" class="text-sm font-medium text-gray-700">Lykilorð</label>
         <div class="relative">
           <input 
             id="password"
@@ -76,7 +75,7 @@
             type="button" 
             onclick={() => showPassword = !showPassword}
             class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-label={showPassword ? "Fela lykilorð" : "Sýna lykilorð"}
           >
             {#if showPassword}
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -93,7 +92,7 @@
       </div>
 
       <div class="flex flex-col gap-1">
-        <label for="confirmPassword" class="text-sm font-medium text-gray-700">Confirm Password</label>
+        <label for="confirmPassword" class="text-sm font-medium text-gray-700">Staðfesta lykilorð</label>
         <input 
           id="confirmPassword"
           type={showPassword ? "text" : "password"} 
@@ -105,12 +104,12 @@
       </div>
 
       <button type="submit" class="bg-green-500 text-white p-2 rounded font-semibold hover:bg-green-600 transition-colors shadow-sm mt-2">
-        Sign Up
+        Nýskrá
       </button>
     {/if}
 
     <p class="text-sm text-center mt-2 text-gray-600">
-      Already have an account? <a href="/login" class="text-blue-500 font-medium hover:underline">Login</a>
+      Ertu þegar með aðgang? <a href="/login" class="text-blue-500 font-medium hover:underline">Skrá inn</a>
     </p>
   </form>
 </div>

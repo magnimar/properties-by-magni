@@ -19,8 +19,8 @@
 
     const benefits = [
         { title: "Sparaðu tíma", desc: "Ekki eyða tíma í að leita á fasteignasíðum. Við gerum það fyrir þig." },
-        { title: "Ekki missa af neinu", desc: "Fáðu sjálfvirkar uppfærslur með öllum nýjum eignum." },
-        { title: "Aðeins það sem þú vilt", desc: "Fáðu daglega uppfærslu með aðeins þeim eignum sem passa þér fullkomlega." }
+        { title: "Ekki missa af neinu", desc: "Fáðu tölvupóst með öllum þeim eignum sem henta þínum kröfum." },
+        { title: "Fáðu einungis eignir sem þú vilt", desc: "Fáðu daglega uppfærslu með aðeins þeim eignum sem passa þér fullkomlega." }
         ];
         </script>
 
@@ -33,7 +33,7 @@
                 Innskráning
             </a>
             <a href="/register" class="px-12 py-6 bg-blue-600 text-white rounded-full font-bold text-2xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 text-center">
-                Hefja leit
+                Búa til reikning
             </a>
         </div>
 
@@ -55,7 +55,7 @@
         <div class="container mx-auto px-6">
             <div class="max-w-3xl mx-auto text-center">
                 <p class="text-xl lg:text-2xl text-gray-600 leading-relaxed">
-                    Þreyttur/þreytt á að vakta fasteignasíðurnar endalaust og skrolla í gegnum eignir sem þú hefur engan áhuga á? Skilgreindu fasteignina sem þú vilt hjá okkur og fáðu daglegan tölvupóst með þeim eignum sem henta þér.
+                    Þreytt/ur á að vakta fasteignasíðurnar endalaust og skrolla í gegnum eignir sem þú hefur engan áhuga á? Skilgreindu fasteignina sem þú vilt hjá okkur og fáðu daglegan tölvupóst með þeim eignum sem henta þér.
                 </p>
             </div>
         </div>
@@ -88,101 +88,67 @@
 
     <!-- Feature Showcase (Filters Mockup) -->
     <section class="py-24">
-        <div class="container mx-auto px-6 lg:flex items-center gap-16">
-            <div class="lg:w-1/2 mb-12 lg:mb-0">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <div class="text-center mb-12">
                 <h2 class="text-3xl lg:text-5xl font-bold mb-8 leading-tight">Sérsniðin leit</h2>
                 <p class="text-lg text-gray-600 mb-8">
                     Í kerfinu er hægt að setja ýmsar kvaðir á eignir, eins og t.d.:
                 </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <ul class="space-y-4">
-                        <li class="flex items-center gap-3 text-gray-700 font-medium">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Verðbil (Lágmark/Hámark)
-                        </li>
-                        <li class="flex items-center gap-3 text-gray-700 font-medium">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Fjöldi svefnherbergja
-                        </li>
-                        <li class="flex items-center gap-3 text-gray-700 font-medium">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Póstnúmer / Hverfi
-                        </li>
-                        <li class="flex items-center gap-3 text-gray-700 font-medium">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
-                            Götur/heimilisföng sem á að hunsa
-                        </li>
-                        </ul>
-                        <ul class="space-y-4">
-
-                        <li class="flex items-center gap-3 text-gray-700 font-medium">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Tegund eignar
-                        </li>
-                        <li class="flex items-center gap-3 text-gray-700 font-medium">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Svalir eða garður
-                        </li>
-                        <li class="flex items-center gap-3 text-gray-700 font-medium">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Bílskúr
-                        </li>
-                        <li class="flex items-center gap-3 text-gray-700 font-medium">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Fasteignamat
-                        </li>
-                    </ul>
-                </div>
             </div>
-            <div class="lg:w-1/2">
-                <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex gap-2">
-                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                    </div>
-                    <div class="p-8 space-y-6">
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Hverfi</label>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="px-3 py-1 bg-blue-600 text-white text-sm rounded-md font-medium">Vesturbær (101, 107)</span>
-                                <span class="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-md font-medium">Miðbær</span>
-                                <span class="px-3 py-1 bg-blue-600 text-white text-sm rounded-md font-medium">Hlíðar (105)</span>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Verð (hámark)</label>
-                                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 font-mono text-sm">120.000.000 kr.</div>
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Stærð (lágmark)</label>
-                                <div class="p-3 bg-gray-50 rounded-lg border border-gray-200 font-mono text-sm">140 m²</div>
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Sérkröfur</label>
-                            <div class="space-y-2">
-                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-blue-600"></div> <span class="text-sm font-medium">Bílastæði í bílageymslu</span></div>
-                                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-blue-600"></div> <span class="text-sm font-medium">Sérinnngangur</span></div>
-                                <div class="flex items-center gap-2"><div class="w-4 h-4 border border-gray-300"></div> <span class="text-sm text-gray-400 font-medium">Lyfta</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+                <ul class="space-y-4">
+                    <li class="flex items-center gap-3 text-gray-700 font-medium">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Verðbil (Lágmark/Hámark)
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-700 font-medium">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Fjöldi svefnherbergja
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-700 font-medium">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Póstnúmer / Hverfi
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-700 font-medium">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Götur/heimilisföng sem á að hunsa
+                    </li>
+                </ul>
+                <ul class="space-y-4">
+                    <li class="flex items-center gap-3 text-gray-700 font-medium">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Tegund eignar
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-700 font-medium">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Svalir eða garður
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-700 font-medium">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Bílskúr
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-700 font-medium">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Fasteignamat
+                    </li>
+                </ul>
             </div>
         </div>
     </section>
 
     <!-- Benefits -->
     <section class="py-24 bg-blue-900 text-white">
-        <div class="container mx-auto px-6 text-center lg:text-left">
-            <h2 class="text-3xl lg:text-4xl font-bold text-center mb-16">Hvers vegna að nota Properties by Magni?</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {#each benefits as benefit}
-                    <div class="p-8 rounded-2xl bg-blue-800/50 border border-blue-700/50 hover:bg-blue-800/70 transition-colors">
-                        <h3 class="text-xl font-bold mb-4">{benefit.title}</h3>
-                        <p class="text-blue-100 leading-relaxed text-sm">{benefit.desc}</p>
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl lg:text-4xl font-bold mb-16">Hvers vegna að nota Properties by Magni?</h2>
+            <div class="max-w-md mx-auto space-y-12">
+                {#each benefits as benefit, i}
+                    <div class="flex items-center gap-8 group">
+                        <span class="text-6xl font-black text-blue-500 opacity-50 group-hover:opacity-100 transition-opacity">
+                            {i + 1}
+                        </span>
+                        <div class="text-left">
+                            <h3 class="text-3xl font-bold">{benefit.title}</h3>
+                        </div>
                     </div>
                 {/each}
             </div>
@@ -192,13 +158,9 @@
     <!-- Footer CTA -->
     <section class="py-24 bg-white text-center">
         <div class="container mx-auto px-6">
-            <div class="max-w-4xl mx-auto bg-blue-50 p-12 lg:p-20 rounded-[3rem] border border-blue-100">
-                <h2 class="text-4xl lg:text-5xl font-bold mb-6">Hefja þína leit í dag</h2>
-                <p class="text-xl text-gray-600 mb-10">Sérsníða mína leit og fáðu daglega uppfærslu.</p>
-                <a href="/register" class="inline-block px-12 py-5 bg-blue-600 text-white rounded-full font-bold text-xl hover:bg-blue-700 transition-all shadow-xl hover:scale-105 active:scale-95">
-                    Hefja leit
-                </a>
-            </div>
+            <a href="/register" class="inline-block px-20 py-10 bg-blue-600 text-white rounded-full font-bold text-4xl hover:bg-blue-700 transition-all shadow-2xl hover:scale-105 active:scale-95">
+                Búa til reikning
+            </a>
         </div>
     </section>
 

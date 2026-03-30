@@ -27,9 +27,9 @@
   }
 </script>
 
-<div class="flex flex-col items-center justify-center min-h-screen">
-  <form onsubmit={(e) => { e.preventDefault(); handleLogin(); }} class="flex flex-col gap-4 p-8 border rounded-lg shadow-md bg-white">
-    <h1 class="text-2xl font-bold mb-4">Innskráning</h1>
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+  <form onsubmit={(e) => { e.preventDefault(); handleLogin(); }} class="flex flex-col gap-6 p-12 border rounded-xl shadow-xl bg-white w-[500px]">
+    <h1 class="text-3xl font-bold mb-4 text-center">Innskráning</h1>
     
     {#if error}
       <p class="text-red-500 text-sm">{error}</p>

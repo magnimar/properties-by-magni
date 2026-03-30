@@ -422,7 +422,8 @@ async def login(data: UserLogin, db: Session = Depends(get_db)):
 
     if not user.is_verified:
         raise HTTPException(
-            status_code=400, detail="Email not verified. Please check your inbox."
+            status_code=400,
+            detail="Netfang er óstaðfest. Vinsamlegast athugaðu pósthólfið þitt.",
         )
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

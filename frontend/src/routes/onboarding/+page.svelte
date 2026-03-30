@@ -26,16 +26,18 @@
     let message = $state('');
     let loading = $state(true);
     let showZipDropdown = $state(false);
+    let showSuccessModal = $state(false);
+    let showEmailSentModal = $state(false);
 
     function formatNumber(val) {
         if (!val && val !== 0) return '';
-        let num = String(val).replace(/,/g, '').replace(/\D/g, '');
-        return num ? parseInt(num, 10).toLocaleString('en-US') : '';
+        let num = String(val).replace(/\./g, '').replace(/\D/g, '');
+        return num ? parseInt(num, 10).toLocaleString('de-DE') : '';
     }
 
     function parseNumber(val) {
         if (!val) return 0;
-        return parseInt(String(val).replace(/,/g, ''), 10) || 0;
+        return parseInt(String(val).replace(/\./g, ''), 10) || 0;
     }
 
     function getToken() {
@@ -123,13 +125,33 @@
 
             if (res.ok) {
                 if (isFinal) {
-                    window.location.href = '/dashboard';
+                    showSuccessModal = true;
                 }
             } else {
                 message = 'Failed to save progress.';
             }
         } catch (e) {
             message = 'Error saving preferences.';
+        }
+    }
+
+    async function sendTestEmail() {
+        const token = getToken();
+        
+        try {
+            const res = await fetch(`${getApiUrl()}/me/send-test-email`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                console.error("Failed to send test email:", data.detail);
+            }
+        } catch (e) {
+            console.error("Error sending test email:", e);
         }
     }
 
@@ -156,14 +178,14 @@
                 {
                     name: "Reykjavík",
                     options: [
-                        { code: "101", name: "Reykjavík" }, { code: "102", name: "Reykjavík" },
-                        { code: "103", name: "Reykjavík" }, { code: "104", name: "Reykjavík" },
-                        { code: "105", name: "Reykjavík" }, { code: "107", name: "Reykjavík" },
-                        { code: "108", name: "Reykjavík" }, { code: "109", name: "Reykjavík" },
-                        { code: "110", name: "Reykjavík" }, { code: "111", name: "Reykjavík" },
-                        { code: "112", name: "Reykjavík" }, { code: "113", name: "Reykjavík" },
-                        { code: "116", name: "Reykjavík" }, { code: "161", name: "Reykjavík" },
-                        { code: "162", name: "Reykjavík" }
+                        { code: "101", name: "Miðbær" }, { code: "102", name: "Vatnsmýri" },
+                        { code: "103", name: "Kringlan / Hvassaleiti" }, { code: "104", name: "Vogar" },
+                        { code: "105", name: "Austurbær" }, { code: "107", name: "Vesturbær" },
+                        { code: "108", name: "Austurbær" }, { code: "109", name: "Seljahverfi" },
+                        { code: "110", name: "Árbær" }, { code: "111", name: "Efra Breiðholt" },
+                        { code: "112", name: "Grafarvogur" }, { code: "113", name: "Grafarholt" },
+                        { code: "116", name: "Kjalarnes" }, { code: "161", name: "Reykjavík" },
+                        { code: "162", name: "Kjalarnes" }
                     ]
                 },
                 {
@@ -204,10 +226,114 @@
             ]
         },
         {
-            name: "Landsbyggðin",
+            name: "Vesturland",
             options: [
-                { code: "300", name: "Akranes" }, { code: "600", name: "Akureyri" },
-                { code: "800", name: "Selfoss" }, { code: "230", name: "Reykjanesbær" }
+                { code: "300", name: "Akranes" }, { code: "301", name: "Akranes" },
+                { code: "310", name: "Borgarnes" }, { code: "311", name: "Borgarnes" },
+                { code: "320", name: "Reykholt" }, { code: "340", name: "Stykkishólmur" },
+                { code: "345", name: "Flatey" }, { code: "350", name: "Grundarfjörður" },
+                { code: "355", name: "Ólafsvík" }, { code: "356", name: "Snæfellsbær" },
+                { code: "360", name: "Hellissandur" }, { code: "370", name: "Búðardalur" },
+                { code: "371", name: "Búðardalur" }, { code: "380", name: "Reykhólahreppur" }
+            ]
+        },
+        {
+            name: "Vestfirðir",
+            options: [
+                { code: "400", name: "Ísafjörður" }, { code: "401", name: "Ísafjörður" },
+                { code: "410", name: "Hnífsdalur" }, { code: "415", name: "Bolungarvík" },
+                { code: "416", name: "Bolungarvík" }, { code: "420", name: "Súðavík" },
+                { code: "421", name: "Súðavík" }, { code: "425", name: "Flateyri" },
+                { code: "426", name: "Flateyri" }, { code: "430", name: "Suðureyri" },
+                { code: "431", name: "Suðureyri" }, { code: "450", name: "Patreksfjörður" },
+                { code: "451", name: "Patreksfjörður" }, { code: "460", name: "Tálknafjörður" },
+                { code: "461", name: "Tálknafjörður" }, { code: "465", name: "Bíldudalur" },
+                { code: "466", name: "Bíldudalur" }, { code: "470", name: "Þingeyri" },
+                { code: "471", name: "Þingeyri" }
+            ]
+        },
+        {
+            name: "Norðurland",
+            options: [
+                { code: "500", name: "Staður" }, { code: "510", name: "Hólmavík" },
+                { code: "511", name: "Hólmavík" }, { code: "512", name: "Hólmavík" },
+                { code: "520", name: "Drangsnes" }, { code: "522", name: "Kjörvogur" },
+                { code: "523", name: "Bær" }, { code: "524", name: "Norðurfjörður" },
+                { code: "530", name: "Hvammstangi" }, { code: "531", name: "Hvammstangi" },
+                { code: "540", name: "Blönduós" }, { code: "541", name: "Blönduós" },
+                { code: "545", name: "Skagaströnd" }, { code: "546", name: "Skagaströnd" },
+                { code: "550", name: "Sauðárkrókur" }, { code: "551", name: "Sauðárkrókur" },
+                { code: "560", name: "Varmahlíð" }, { code: "561", name: "Varmahlíð" },
+                { code: "565", name: "Hofsós" }, { code: "566", name: "Hofsós" },
+                { code: "570", name: "Fljót" }, { code: "580", name: "Siglufjörður" },
+                { code: "581", name: "Siglufjörður" }, { code: "600", name: "Akureyri" },
+                { code: "601", name: "Akureyri" }, { code: "602", name: "Akureyri" },
+                { code: "603", name: "Akureyri" }, { code: "604", name: "Akureyri" },
+                { code: "605", name: "Akureyri" }, { code: "606", name: "Akureyri" },
+                { code: "607", name: "Akureyri" }, { code: "610", name: "Árskógssandur" },
+                { code: "611", name: "Grímsey" }, { code: "616", name: "Grenivík" },
+                { code: "620", name: "Dalvík" }, { code: "621", name: "Dalvík" },
+                { code: "625", name: "Ólafsfjörður" }, { code: "626", name: "Ólafsfjörður" },
+                { code: "630", name: "Hrísey" }, { code: "640", name: "Húsavík" },
+                { code: "641", name: "Húsavík" }, { code: "645", name: "Fosshóll" },
+                { code: "650", name: "Laugar" }, { code: "660", name: "Mývatn" },
+                { code: "670", name: "Kópasker" }, { code: "671", name: "Kópasker" },
+                { code: "675", name: "Raufarhöfn" }, { code: "680", name: "Þórshöfn" },
+                { code: "681", name: "Þórshöfn" }
+            ]
+        },
+        {
+            name: "Austurland",
+            options: [
+                { code: "700", name: "Egilsstaðir" }, { code: "701", name: "Egilsstaðir" },
+                { code: "710", name: "Seyðisfjörður" }, { code: "715", name: "Mjóifjörður" },
+                { code: "720", name: "Borgarfjörður eystri" }, { code: "730", name: "Reyðarfjörður" },
+                { code: "735", name: "Eskifjörður" }, { code: "740", name: "Neskaupstaður" },
+                { code: "750", name: "Fáskrúðsfjörður" }, { code: "755", name: "Stöðvarfjörður" },
+                { code: "760", name: "Breiðdalsvík" }, { code: "765", name: "Djúpivogur" },
+                { code: "780", name: "Höfn í Hornafirði" }, { code: "781", name: "Höfn í Hornafirði" },
+                { code: "785", name: "Öræfi" }
+            ]
+        },
+        {
+            name: "Suðurland",
+            options: [
+                { code: "800", name: "Selfoss" }, { code: "801", name: "Selfoss" },
+                { code: "802", name: "Selfoss" }, { code: "803", name: "Selfoss" },
+                { code: "804", name: "Selfoss" }, { code: "805", name: "Selfoss" },
+                { code: "806", name: "Selfoss" }, { code: "810", name: "Hveragerði" },
+                { code: "815", name: "Þorlákshöfn" }, { code: "816", name: "Ölfus" },
+                { code: "820", name: "Eyrarbakki" }, { code: "825", name: "Stokkseyri" },
+                { code: "840", name: "Laugarvatn" }, { code: "845", name: "Flúðir" },
+                { code: "846", name: "Flúðir" }, { code: "850", name: "Hella" },
+                { code: "851", name: "Hella" }, { code: "860", name: "Hvolsvöllur" },
+                { code: "861", name: "Hvolsvöllur" }, { code: "870", name: "Vík" },
+                { code: "871", name: "Vík" }, { code: "880", name: "Kirkjubæjarklaustur" },
+                { code: "881", name: "Kirkjubæjarklaustur" }, { code: "900", name: "Vestmannaeyjar" },
+                { code: "901", name: "Vestmannaeyjabær" }
+            ]
+        },
+        {
+            name: "Suðurnes",
+            options: [
+                { code: "190", name: "Vogar" }, { code: "191", name: "Vogar" },
+                { code: "230", name: "Keflavík" }, { code: "232", name: "Keflavík" },
+                { code: "233", name: "Hafnir" }, { code: "240", name: "Grindavík" },
+                { code: "241", name: "Grindavík" }, { code: "245", name: "Suðurnesjabær" },
+                { code: "246", name: "Suðurnesjabær" }, { code: "250", name: "Suðurnesjabær" },
+                { code: "251", name: "Suðurnesjabær" }, { code: "260", name: "Njarðvík" },
+                { code: "262", name: "Reykjanesbær" }
+            ]
+        },
+        {
+            name: "Útlönd",
+            options: [
+                { code: "950", name: "Útlönd" }, { code: "951", name: "Útlönd" },
+                { code: "952", name: "Útlönd" }, { code: "953", name: "Útlönd" },
+                { code: "954", name: "Útlönd" }, { code: "955", name: "Útlönd" },
+                { code: "956", name: "Útlönd" }, { code: "970", name: "Útlönd" },
+                { code: "971", name: "Útlönd" }, { code: "980", name: "Útlönd" },
+                { code: "999", name: "Útlönd" }
             ]
         }
     ];
@@ -224,6 +350,18 @@
 
     function toggleZipGroup(groupName) {
         expandedZipGroups[groupName] = !expandedZipGroups[groupName];
+    }
+
+    function getSelectedPropertyTypes() {
+        const types = [];
+        if (einbylishus) types.push('Einbýlishús');
+        if (fjolbylishus) types.push('Fjölbýlishús');
+        if (radhus_parhus) types.push('Raðhús / Parhús');
+        if (haed) types.push('Hæð');
+        if (sumarhus) types.push('Sumarhús');
+        if (jord_lod) types.push('Jörð / Lóð');
+        if (atvinnuhusnaedi) types.push('Atvinnuhúsnæði');
+        return types.length > 0 ? types.join(', ') : 'Allar tegundir';
     }
 
     onMount(() => {
@@ -250,8 +388,7 @@
             <div class="p-8 md:p-12">
                 {#if step === 0}
                     <div class="text-center">
-                        <h1 class="text-3xl font-bold text-gray-900 mb-4">Velkomin(n) í Magni!</h1>
-                        <p class="text-lg text-gray-600 mb-8">Við skulum byrja á því að stilla leitarskilyrðin þín svo þú fáir aðeins eignir sem henta þér.</p>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-8">Velkomin/n í Properties by Magni!</h1>
                         <button 
                             onclick={nextStep}
                             class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-colors shadow-lg"
@@ -296,26 +433,47 @@
 
                 {:else if step === 3}
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Svefnherbergi</h2>
-                        <p class="text-gray-600 mb-8">Hversu mörg herbergi þarftu?</p>
-                        <div class="grid grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Lágmark</label>
-                                <input 
-                                    type="number" 
-                                    bind:value={minBedrooms}
-                                    min="1"
-                                    class="w-full p-4 text-xl border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none"
-                                />
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8">Svefnherbergi</h2>
+                        <div class="grid grid-cols-2 gap-8">
+                            <div class="flex flex-col items-center">
+                                <label class="block text-xl font-bold text-gray-700 mb-4">Lágmarksfjöldi</label>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 rounded-full border-4 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-700">
+                                        {minBedrooms}
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <button 
+                                            type="button" 
+                                            onclick={() => minBedrooms++}
+                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
+                                        >+</button>
+                                        <button 
+                                            type="button" 
+                                            onclick={() => minBedrooms = Math.max(0, minBedrooms - 1)}
+                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
+                                        >−</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Hámark</label>
-                                <input 
-                                    type="number" 
-                                    bind:value={maxBedrooms}
-                                    min="1"
-                                    class="w-full p-4 text-xl border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none"
-                                />
+                            <div class="flex flex-col items-center">
+                                <label class="block text-xl font-bold text-gray-700 mb-4">Hámarksfjöldi</label>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 rounded-full border-4 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-700">
+                                        {maxBedrooms}
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <button 
+                                            type="button" 
+                                            onclick={() => maxBedrooms++}
+                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
+                                        >+</button>
+                                        <button 
+                                            type="button" 
+                                            onclick={() => maxBedrooms = Math.max(0, maxBedrooms - 1)}
+                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
+                                        >−</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -325,7 +483,7 @@
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvar viltu búa?</h2>
                         <p class="text-gray-600 mb-6">Veldu þau póstnúmer sem þú hefur áhuga á.</p>
                         
-                        <div class="max-h-64 overflow-y-auto border-2 border-gray-100 rounded-xl p-4">
+                        <div class="max-h-[500px] overflow-y-auto border-2 border-gray-100 rounded-xl p-4">
                             {#each zipOptionsGrouped as group}
                                 <div class="mb-4">
                                     <button 
@@ -347,7 +505,7 @@
                                                                     onclick={() => toggleZipCode(opt.code)}
                                                                     class="p-2 text-sm rounded-lg border-2 transition-all {selectedZipCodes.includes(opt.code) ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
                                                                 >
-                                                                    {opt.code}
+                                                                    {opt.code} {opt.name}
                                                                 </button>
                                                             {/each}
                                                         </div>
@@ -409,8 +567,7 @@
 
                 {:else if step === 6}
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Svalir eða garður?</h2>
-                        <p class="text-gray-600 mb-8">Skiptir útivistarsvæði máli?</p>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8">Svalir eða garður?</h2>
                         
                         <div class="flex flex-col gap-3">
                             {#each [
@@ -430,8 +587,7 @@
 
                 {:else if step === 7}
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Bílskúr?</h2>
-                        <p class="text-gray-600 mb-8">Er bílskúr nauðsynlegur?</p>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8">Er bílskúr nauðsynlegur?</h2>
                         
                         <div class="grid grid-cols-2 gap-4">
                             <button 
@@ -466,7 +622,27 @@
                             </div>
                             <div class="flex justify-between border-b border-gray-200 pb-2">
                                 <span class="text-gray-500">Póstnúmer</span>
-                                <span class="font-bold">{selectedZipCodes.length} valin</span>
+                                <div class="text-right">
+                                    <p class="font-bold">{selectedZipCodes.length} valin</p>
+                                    {#if selectedZipCodes.length > 0}
+                                        <p class="text-xs text-gray-400 mt-1">{selectedZipCodes.join(', ')}</p>
+                                    {/if}
+                                </div>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Eignategundir</span>
+                                <span class="font-bold text-right ml-4">{getSelectedPropertyTypes()}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Svalir eða garður</span>
+                                <span class="font-bold">
+                                    {#if outdoorFilter === 'none'}Skiptir ekki máli
+                                    {:else if outdoorFilter === 'balcony'}Bara svalir
+                                    {:else if outdoorFilter === 'garden'}Bara garður
+                                    {:else if outdoorFilter === 'either'}Annað hvort svalir eða garður
+                                    {:else if outdoorFilter === 'both'}Bæði svalir og garður
+                                    {/if}
+                                </span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-500">Bílskúr</span>
@@ -478,7 +654,7 @@
                             onclick={() => saveOnboarding(true)}
                             class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-colors shadow-lg"
                         >
-                            Vista og halda áfram á mælaborð
+                            Vista og halda áfram
                         </button>
                     </div>
                 {/if}
@@ -507,3 +683,50 @@
         {/if}
     </div>
 </div>
+
+{#if showSuccessModal}
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">Frábært!</h3>
+            <p class="text-gray-600 mb-8">
+                Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst með eignum sem passa við þínar kröfur.
+            </p>
+            <div class="flex flex-col gap-3">
+                <button
+                    onclick={() => { showSuccessModal = false; window.location.href = '/dashboard'; }}
+                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+                >
+                    Loka
+                </button>
+                <button
+                    onclick={() => { showSuccessModal = false; showEmailSentModal = true; sendTestEmail(); }}
+                    class="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md"
+                >
+                    Fá prufutölvupóst núna
+                </button>
+            </div>
+        </div>
+    </div>
+{/if}
+
+{#if showEmailSentModal}
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            </div>
+            <p class="text-gray-600 mb-8 text-lg font-medium">
+                Tölvupóstur er í vinnslu, fylgstu vel með!
+            </p>
+            <button
+                onclick={() => { showEmailSentModal = false; window.location.href = '/dashboard'; }}
+                class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+            >
+                Loka
+            </button>
+        </div>
+    </div>
+{/if}

@@ -168,14 +168,14 @@
                 {
                     name: "Reykjavík",
                     options: [
-                        { code: "101", name: "Reykjavík" }, { code: "102", name: "Reykjavík" },
-                        { code: "103", name: "Reykjavík" }, { code: "104", name: "Reykjavík" },
-                        { code: "105", name: "Reykjavík" }, { code: "107", name: "Reykjavík" },
-                        { code: "108", name: "Reykjavík" }, { code: "109", name: "Reykjavík" },
-                        { code: "110", name: "Reykjavík" }, { code: "111", name: "Reykjavík" },
-                        { code: "112", name: "Reykjavík" }, { code: "113", name: "Reykjavík" },
-                        { code: "116", name: "Reykjavík" }, { code: "161", name: "Reykjavík" },
-                        { code: "162", name: "Reykjavík" }
+                        { code: "101", name: "Miðbær" }, { code: "102", name: "Vatnsmýri" },
+                        { code: "103", name: "Kringlan / Hvassaleiti" }, { code: "104", name: "Vogar" },
+                        { code: "105", name: "Austurbær" }, { code: "107", name: "Vesturbær" },
+                        { code: "108", name: "Austurbær" }, { code: "109", name: "Seljahverfi" },
+                        { code: "110", name: "Árbær" }, { code: "111", name: "Efra Breiðholt" },
+                        { code: "112", name: "Grafarvogur" }, { code: "113", name: "Grafarholt" },
+                        { code: "116", name: "Kjalarnes" }, { code: "161", name: "Reykjavík" },
+                        { code: "162", name: "Kjalarnes" }
                     ]
                 },
                 {
@@ -376,13 +376,13 @@
 
     function formatNumber(val) {
         if (!val && val !== 0) return '';
-        let num = String(val).replace(/,/g, '').replace(/\D/g, '');
-        return num ? parseInt(num, 10).toLocaleString('en-US') : '';
+        let num = String(val).replace(/\./g, '').replace(/\D/g, '');
+        return num ? parseInt(num, 10).toLocaleString('de-DE') : '';
     }
 
     function parseNumber(val) {
         if (!val) return 0;
-        return parseInt(String(val).replace(/,/g, ''), 10) || 0;
+        return parseInt(String(val).replace(/\./g, ''), 10) || 0;
     }
 
     function getToken() {
