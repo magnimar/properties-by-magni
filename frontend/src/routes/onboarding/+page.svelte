@@ -307,8 +307,7 @@
 
                 {:else if step === 3}
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Svefnherbergi</h2>
-                        <p class="text-gray-600 mb-8">Hversu mörg herbergi þarftu?</p>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8">Svefnherbergi</h2>
                         <div class="grid grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Lágmark</label>
