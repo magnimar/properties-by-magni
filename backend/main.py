@@ -344,6 +344,62 @@ async def update_my_preferences(
     return {"message": "Preferences updated successfully"}
 
 
+@app.post("/me/send-test-email")
+async def send_test_email(current_user: User = Depends(get_current_user)):
+    import sys
+
+    sys.path.append("/opt/properties-by-magni/scraper")
+    from scraper import Scraper
+
+    user_config = {
+        "user": current_user.email,
+        "TO_EMAIL": current_user.email,
+        "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
+        "FROM_EMAIL": os.getenv("FROM_EMAIL"),
+        "MIN_PRICE": (
+            int(current_user.min_price) if current_user.min_price is not None else 0
+        ),
+        "MAX_PRICE": (
+            int(current_user.max_price)
+            if current_user.max_price is not None
+            else 1000000000
+        ),
+        "MIN_BEDROOMS": (
+            current_user.min_bedrooms if current_user.min_bedrooms is not None else 0
+        ),
+        "MAX_BEDROOMS": (
+            current_user.max_bedrooms if current_user.max_bedrooms is not None else 10
+        ),
+        "ZIP_CODES": current_user.zip_codes if current_user.zip_codes else "101,107",
+        "outdoor_filter": current_user.outdoor_filter or "none",
+        "want_garage": current_user.want_garage or False,
+        "ignored_strings": (
+            current_user.ignored_streets.split(",")
+            if current_user.ignored_streets
+            else []
+        ),
+        "EINBYLISHUS": "yes" if current_user.einbylishus else "no",
+        "FJOLBYLISHUS": "yes" if current_user.fjolbylishus else "no",
+        "ATVINNUHUSNAEDI": "yes" if current_user.atvinnuhusnaedi else "no",
+        "RADHUS_PARHUS": "yes" if current_user.radhus_parhus else "no",
+        "SUMARHUS": "yes" if current_user.sumarhus else "no",
+        "PARHUS": "yes" if current_user.parhus else "no",
+        "JORD_LOD": "yes" if current_user.jord_lod else "no",
+        "HAED": "yes" if current_user.haed else "no",
+        "HESTHUS": "yes" if current_user.hesthus else "no",
+        "OFLOKKAD": "yes" if current_user.oflokkad else "no",
+    }
+
+    try:
+        scraper = Scraper(user_config)
+        scraper.main()
+        return {"message": "Tölvupóstur hefur verið sendur!"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Villa við að senda póst: {str(e)}"
+        )
+
+
 @app.delete("/me")
 async def delete_my_account(
     current_user: User = Depends(get_current_user),
