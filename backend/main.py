@@ -84,6 +84,7 @@ class User(Base):
     oflokkad = Column(Boolean, default=False)
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
+    onboarding_completed = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 
@@ -157,6 +158,10 @@ with engine.begin() as conn:
         conn.execute(
             text("ALTER TABLE users ADD COLUMN want_garage BOOLEAN DEFAULT FALSE;")
         )
+    if "onboarding_completed" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE;")
+        )
 
 # --- Password Hashing ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -212,6 +217,7 @@ class UserPreferences(BaseModel):
     oflokkad: bool = False
     outdoor_filter: str = "none"
     want_garage: bool = False
+    onboarding_completed: bool = False
 
 
 # --- FastAPI App ---
@@ -301,6 +307,7 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
         "oflokkad": current_user.oflokkad,
         "outdoor_filter": current_user.outdoor_filter,
         "want_garage": current_user.want_garage,
+        "onboarding_completed": current_user.onboarding_completed,
     }
 
 
@@ -326,6 +333,7 @@ async def update_my_preferences(
     current_user.oflokkad = prefs.oflokkad
     current_user.outdoor_filter = prefs.outdoor_filter
     current_user.want_garage = prefs.want_garage
+    current_user.onboarding_completed = prefs.onboarding_completed
     if prefs.zip_codes is not None:
         current_user.zip_codes = ",".join(prefs.zip_codes)
     if prefs.ignored_streets is not None:

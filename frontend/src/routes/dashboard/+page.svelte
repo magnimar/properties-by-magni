@@ -415,6 +415,10 @@
             
             if (res.ok) {
                 user = await res.json();
+                if (!user.onboarding_completed) {
+                    window.location.href = '/onboarding';
+                    return;
+                }
                 minPrice = formatNumber(user.min_price || 0);
                 maxPrice = formatNumber(user.max_price || 0);
                 minBedrooms = user.min_bedrooms || 1;
@@ -477,7 +481,8 @@
                     hesthus: hesthus,
                     oflokkad: oflokkad,
                     outdoor_filter: outdoorFilter,
-                    want_garage: want_garage
+                    want_garage: want_garage,
+                    onboarding_completed: true
                 })
             });
 
