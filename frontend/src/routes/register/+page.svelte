@@ -44,9 +44,9 @@
     {/if}
 
     {#if success}
-      <div class="p-4 bg-green-50 border border-green-200 rounded text-green-700 text-sm">
-        <p class="font-bold mb-1">Account created successfully!</p>
-        <p>Please check your email inbox to verify your account before logging in.</p>
+      <div class="p-6 bg-green-50 border-2 border-green-300 rounded-xl text-green-800 text-center">
+        <p class="font-bold text-2xl mb-3">Nýskráning tókst!</p>
+        <p class="text-lg">Vinsamlegast athugaðu netfangið þitt til að staðfesta aðganginn áður en þú skráir þig inn.</p>
       </div>
     {:else}
       <div class="flex flex-col gap-1">
