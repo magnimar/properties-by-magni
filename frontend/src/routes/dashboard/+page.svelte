@@ -516,9 +516,10 @@
 
     async function sendTestEmail() {
         const token = getToken();
-        message = 'Sendi tölvupóst...';
         
         try {
+            // We don't await the full response here if we want instant UI feedback,
+            // but we should at least start the fetch.
             const res = await fetch(`${getApiUrl()}/me/send-test-email`, {
                 method: 'POST',
                 headers: {
@@ -526,14 +527,12 @@
                 }
             });
 
-            const data = await res.json();
-            if (res.ok) {
-                message = data.message || 'Tölvupóstur hefur verið sendur!';
-            } else {
-                message = data.detail || 'Ekki tókst að senda tölvupóst.';
+            if (!res.ok) {
+                const data = await res.json();
+                console.error("Failed to send test email:", data.detail);
             }
         } catch (e) {
-            message = 'Villa við að senda tölvupóst.';
+            console.error("Error sending test email:", e);
         }
     }
 
@@ -949,7 +948,7 @@
                         Loka
                     </button>
                     <button
-                        onclick={() => { sendTestEmail(); showSuccessModal = false; }}
+                        onclick={() => { showSuccessModal = false; showEmailSentModal = true; sendTestEmail(); }}
                         class="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md"
                     >
                         Fá prufutölvupóst núna
@@ -965,8 +964,7 @@
                 <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                 </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Póstur sendur!</h3>
-                <p class="text-gray-600 mb-8">
+                <p class="text-gray-600 mb-8 text-lg font-medium">
                     Tölvupóstur er í vinnslu, fylgstu vel með!
                 </p>
                 <button
