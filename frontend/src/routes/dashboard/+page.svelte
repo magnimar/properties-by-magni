@@ -22,8 +22,10 @@
     let outdoorFilter = $state('none');
     let want_garage = $state(false);
     let message = $state('');
+    let showSuccessModal = $state(false);
     let loading = $state(true);
     let showZipDropdown = $state(false);
+    let zipDropdownEl = $state(null);
     let pendingStreetName = $state('');
     let selectedPlaceObject = $state(null);
 
@@ -357,6 +359,20 @@
         expandedZipGroups[groupName] = !expandedZipGroups[groupName];
     }
 
+    function toggleAllInGroup(options, isChecked) {
+        if (isChecked) {
+            const codesToAdd = options.map(o => o.code).filter(code => !selectedZipCodes.includes(code));
+            selectedZipCodes = [...selectedZipCodes, ...codesToAdd];
+        } else {
+            const codesToRemove = options.map(o => o.code);
+            selectedZipCodes = selectedZipCodes.filter(code => !codesToRemove.includes(code));
+        }
+    }
+
+    function isGroupFullySelected(options) {
+        return options.length > 0 && options.every(o => selectedZipCodes.includes(o.code));
+    }
+
     function formatNumber(val) {
         if (!val && val !== 0) return '';
         let num = String(val).replace(/,/g, '').replace(/\D/g, '');
@@ -487,8 +503,8 @@
             });
 
             if (res.ok) {
-                message = 'Preferences saved successfully!';
-                setTimeout(() => { message = ''; }, 3000);
+                message = '';
+                showSuccessModal = true;
             } else {
                 message = 'Failed to save preferences.';
             }
@@ -523,6 +539,14 @@
     onMount(() => {
         fetchProfile();
 
+        const handleClickOutside = (event) => {
+            if (showZipDropdown && zipDropdownEl && !zipDropdownEl.contains(event.target)) {
+                showZipDropdown = false;
+            }
+        };
+
+        window.addEventListener('click', handleClickOutside);
+
         if (!window.google) {
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places&loading=async`;
@@ -530,101 +554,130 @@
             script.defer = true;
             document.head.appendChild(script);
         }
+
+        return () => {
+            window.removeEventListener('click', handleClickOutside);
+        };
     });
 </script>
 
 <div class="p-8 max-w-2xl mx-auto">
-    <div class="flex justify-between items-center mb-8">
+    <div class="fixed top-0 right-0 p-4 flex gap-2 z-50">
+        <button 
+            onclick={handleDeleteAccount}
+            class="bg-red-100 text-red-600 px-4 py-2 rounded-full hover:bg-red-200 transition-colors font-semibold text-sm shadow-sm"
+        >
+            Eyða aðgangi
+        </button>
+        <button 
+            onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}
+            class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors font-semibold text-sm shadow-sm"
+        >
+            Útskráning
+        </button>
+    </div>
+
+    <div class="flex justify-center items-center mb-8 text-center">
         <h1 class="text-3xl font-bold">Finndu fasteign sem segir já!</h1>
-        <div class="flex gap-2">
-            <button 
-                onclick={handleDeleteAccount}
-                class="bg-red-100 text-red-600 px-4 py-2 rounded hover:bg-red-200 transition-colors font-semibold text-sm"
-            >
-                Eyða aðgangi
-            </button>
-            <button 
-                onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}
-                class="bg-gray-100 text-gray-700 px-4 py-2 rounded border border-gray-300 hover:bg-gray-200 transition-colors font-semibold text-sm"
-            >
-                Útskráning
-            </button>
-        </div>
     </div>
 
     {#if loading}
         <p>Loading your profile...</p>
     {:else if user}
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <h2 class="text-xl font-semibold mb-4">Leitarskilyrði</h2>
+            <div class="grid grid-cols-1 gap-12 mb-12">
+                <div class="flex flex-col items-center">
+                    <label for="minPrice" class="block text-2xl font-bold text-gray-800 mb-2">Lágmarksverð</label>
+                    <div class="relative w-full max-w-sm">
+                        <input 
+                            type="text" 
+                            inputmode="numeric"
+                            id="minPrice" 
+                            value={minPrice}
+                            oninput={(e) => minPrice = formatNumber(e.target.value)}
+                            class="w-full p-4 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-semibold"
+                        />
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xl">kr.</span>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center">
+                    <label for="maxPrice" class="block text-2xl font-bold text-gray-800 mb-2">Hámarksverð</label>
+                    <div class="relative w-full max-w-sm">
+                        <input 
+                            type="text" 
+                            inputmode="numeric"
+                            id="maxPrice" 
+                            value={maxPrice}
+                            oninput={(e) => maxPrice = formatNumber(e.target.value)}
+                            class="w-full p-4 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-semibold"
+                        />
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xl">kr.</span>
+                    </div>
+                </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                    <label for="minPrice" class="block text-sm font-medium text-gray-700 mb-1">Lágmarksverð (ISK)</label>
-                    <input 
-                        type="text" 
-                        inputmode="numeric"
-                        id="minPrice" 
-                        value={minPrice}
-                        oninput={(e) => minPrice = formatNumber(e.target.value)}
-                        class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
+                <div class="flex flex-col items-center">
+                    <span class="block text-2xl font-bold text-gray-800 mb-2">Lágmarksfjöldi svefnherbergja</span>
+                    <div class="flex items-center gap-4">
+                        <button 
+                            type="button" 
+                            onclick={() => minBedrooms = Math.max(0, minBedrooms - 1)}
+                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                        >−</button>
+                        <div class="w-12 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
+                            {minBedrooms}
+                        </div>
+                        <button 
+                            type="button" 
+                            onclick={() => minBedrooms++}
+                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                        >+</button>
+                    </div>
                 </div>
-                <div>
-                    <label for="maxPrice" class="block text-sm font-medium text-gray-700 mb-1">Hámarksverð (ISK)</label>
-                    <input 
-                        type="text" 
-                        inputmode="numeric"
-                        id="maxPrice" 
-                        value={maxPrice}
-                        oninput={(e) => maxPrice = formatNumber(e.target.value)}
-                        class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                </div>
-                <div>
-                    <label for="minBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Lágmarksfjöldi svefnherbergja</label>
-                    <input 
-                        type="number" 
-                        id="minBedrooms" 
-                        bind:value={minBedrooms}
-                        class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                </div>
-                <div>
-                    <label for="maxBedrooms" class="block text-sm font-medium text-gray-700 mb-1">Hámarksfjöldi svefnherbergja</label>
-                    <input 
-                        type="number" 
-                        id="maxBedrooms" 
-                        bind:value={maxBedrooms}
-                        class="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
+
+                <div class="flex flex-col items-center">
+                    <span class="block text-2xl font-bold text-gray-800 mb-2">Hámarksfjöldi svefnherbergja</span>
+                    <div class="flex items-center gap-4">
+                        <button 
+                            type="button" 
+                            onclick={() => maxBedrooms = Math.max(0, maxBedrooms - 1)}
+                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                        >−</button>
+                        <div class="w-12 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
+                            {maxBedrooms}
+                        </div>
+                        <button 
+                            type="button" 
+                            onclick={() => maxBedrooms++}
+                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                        >+</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="mb-6 relative">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Póstnúmer</label>
-                <div class="relative">
+            <div class="mb-12 relative flex flex-col items-center w-full" bind:this={zipDropdownEl}>
+                <span class="block text-2xl font-bold text-gray-800 mb-2">Póstnúmer</span>
+                <div class="relative w-full max-w-sm">
                     <button 
                         type="button"
-                        onclick={() => showZipDropdown = !showZipDropdown}
-                        class="w-full text-left p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none bg-white flex justify-between items-center"
+                        onclick={(e) => { e.stopPropagation(); showZipDropdown = !showZipDropdown; }}
+                        class="w-full text-left p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white flex justify-between items-center text-center font-semibold"
                     >
-                        <span>
+                        <span class="w-full text-center truncate">
                             {selectedZipCodes.length > 0 
                                 ? selectedZipCodes.map(code => {
                                     const opt = zipOptions.find(o => o.code === String(code));
-                                    return opt ? `${opt.code} ${opt.name}` : code;
+                                    return opt ? `${opt.code}` : code;
                                 }).join(', ') 
                                 : 'Veldu póstnúmer...'}
                         </span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
                     </button>
                     
                     {#if showZipDropdown}
                         <div class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded shadow-lg">
-                            <ul class="max-h-80 overflow-auto py-1">
+                            <ul class="max-h-[700px] overflow-auto py-1">
                                 {#each zipOptionsGrouped as group}
                                     <li>
                                         <button 
@@ -645,6 +698,17 @@
                                         {#if expandedZipGroups[group.name]}
                                             <ul class="border-b border-gray-100 pb-1">
                                                 {#if group.subgroups}
+                                                    <li>
+                                                        <label class="flex items-center px-4 py-1.5 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                                checked={isGroupFullySelected(group.subgroups.flatMap(sg => sg.options))}
+                                                                onchange={(e) => toggleAllInGroup(group.subgroups.flatMap(sg => sg.options), e.target.checked)}
+                                                            />
+                                                            <span class="ml-3 text-sm font-bold text-gray-700">Velja allt í {group.name}</span>
+                                                        </label>
+                                                    </li>
                                                     {#each group.subgroups as subgroup}
                                                         <li>
                                                             <button 
@@ -664,6 +728,17 @@
                                                             </button>
                                                             {#if expandedZipGroups[subgroup.name]}
                                                                 <ul class="pl-6 border-t border-gray-100 py-1 bg-gray-50 bg-opacity-50">
+                                                                    <li>
+                                                                        <label class="flex items-center px-4 py-1.5 hover:bg-gray-100 cursor-pointer border-b border-gray-200">
+                                                                            <input 
+                                                                                type="checkbox" 
+                                                                                class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                                                checked={isGroupFullySelected(subgroup.options)}
+                                                                                onchange={(e) => toggleAllInGroup(subgroup.options, e.target.checked)}
+                                                                            />
+                                                                            <span class="ml-3 text-sm font-bold text-gray-700">Velja allt</span>
+                                                                        </label>
+                                                                    </li>
                                                                     {#each subgroup.options as option}
                                                                         <li>
                                                                             <label class="flex items-center px-4 py-1.5 hover:bg-gray-100 cursor-pointer">
@@ -683,6 +758,17 @@
                                                     {/each}
                                                 {:else}
                                                     <ul class="pl-4 py-1">
+                                                        <li>
+                                                            <label class="flex items-center px-4 py-1.5 hover:bg-gray-100 cursor-pointer border-b border-gray-100">
+                                                                <input 
+                                                                    type="checkbox" 
+                                                                    class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                                    checked={isGroupFullySelected(group.options)}
+                                                                    onchange={(e) => toggleAllInGroup(group.options, e.target.checked)}
+                                                                />
+                                                                <span class="ml-3 text-sm font-bold text-gray-700">Velja allt</span>
+                                                            </label>
+                                                        </li>
                                                         {#each group.options as option}
                                                             <li>
                                                                 <label class="flex items-center px-4 py-1.5 hover:bg-gray-100 cursor-pointer">
@@ -708,9 +794,9 @@
                 </div>
             </div>
 
-            <div class="mb-6">
-                <label for="street-search" class="block text-sm font-medium text-gray-700 mb-2">Götur sem á að hunsa</label>
-                <div class="mb-3 flex items-center gap-2">
+            <div class="mb-12 flex flex-col items-center">
+                <span class="block text-2xl font-bold text-gray-800 mb-4">Götur sem á að hundsa</span>
+                <div class="mb-3 flex items-center gap-2 w-full max-w-lg">
                     <div class="w-full flex-grow" use:setupPlaces>
                         <!-- Google Maps PlaceAutocompleteElement will inject here -->
                     </div>
@@ -718,7 +804,7 @@
                         type="button"
                         onclick={addPendingStreet}
                         disabled={!pendingStreetName}
-                        class="bg-blue-600 text-white px-4 py-2 h-[42px] rounded font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                        class="bg-blue-600 text-white px-6 py-2 h-[42px] rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
                     >
                         Bæta við
                     </button>
@@ -745,111 +831,128 @@
                 {/if}
             </div>
 
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tegundir eigna</label>
-                <div class="flex flex-col gap-3">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={einbylishus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Einbýlishús</span>
+            <div class="mb-12 flex flex-col items-center">
+                <span class="block text-2xl font-bold text-gray-800 mb-6">Tegundir eigna</span>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {einbylishus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={einbylishus} class="hidden" />
+                        <span class="text-sm font-bold text-center">Einbýlishús</span>
                     </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={parhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Parhús</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {parhus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={parhus} class="hidden" />
+                        <span class="text-sm font-bold text-center">Parhús</span>
                     </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={radhus_parhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Raðhús</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {radhus_parhus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={radhus_parhus} class="hidden" />
+                        <span class="text-sm font-bold text-center">Raðhús</span>
                     </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={fjolbylishus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Fjölbýlishús</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {fjolbylishus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={fjolbylishus} class="hidden" />
+                        <span class="text-sm font-bold text-center">Fjölbýlishús</span>
                     </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={haed} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Hæð</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {haed ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={haed} class="hidden" />
+                        <span class="text-sm font-bold text-center">Hæð</span>
                     </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={atvinnuhusnaedi} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Atvinnuhúsnæði</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {atvinnuhusnaedi ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={atvinnuhusnaedi} class="hidden" />
+                        <span class="text-sm font-bold text-center">Atvinnuhúsnæði</span>
                     </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={sumarhus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Sumarhús</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {sumarhus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={sumarhus} class="hidden" />
+                        <span class="text-sm font-bold text-center">Sumarhús</span>
                     </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={jord_lod} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Jörð/Lóð</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {jord_lod ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={jord_lod} class="hidden" />
+                        <span class="text-sm font-bold text-center">Jörð/Lóð</span>
                     </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={hesthus} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Hesthús</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {hesthus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={hesthus} class="hidden" />
+                        <span class="text-sm font-bold text-center">Hesthús</span>
                     </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={oflokkad} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Óflokkað</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Svalir og garður</label>
-                <div class="flex flex-col gap-3 mb-4">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="outdoorFilter" value="balcony" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Bara svalir</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="outdoorFilter" value="garden" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Bara garður</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="outdoorFilter" value="either" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Annað hvort</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="outdoorFilter" value="both" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Bæði</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="outdoorFilter" value="none" bind:group={outdoorFilter} class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Skiptir ekki máli</span>
-                    </label>
-                </div>
-
-                <label class="block text-sm font-medium text-gray-700 mb-2">Annað</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" bind:checked={want_garage} class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-                        <span class="ml-3 text-sm font-medium text-gray-700">Bílskúr (Garage)</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {oflokkad ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                        <input type="checkbox" bind:checked={oflokkad} class="hidden" />
+                        <span class="text-sm font-bold text-center">Óflokkað</span>
                     </label>
                 </div>
             </div>
 
-            <div class="flex items-center gap-4">
-                <button 
-                    onclick={savePreferences}
-                    class="bg-blue-600 text-white px-6 py-2 rounded font-medium hover:bg-blue-700 transition-colors"
-                >
-                    Vista stillingar
-                </button>
+            <div class="mb-12 flex flex-col items-center">
+                <span class="block text-2xl font-bold text-gray-800 mb-6">Svalir og garður</span>
+                <div class="flex flex-col gap-3 w-full max-w-md">
+                    {#each [
+                        { val: 'balcony', label: 'Bara svalir' },
+                        { val: 'garden', label: 'Bara garður' },
+                        { val: 'either', label: 'Annað hvort' },
+                        { val: 'both', label: 'Bæði' },
+                        { val: 'none', label: 'Skiptir ekki máli' }
+                    ] as opt}
+                        <label class="flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all {outdoorFilter === opt.val ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
+                            <input type="radio" name="outdoorFilter" value={opt.val} bind:group={outdoorFilter} class="hidden" />
+                            <span class="text-sm font-bold text-center">{opt.label}</span>
+                        </label>
+                    {/each}
+                </div>
+            </div>
 
-                <button 
-                    onclick={sendTestEmail}
-                    class="bg-green-600 text-white px-6 py-2 rounded font-medium hover:bg-green-700 transition-colors"
-                >
-                    Senda tölvupóst með þessum stillingum
-                </button>
+            <div class="mb-12 flex flex-col items-center">
+                <span class="block text-2xl font-bold text-gray-800 mb-6">Annað</span>
+                <div class="flex justify-center w-full max-w-sm">
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {want_garage ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'} w-full">
+                        <input type="checkbox" bind:checked={want_garage} class="hidden" />
+                        <span class="text-sm font-bold text-center">Bílskúr</span>
+                    </label>
+                </div>
+            </div>
+
+
+            <div class="flex flex-col items-center gap-8 py-8">
+                <div class="flex flex-col items-center gap-4">
+                    <button 
+                        onclick={savePreferences}
+                        class="px-12 py-6 rounded-full bg-blue-600 text-white font-bold text-xl hover:bg-blue-700 transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center text-center"
+                    >
+                        Vista stillingar
+                    </button>
+
+                    <button 
+                        onclick={sendTestEmail}
+                        class="mt-4 bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition-colors shadow-md"
+                    >
+                        Senda tölvupóst með þessum stillingum
+                    </button>
+                </div>
                 
                 {#if message}
-                    <span class="text-sm font-medium {message.includes('Error') || message.includes('Failed') ? 'text-red-500' : 'text-green-600'}">
+                    <span class="text-sm font-medium {message.includes('Error') || message.includes('Failed') || message.includes('Villa') || message.includes('Ekki') ? 'text-red-500' : 'text-green-600'}">
                         {message}
                     </span>
                 {/if}
             </div>
         </div>
 
-        <div class="mt-8">
-            <p class="text-gray-500 italic">Signed in as: {user.email}</p>
+        <div class="mt-8 text-center">
+            <p class="text-gray-500 italic text-sm">Signed in as: {user.email}</p>
+        </div>
+    {/if}
+
+    {#if showSuccessModal}
+        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Frábært!</h3>
+                <p class="text-gray-600 mb-8">
+                    Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst með eignum sem passa við þínar kröfur.
+                </p>
+                <button 
+                    onclick={() => showSuccessModal = false}
+                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+                >
+                    Loka
+                </button>
+            </div>
         </div>
     {/if}
 </div>
