@@ -915,12 +915,6 @@
                         Vista stillingar
                     </button>
 
-                    <button 
-                        onclick={sendTestEmail}
-                        class="mt-4 bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition-colors shadow-md"
-                    >
-                        Senda tölvupóst með þessum stillingum
-                    </button>
                 </div>
                 
                 {#if message}
@@ -946,12 +940,20 @@
                 <p class="text-gray-600 mb-8">
                     Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst með eignum sem passa við þínar kröfur.
                 </p>
-                <button 
-                    onclick={() => showSuccessModal = false}
-                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
-                >
-                    Loka
-                </button>
+                <div class="flex flex-col gap-3">
+                    <button
+                        onclick={() => showSuccessModal = false}
+                        class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+                    >
+                        Loka
+                    </button>
+                    <button
+                        onclick={() => { sendTestEmail(); showSuccessModal = false; }}
+                        class="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md"
+                    >
+                        Fá prufutölvupóst núna
+                    </button>
+                </div>
             </div>
         </div>
     {/if}
