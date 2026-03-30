@@ -262,8 +262,7 @@
             <div class="p-8 md:p-12">
                 {#if step === 0}
                     <div class="text-center">
-                        <h1 class="text-3xl font-bold text-gray-900 mb-4">Velkomin/n í Properties by Magni!</h1>
-                        <p class="text-lg text-gray-600 mb-8">Við skulum byrja á því að stilla leitarskilyrðin þín svo þú fáir aðeins eignir sem henta þér.</p>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-8">Velkomin/n í Properties by Magni!</h1>
                         <button 
                             onclick={nextStep}
                             class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-colors shadow-lg"
