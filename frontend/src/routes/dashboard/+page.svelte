@@ -23,6 +23,7 @@
     let want_garage = $state(false);
     let message = $state('');
     let showSuccessModal = $state(false);
+    let showEmailSentModal = $state(false);
     let loading = $state(true);
     let showZipDropdown = $state(false);
     let zipDropdownEl = $state(null);
@@ -515,9 +516,10 @@
 
     async function sendTestEmail() {
         const token = getToken();
-        message = 'Sendi tölvupóst...';
         
         try {
+            // We don't await the full response here if we want instant UI feedback,
+            // but we should at least start the fetch.
             const res = await fetch(`${getApiUrl()}/me/send-test-email`, {
                 method: 'POST',
                 headers: {
@@ -525,14 +527,12 @@
                 }
             });
 
-            const data = await res.json();
-            if (res.ok) {
-                message = data.message || 'Tölvupóstur hefur verið sendur!';
-            } else {
-                message = data.detail || 'Ekki tókst að senda tölvupóst.';
+            if (!res.ok) {
+                const data = await res.json();
+                console.error("Failed to send test email:", data.detail);
             }
         } catch (e) {
-            message = 'Villa við að senda tölvupóst.';
+            console.error("Error sending test email:", e);
         }
     }
 
@@ -795,7 +795,7 @@
             </div>
 
             <div class="mb-12 flex flex-col items-center">
-                <span class="block text-2xl font-bold text-gray-800 mb-4">Götur sem á að hundsa</span>
+                <span class="block text-2xl font-bold text-gray-800 mb-4">Götur sem á að hunsa</span>
                 <div class="mb-3 flex items-center gap-2 w-full max-w-lg">
                     <div class="w-full flex-grow" use:setupPlaces>
                         <!-- Google Maps PlaceAutocompleteElement will inject here -->
@@ -915,12 +915,6 @@
                         Vista stillingar
                     </button>
 
-                    <button 
-                        onclick={sendTestEmail}
-                        class="mt-4 bg-green-600 text-white px-8 py-3 rounded-full font-bold hover:bg-green-700 transition-colors shadow-md"
-                    >
-                        Senda tölvupóst með þessum stillingum
-                    </button>
                 </div>
                 
                 {#if message}
@@ -946,8 +940,35 @@
                 <p class="text-gray-600 mb-8">
                     Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst með eignum sem passa við þínar kröfur.
                 </p>
-                <button 
-                    onclick={() => showSuccessModal = false}
+                <div class="flex flex-col gap-3">
+                    <button
+                        onclick={() => showSuccessModal = false}
+                        class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+                    >
+                        Loka
+                    </button>
+                    <button
+                        onclick={() => { showSuccessModal = false; showEmailSentModal = true; sendTestEmail(); }}
+                        class="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md"
+                    >
+                        Fá prufutölvupóst núna
+                    </button>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    {#if showEmailSentModal}
+        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+                <p class="text-gray-600 mb-8 text-lg font-medium">
+                    Tölvupóstur er í vinnslu, fylgstu vel með!
+                </p>
+                <button
+                    onclick={() => showEmailSentModal = false}
                     class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
                 >
                     Loka
