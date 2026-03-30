@@ -23,6 +23,7 @@
     let want_garage = $state(false);
     let message = $state('');
     let showSuccessModal = $state(false);
+    let showEmailSentModal = $state(false);
     let loading = $state(true);
     let showZipDropdown = $state(false);
     let zipDropdownEl = $state(null);
@@ -954,6 +955,26 @@
                         Fá prufutölvupóst núna
                     </button>
                 </div>
+            </div>
+        </div>
+    {/if}
+</div>
+odal}
+        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Póstur sendur!</h3>
+                <p class="text-gray-600 mb-8">
+                    Tölvupóstur er á leiðinni! Fylgstu vel með.
+                </p>
+                <button
+                    onclick={() => showEmailSentModal = false}
+                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+                >
+                    Loka
+                </button>
             </div>
         </div>
     {/if}
