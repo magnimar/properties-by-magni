@@ -7,24 +7,22 @@
         },
         {
             title: "2. Við leitum",
-            desc: "Kerfið okkar skannar allar helstu fasteignasíður landsins allan sólarhringinn.",
+            desc: "Kerfið okkar leitar í gegnum allar fasteignir landsins.",
             icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-blue-600"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>`
         },
         {
             title: "3. Fáðu daglega uppfærslu",
-            desc: "Við sendum þér tölvupóst daglega með aðeins þeim eignum sem passa fullkomlega við þínar kröfur.",
+            desc: "Við sendum þér tölvupóst daglega með aðeins þeim eignum sem passa við þínar kröfur.",
             icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-blue-600"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>`
         }
     ];
 
     const benefits = [
-        { title: "Sparaðu tíma", desc: "Ekki eyða tíma í að leita á mörgum síðum. Við gerum það fyrir þig." },
-        { title: "Ekki missa af neinu", desc: "Við skönnum allar helstu fasteignasíður landsins." },
-        { title: "Aðeins það sem þú vilt", desc: "Fáðu daglega uppfærslu með aðeins þeim eignum sem passa þér fullkomlega." },
-        { title: "Faglegt og áreiðanlegt", desc: "Treystu á nákvæma og daglega uppfærslu frá sérhæfðu kerfi." }
+        { title: "Sparaðu tíma", desc: "Ekki eyða tíma í að leita á fasteignasíðum. Við gerum það fyrir þig." },
+        { title: "Ekki missa af neinu", desc: "Fáðu sjálfvirkar uppfærslur með öllum nýjum eignum." },
+        { title: "Aðeins það sem þú vilt", desc: "Fáðu daglega uppfærslu með aðeins þeim eignum sem passa þér fullkomlega." }
         ];
         </script>
-
 
 <div class="min-h-screen font-sans text-gray-900 bg-white selection:bg-blue-100">
     <!-- Hero Section -->
@@ -66,7 +64,7 @@
     <!-- How It Works -->
     <section class="py-24 bg-gray-50">
         <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-3 gap-12">
+            <div class="grid md:grid-cols-3 gap-12 mb-20">
                 {#each steps as step}
                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center group hover:shadow-md transition-shadow">
                         <div class="mb-6 p-4 bg-blue-50 rounded-full group-hover:scale-110 transition-transform">
@@ -77,6 +75,14 @@
                     </div>
                 {/each}
             </div>
+
+            <!-- Email Screenshot -->
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-900">Sýnidæmi</h2>
+            </div>
+            <div class="max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl border border-gray-100">
+                <img src="/email_screenshot.png" alt="Dæmi um tölvupóst" class="w-full h-auto object-cover" />
+            </div>
         </div>
     </section>
 
@@ -84,24 +90,49 @@
     <section class="py-24">
         <div class="container mx-auto px-6 lg:flex items-center gap-16">
             <div class="lg:w-1/2 mb-12 lg:mb-0">
-                <h2 class="text-3xl lg:text-5xl font-bold mb-8 leading-tight">Sérsniðin leit fyrir kröfuhart fólk</h2>
+                <h2 class="text-3xl lg:text-5xl font-bold mb-8 leading-tight">Sérsniðin leit</h2>
                 <p class="text-lg text-gray-600 mb-8">
-                    Við skiljum að þegar kemur að heimili þínu, þá skipta smáatriðin máli. Kerfið okkar leyfir þér að kafa dýpra en hefðbundnar fasteignasíður.
+                    Í kerfinu er hægt að setja ýmsar kvaðir á eignir, eins og t.d.:
                 </p>
-                <ul class="space-y-4">
-                    <li class="flex items-center gap-3 text-gray-700 font-medium">
-                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        Nákvæm hverfaskipting
-                    </li>
-                    <li class="flex items-center gap-3 text-gray-700 font-medium">
-                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        Sérkröfur eins og útsýni eða bílageymsla
-                    </li>
-                    <li class="flex items-center gap-3 text-gray-700 font-medium">
-                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        Sjálfvirkar tilkynningar um leið og eign kemur inn
-                    </li>
-                </ul>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Verðbil (Lágmark/Hámark)
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Fjöldi svefnherbergja
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Póstnúmer / Hverfi
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                            Götur/heimilisföng sem á að hunsa
+                        </li>
+                        </ul>
+                        <ul class="space-y-4">
+
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Tegund eignar
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Svalir eða garður
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Bílskúr
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-700 font-medium">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Fasteignamat
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="lg:w-1/2">
                 <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
@@ -147,7 +178,7 @@
     <section class="py-24 bg-blue-900 text-white">
         <div class="container mx-auto px-6 text-center lg:text-left">
             <h2 class="text-3xl lg:text-4xl font-bold text-center mb-16">Hvers vegna að nota Properties by Magni?</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {#each benefits as benefit}
                     <div class="p-8 rounded-2xl bg-blue-800/50 border border-blue-700/50 hover:bg-blue-800/70 transition-colors">
                         <h3 class="text-xl font-bold mb-4">{benefit.title}</h3>
