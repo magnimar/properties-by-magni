@@ -967,7 +967,7 @@
                 </div>
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Póstur sendur!</h3>
                 <p class="text-gray-600 mb-8">
-                    Tölvupóstur er á leiðinni! Fylgstu vel með.
+                    Tölvupóstur er í vinnslu, fylgstu vel með!
                 </p>
                 <button
                     onclick={() => showEmailSentModal = false}
