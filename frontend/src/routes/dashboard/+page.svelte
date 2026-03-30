@@ -795,7 +795,7 @@
             </div>
 
             <div class="mb-12 flex flex-col items-center">
-                <span class="block text-2xl font-bold text-gray-800 mb-4">Götur sem á að hundsa</span>
+                <span class="block text-2xl font-bold text-gray-800 mb-4">Götur sem á að hunsa</span>
                 <div class="mb-3 flex items-center gap-2 w-full max-w-lg">
                     <div class="w-full flex-grow" use:setupPlaces>
                         <!-- Google Maps PlaceAutocompleteElement will inject here -->

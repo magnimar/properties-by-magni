@@ -80,7 +80,7 @@ def send_password_reset_email(to_email, reset_token):
             <p>Þú baðst um að endurstilla lykilorðið þitt. Vinsamlegast smelltu á hlekkinn hér að neðan til að velja nýtt lykilorð:</p>
             <p><a href="{reset_link}">{reset_link}</a></p>
             <p>Þessi hlekkur rennur út eftir 1 klukkustund.</p>
-            <p>Ef þú baðst ekki um þetta getur þú hundsað þennan tölvupóst.</p>
+            <p>Ef þú baðst ekki um þetta getur þú hunsað þennan tölvupóst.</p>
         </body>
     </html>
     """
