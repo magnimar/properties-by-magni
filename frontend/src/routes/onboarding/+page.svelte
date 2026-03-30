@@ -29,13 +29,13 @@
 
     function formatNumber(val) {
         if (!val && val !== 0) return '';
-        let num = String(val).replace(/,/g, '').replace(/\D/g, '');
-        return num ? parseInt(num, 10).toLocaleString('en-US') : '';
+        let num = String(val).replace(/\./g, '').replace(/\D/g, '');
+        return num ? parseInt(num, 10).toLocaleString('de-DE') : '';
     }
 
     function parseNumber(val) {
         if (!val) return 0;
-        return parseInt(String(val).replace(/,/g, ''), 10) || 0;
+        return parseInt(String(val).replace(/\./g, ''), 10) || 0;
     }
 
     function getToken() {
