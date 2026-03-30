@@ -36,17 +36,16 @@
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-  <form onsubmit={async (e) => { e.preventDefault(); await handleRegister(); }} class="flex flex-col gap-4 p-8 border rounded-lg shadow-md bg-white w-96">
-    <h1 class="text-2xl font-bold mb-4 text-center">Nýskráning</h1>
+  <form onsubmit={async (e) => { e.preventDefault(); await handleRegister(); }} class="flex flex-col gap-6 p-12 border rounded-xl shadow-xl bg-white w-[500px]">
+    <h1 class="text-3xl font-bold mb-4 text-center">Nýskráning</h1>
     
     {#if error}
       <p class="text-red-500 text-sm p-2 bg-red-50 rounded border border-red-200">{error}</p>
     {/if}
 
     {#if success}
-      <div class="p-6 bg-green-50 border-2 border-green-300 rounded-xl text-green-800 text-center">
-        <p class="font-bold text-2xl mb-3">Nýskráning tókst!</p>
-        <p class="text-lg">Vinsamlegast athugaðu netfangið þitt til að staðfesta aðganginn áður en þú skráir þig inn.</p>
+      <div class="p-8 bg-green-50 border-2 border-green-300 rounded-xl text-green-800 text-center">
+        <p class="text-xl font-bold">Skoðaðu tölvupóstinn þinn til þess að staðfesta netfangið þitt!</p>
       </div>
     {:else}
       <div class="flex flex-col gap-1">
