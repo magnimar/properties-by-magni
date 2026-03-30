@@ -497,6 +497,29 @@
         }
     }
 
+    async function sendTestEmail() {
+        const token = getToken();
+        message = 'Sendi tölvupóst...';
+        
+        try {
+            const res = await fetch(`${getApiUrl()}/me/send-test-email`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                message = data.message || 'Tölvupóstur hefur verið sendur!';
+            } else {
+                message = data.detail || 'Ekki tókst að senda tölvupóst.';
+            }
+        } catch (e) {
+            message = 'Villa við að senda tölvupóst.';
+        }
+    }
+
     onMount(() => {
         fetchProfile();
 
@@ -807,7 +830,14 @@
                     onclick={savePreferences}
                     class="bg-blue-600 text-white px-6 py-2 rounded font-medium hover:bg-blue-700 transition-colors"
                 >
-                    Save Preferences
+                    Vista stillingar
+                </button>
+
+                <button 
+                    onclick={sendTestEmail}
+                    class="bg-green-600 text-white px-6 py-2 rounded font-medium hover:bg-green-700 transition-colors"
+                >
+                    Senda tölvupóst með þessum stillingum
                 </button>
                 
                 {#if message}
