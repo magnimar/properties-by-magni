@@ -346,7 +346,6 @@ async def update_my_preferences(
 
 @app.post("/me/send-test-email")
 async def send_test_email(current_user: User = Depends(get_current_user)):
-    # This imports the scraper and runs it for the current user
     import sys
     sys.path.append("/opt/properties-by-magni/scraper")
     from scraper import Scraper
