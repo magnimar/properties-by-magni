@@ -986,7 +986,7 @@
     {/if}
 
     {#if showEmailSentModal}
-        <div class="fixed bottom-4 right-4 bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform transition-all border border-gray-100 flex items-start gap-4 z-50 animate-fade-in-up">
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transition-all border border-gray-100 flex items-start gap-4 z-50">
             <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                 <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
             </div>
