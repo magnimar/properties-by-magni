@@ -469,9 +469,49 @@
         }
     }
 
-    async function savePreferences() {
+    async function sendTestEmail() {
         const token = getToken();
-        message = 'Saving...';
+        
+        try {
+            const res = await fetch(`${getApiUrl()}/me/send-test-email`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                return true;
+            } else {
+                const data = await res.json();
+                console.error("Failed to send test email:", data.detail);
+                return false;
+            }
+        } catch (e) {
+            console.error("Error sending test email:", e);
+            return false;
+        }
+    }
+
+    async function handleSendSettingsEmail() {
+        message = 'Vistar og sendir tölvupóst...';
+        const saveOk = await savePreferences(true); // silent save
+        if (saveOk) {
+            const emailOk = await sendTestEmail();
+            if (emailOk) {
+                message = '';
+                showEmailSentModal = true;
+            } else {
+                message = 'Villa við að senda tölvupóst.';
+            }
+        } else {
+            message = 'Villa við að vista stillingar áður en póstur er sendur.';
+        }
+    }
+
+    async function savePreferences(silent = false) {
+        const token = getToken();
+        if (!silent) message = 'Saving...';
         
         try {
             const res = await fetch(`${getApiUrl()}/me/preferences`, {
@@ -504,35 +544,18 @@
             });
 
             if (res.ok) {
-                message = '';
-                showSuccessModal = true;
-            } else {
-                message = 'Failed to save preferences.';
-            }
-        } catch (e) {
-            message = 'Error saving preferences.';
-        }
-    }
-
-    async function sendTestEmail() {
-        const token = getToken();
-        
-        try {
-            // We don't await the full response here if we want instant UI feedback,
-            // but we should at least start the fetch.
-            const res = await fetch(`${getApiUrl()}/me/send-test-email`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
+                if (!silent) {
+                    message = '';
+                    showSuccessModal = true;
                 }
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                console.error("Failed to send test email:", data.detail);
+                return true;
+            } else {
+                if (!silent) message = 'Failed to save preferences.';
+                return false;
             }
         } catch (e) {
-            console.error("Error sending test email:", e);
+            if (!silent) message = 'Error saving preferences.';
+            return false;
         }
     }
 
@@ -913,6 +936,13 @@
                         class="px-12 py-6 rounded-full bg-blue-600 text-white font-bold text-xl hover:bg-blue-700 transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center text-center"
                     >
                         Vista stillingar
+                    </button>
+
+                    <button 
+                        onclick={handleSendSettingsEmail}
+                        class="px-8 py-4 rounded-full bg-green-600 text-white font-bold text-lg hover:bg-green-700 transition-all shadow-md hover:scale-105 active:scale-95 flex items-center justify-center text-center"
+                    >
+                        Senda tölvupóst með þessum stillingum
                     </button>
 
                 </div>
