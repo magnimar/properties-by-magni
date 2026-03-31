@@ -469,9 +469,46 @@
         }
     }
 
-    async function savePreferences() {
+    async function sendTestEmail() {
         const token = getToken();
-        message = 'Saving...';
+        
+        try {
+            const res = await fetch(`${getApiUrl()}/me/send-test-email`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                return true;
+            } else {
+                const data = await res.json();
+                console.error("Failed to send test email:", data.detail);
+                return false;
+            }
+        } catch (e) {
+            console.error("Error sending test email:", e);
+            return false;
+        }
+    }
+
+    async function handleSendSettingsEmail() {
+        showEmailSentModal = true;
+        setTimeout(() => { showEmailSentModal = false; }, 5000);
+        
+        // Perform saving and sending in the background without blocking the UI
+        savePreferences(true).then(saveOk => {
+            if (saveOk) {
+                sendTestEmail();
+            }
+        });
+    }
+
+
+    async function savePreferences(silent = false) {
+        const token = getToken();
+        if (!silent) message = 'Saving...';
         
         try {
             const res = await fetch(`${getApiUrl()}/me/preferences`, {
@@ -504,35 +541,18 @@
             });
 
             if (res.ok) {
-                message = '';
-                showSuccessModal = true;
-            } else {
-                message = 'Failed to save preferences.';
-            }
-        } catch (e) {
-            message = 'Error saving preferences.';
-        }
-    }
-
-    async function sendTestEmail() {
-        const token = getToken();
-        
-        try {
-            // We don't await the full response here if we want instant UI feedback,
-            // but we should at least start the fetch.
-            const res = await fetch(`${getApiUrl()}/me/send-test-email`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
+                if (!silent) {
+                    message = '';
+                    showSuccessModal = true;
                 }
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                console.error("Failed to send test email:", data.detail);
+                return true;
+            } else {
+                if (!silent) message = 'Failed to save preferences.';
+                return false;
             }
         } catch (e) {
-            console.error("Error sending test email:", e);
+            if (!silent) message = 'Error saving preferences.';
+            return false;
         }
     }
 
@@ -915,6 +935,13 @@
                         Vista stillingar
                     </button>
 
+                    <button 
+                        onclick={handleSendSettingsEmail}
+                        class="px-8 py-4 rounded-full bg-green-600 text-white font-bold text-lg hover:bg-green-700 transition-all shadow-md hover:scale-105 active:scale-95 flex items-center justify-center text-center"
+                    >
+                        Senda tölvupóst með þessum stillingum
+                    </button>
+
                 </div>
                 
                 {#if message}
@@ -959,17 +986,16 @@
     {/if}
 
     {#if showEmailSentModal}
-        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                </div>
-                <p class="text-gray-600 mb-8 text-lg font-medium">
-                    Tölvupóstur er í vinnslu, fylgstu vel með!
-                </p>
+        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl transition-all border border-gray-100 flex flex-col items-center text-center gap-6 z-50">
+            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            </div>
+            <div class="flex-grow">
+                <p class="text-gray-800 text-2xl font-bold mb-2">Póstur í vinnslu!</p>
+                <p class="text-gray-600 text-lg mb-6">Tölvupóstur er í vinnslu, fylgstu vel með!</p>
                 <button
                     onclick={() => showEmailSentModal = false}
-                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+                    class="w-full bg-blue-600 text-white font-bold text-lg px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-md"
                 >
                     Loka
                 </button>

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import logging
 import time
+import random
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
@@ -63,6 +64,7 @@ class User(Base):
     oflokkad = Column(Boolean, default=False)
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
+    ignored_properties = Column(String, nullable=True)
 
 
 def get_db_users() -> list[dict]:
@@ -94,6 +96,9 @@ def get_db_users() -> list[dict]:
                 "want_garage": u.want_garage or False,
                 "ignored_strings": (
                     u.ignored_streets.split(",") if u.ignored_streets else []
+                ),
+                "ignored_properties": (
+                    u.ignored_properties.split(",") if u.ignored_properties else []
                 ),
                 "EINBYLISHUS": "yes" if u.einbylishus else "no",
                 "FJOLBYLISHUS": "yes" if u.fjolbylishus else "no",
@@ -189,6 +194,13 @@ class Scraper:
         self.ZIP_CODES = self.user_config.get("ZIP_CODES")
         self.OUTDOOR_FILTER = self.user_config.get("outdoor_filter", "none")
         self.WANT_GARAGE = self.user_config.get("want_garage", False)
+        self.IGNORED_PROPERTIES = self.user_config.get("ignored_properties", [])
+        self.FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip(
+            "/"
+        )
+        self.BACKEND_URL = os.getenv("VITE_API_URL", "http://localhost:8000").rstrip(
+            "/"
+        )
 
         # Property categories
         categories = []
@@ -498,6 +510,19 @@ class Scraper:
                 else:
                     prop["build_year"] = "N/A"
 
+            if prop.get("fasteignanumer") is None:
+                fnum_elem = soup.find(string=re.compile("Fasteignanúmer", re.I))
+                if (
+                    fnum_elem
+                    and fnum_elem.parent
+                    and fnum_elem.parent.find_next_sibling()
+                ):
+                    prop["fasteignanumer"] = (
+                        fnum_elem.parent.find_next_sibling().get_text(strip=True)
+                    )
+                else:
+                    prop["fasteignanumer"] = "N/A"
+
             if prop.get("fasteignamat") is None:
                 fmat_elem = soup.find(string=re.compile("Fasteignamat", re.I))
                 if (
@@ -546,6 +571,8 @@ class Scraper:
                 prop["has_garage"] = False
             if prop.get("build_year") is None:
                 prop["build_year"] = "N/A"
+            if prop.get("fasteignanumer") is None:
+                prop["fasteignanumer"] = "N/A"
             if prop.get("fasteignamat") is None:
                 prop["fasteignamat"] = "N/A"
 
@@ -734,19 +761,188 @@ class Scraper:
         }
         return locations.get(zip_code, ("", ""))
 
+    def get_email_template(self, content, title="Properties by Magni"):
+        logo_url = f"{self.FRONTEND_URL}/logo/logo.png"
+
+        return f"""
+        <!DOCTYPE html>
+        <html lang="is">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>{title}</title>
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    line-height: 1.6;
+                    color: #334155;
+                    background-color: #f8fafc;
+                    margin: 0;
+                    padding: 0;
+                }}
+                .container {{
+                    max-width: 650px;
+                    margin: 20px auto;
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                }}
+                .header {{
+                    background-color: #1e293b;
+                    padding: 30px;
+                    text-align: center;
+                    color: #ffffff;
+                }}
+                .header img {{
+                    max-width: 150px;
+                    height: auto;
+                    margin-bottom: 10px;
+                }}
+                .header h1 {{
+                    margin: 0;
+                    font-size: 24px;
+                    font-weight: 600;
+                    letter-spacing: -0.025em;
+                }}
+                .content {{
+                    padding: 30px;
+                }}
+                .stats-box {{
+                    background-color: #f1f5f9;
+                    border-radius: 6px;
+                    padding: 20px;
+                    margin-bottom: 30px;
+                }}
+                .property-card {{
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    margin-bottom: 30px;
+                    overflow: hidden;
+                    background-color: #ffffff;
+                }}
+                .property-image {{
+                    width: 100%;
+                    max-height: 400px;
+                    object-fit: cover;
+                    display: block;
+                }}
+                .property-info {{
+                    padding: 20px;
+                }}
+                .property-title {{
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    margin: 0 0 10px 0;
+                }}
+                .property-price {{
+                    font-size: 18px;
+                    color: #2563eb;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                }}
+                .property-details {{
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+                    font-size: 14px;
+                    margin-bottom: 20px;
+                }}
+                .detail-item {{
+                    display: flex;
+                    align-items: center;
+                }}
+                .detail-label {{
+                    font-weight: 600;
+                    color: #64748b;
+                    margin-right: 5px;
+                }}
+                .footer {{
+                    background-color: #f1f5f9;
+                    padding: 20px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #64748b;
+                }}
+                .button {{
+                    display: inline-block;
+                    padding: 10px 20px;
+                    background-color: #2563eb;
+                    color: #ffffff !important;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    text-align: center;
+                }}
+                .button:hover {{
+                    background-color: #1d4ed8;
+                }}
+                h2, h3 {{
+                    color: #1e293b;
+                }}
+                hr {{
+                    border: 0;
+                    border-top: 1px solid #e2e8f0;
+                    margin: 30px 0;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <img src="{logo_url}" alt="Properties by Magni">
+                    <h1>Properties by Magni</h1>
+                </div>
+                <div class="content">
+                    {content}
+                </div>
+                <div class="footer">
+                    &copy; 2026 Properties by Magni. Allt rétt áskilinn.<br>
+                    Þú færð þennan tölvupóst því þú ert skráð(ur) á vakt hjá okkur.
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
     def generate_property_html(self, properties, title):
-        html = f"<h2>{title}</h2>"
+        html = f"<h2 style='border-bottom: 2px solid #2563eb; padding-bottom: 10px;'>{title}</h2>"
         for prop in properties:
-            html += "<div style='margin-bottom: 30px; padding: 15px; border: 1px solid #ddd;'>"
-            html += f"<h3>{prop['address']}</h3>"
-            html += f"<p><strong>Verð:</strong> {prop['price']}</p>"
+            html += "<div class='property-card'>"
+            if prop.get("image_url"):
+                html += f"<img src='{prop['image_url']}' alt='{prop['address']}' class='property-image' />"
+
+            html += "<div class='property-info'>"
+            html += f"<h3 class='property-title'>{prop['address']}</h3>"
+            html += f"<div class='property-price'>{prop['price']}</div>"
+
+            html += "<div class='property-details'>"
             if prop.get("fasteignamat") and prop["fasteignamat"] != "N/A":
-                html += f"<p><strong>Fasteignamat:</strong> {prop['fasteignamat']}</p>"
+                html += f"<div class='detail-item'><span class='detail-label'>Fasteignamat:</span> {prop['fasteignamat']}</div>"
+
+            html += f"<div class='detail-item'><span class='detail-label'>Stærð:</span> {prop['size_m2']}</div>"
+            html += f"<div class='detail-item'><span class='detail-label'>Svefnherbergi:</span> {prop['bedrooms']}</div>"
+
             if prop.get("price_per_m2"):
                 price_per_m2_formatted = f"{prop['price_per_m2']:,}".replace(",", ".")
-                html += f"<p><strong>Fermetraverð:</strong> {price_per_m2_formatted} kr.</p>"
-            html += f"<p><strong>Stærð:</strong> {prop['size_m2']}</p>"
-            html += f"<p><strong>Svefnherbergi:</strong> {prop['bedrooms']}</p>"
+                html += f"<div class='detail-item'><span class='detail-label'>Fermetraverð:</span> {price_per_m2_formatted} kr.</div>"
+
+            if prop.get("build_year") and prop["build_year"] != "N/A":
+                html += f"<div class='detail-item'><span class='detail-label'>Byggt:</span> {prop['build_year']}</div>"
+
+            outdoor = []
+            if prop.get("has_balcony"):
+                outdoor.append("Svalir")
+            if prop.get("has_terrace"):
+                outdoor.append("Garður")
+            if outdoor:
+                html += f"<div class='detail-item'><span class='detail-label'>Útisvæði:</span> {', '.join(outdoor)}</div>"
+
+            if prop.get("has_garage"):
+                html += "<div class='detail-item'><span class='detail-label'>Bílskúr:</span> Já</div>"
+
+            html += "</div>"  # end property-details
 
             try:
                 numeric_price = int(prop["price"].replace(".", "").replace(" kr", ""))
@@ -761,22 +957,17 @@ class Scraper:
                 monthly_payment = interest_payment + principal_payment
                 monthly_formatted = f"{monthly_payment:,}".replace(",", ".")
 
-                html += f"<p><strong>Mánaðarleg afborgun (Óverðtryggt, 40 ár, 80% lán):</strong> {monthly_formatted} kr.</p>"
+                html += f"<p style='font-size: 13px; color: #64748b; margin-top: 0;'><strong>Áætluð afborgun:</strong> {monthly_formatted} kr./mán (80% lán, óverðtryggt)</p>"
             except (ValueError, TypeError, KeyError):
                 pass
 
-            if prop.get("build_year") and prop["build_year"] != "N/A":
-                html += f"<p><strong>Byggt:</strong> {prop['build_year']}</p>"
-            if prop.get("has_balcony") is not None:
-                html += f"<p><strong>Svalir:</strong> {'Já' if prop['has_balcony'] else 'Nei'}</p>"
-            if prop.get("has_terrace") is not None:
-                html += f"<p><strong>Garður:</strong> {'Já' if prop['has_terrace'] else 'Nei'}</p>"
-            if prop.get("has_garage") is not None:
-                html += f"<p><strong>Bílskúr:</strong> {'Já' if prop['has_garage'] else 'Nei'}</p>"
-            if prop.get("image_url"):
-                html += f"<img src='{prop['image_url']}' alt='Property image' style='max-width: 600px; height: auto; margin: 10px 0;' />"
-            html += f"<p><a href='{prop['link']}'>Skoða eign</a></p>"
+            html += "<div style='margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;'>"
+            html += f"  <a href='{prop['link']}' class='button'>Skoða eign á Vísi</a>"
+            if prop.get("fasteignanumer") and prop["fasteignanumer"] != "N/A":
+                ignore_link = f"{self.BACKEND_URL}/ignore-property-public?email={self.TO_EMAIL}&fasteignanumer={prop['fasteignanumer']}"
+                html += f"  <a href='{ignore_link}' style='display: inline-block; padding: 6px 12px; background-color: #ef4444; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 11px; text-align: center;'>Ég vill ekki sjá þessa eign aftur</a>"
             html += "</div>"
+            html += "</div></div>"  # end property-info and property-card
         return html
 
     def print_properties(self, properties, title):
@@ -854,6 +1045,8 @@ class Scraper:
         # Filter based on outdoor preferences and garage
         filtered_properties = []
         for prop in new_properties:
+            if prop.get("fasteignanumer") in self.IGNORED_PROPERTIES:
+                continue
             if self.WANT_GARAGE and not prop.get("has_garage"):
                 continue
             if self.OUTDOOR_FILTER == "balcony":
@@ -875,9 +1068,24 @@ class Scraper:
             f"Found {len(new_properties)} properties matching outdoor/garage filters."
         )
 
+        deal_of_the_day = None
+        best_ratio = float("inf")
+        for prop in new_properties:
+            price_val = self.get_numeric_price(prop.get("price", ""))
+            fmat_val = self.get_numeric_price(prop.get("fasteignamat", ""))
+            if price_val > 0 and fmat_val > 0:
+                ratio = price_val / fmat_val
+                if ratio < best_ratio:
+                    best_ratio = ratio
+                    deal_of_the_day = prop
+
+        if deal_of_the_day:
+            logging.info(f"Deal of the day found: {deal_of_the_day['address']}")
+
         allowed_zips = [
             z.strip() for z in (self.ZIP_CODES or "").split(",") if z.strip()
         ]
+        random.shuffle(allowed_zips)
 
         properties_by_zip = {}
         for prop in new_properties:
@@ -895,12 +1103,7 @@ class Scraper:
             properties_by_zip.setdefault(zip_code, []).append(prop)
 
         for zip_code, props in properties_by_zip.items():
-            props.sort(
-                key=lambda p: (
-                    p.get("price_per_m2") is None,
-                    p.get("price_per_m2") if p.get("price_per_m2") is not None else 0,
-                )
-            )
+            random.shuffle(props)
             base_name, dative_name = self._get_location_names(zip_code)
             if base_name:
                 title = f"Fasteignir í {zip_code} {dative_name}"
@@ -912,7 +1115,9 @@ class Scraper:
 
         if new_properties:
             subject = f"Fann {len(new_properties)} eignir fyrir þig"
-            html_body = "<html><body>"
+
+            stats_html = "<div class='stats-box'>"
+            stats_html += "<h3>Meðalfermetraverð eftir hverfi:</h3><ul>"
 
             # --- Average Price Statistics ---
             avg_price_per_m2 = {}
@@ -925,15 +1130,16 @@ class Scraper:
                 if prop.get("price_per_m2"):
                     avg_price_per_m2[bedrooms] += prop["price_per_m2"]
                     bedroom_counts[bedrooms] += 1
-
             for bedrooms, total_price in avg_price_per_m2.items():
                 if bedroom_counts[bedrooms] > 0:
                     avg_price_per_m2[bedrooms] = int(
                         total_price / bedroom_counts[bedrooms]
                     )
 
-            html_body += "<h2>Meðalfermetraverð eftir hverfi:</h2><ul>"
-            for zip_code in allowed_zips + ["Annað"]:
+            sorted_zips = sorted(
+                allowed_zips, key=lambda x: int(x) if x.isdigit() else x
+            )
+            for zip_code in sorted_zips + ["Annað"]:
                 if zip_code in properties_by_zip:
                     zip_props = properties_by_zip[zip_code]
                     zip_total_m2_price = sum(
@@ -953,18 +1159,29 @@ class Scraper:
                             if base_name
                             else (zip_code if zip_code != "Annað" else "Óþekkt")
                         )
-                        html_body += f"<li><strong>{zip_label}:</strong> {zip_avg_m2_formatted} kr.</li>"
-            html_body += "</ul>"
+                        stats_html += f"<li><strong>{zip_label}:</strong> {zip_avg_m2_formatted} kr.</li>"
+            stats_html += "</ul>"
 
-            html_body += "<h2>Meðalfermetraverð eftir herbergjafjölda:</h2><ul>"
+            stats_html += "<h3>Meðalfermetraverð eftir herbergjafjölda:</h3><ul>"
             for bedrooms, avg_price in sorted(avg_price_per_m2.items()):
                 avg_price_formatted = f"{avg_price:,}".replace(",", ".")
-                html_body += f"<li><strong>{bedrooms} svefnherbergi:</strong> {avg_price_formatted} kr.</li>"
-            html_body += "</ul><hr>"
+                stats_html += f"<li><strong>{bedrooms} svefnherbergi:</strong> {avg_price_formatted} kr.</li>"
+            stats_html += "</ul></div>"
+
+            html_content = stats_html
+
+            if deal_of_the_day:
+                for zip_code in list(properties_by_zip.keys()):
+                    if deal_of_the_day in properties_by_zip[zip_code]:
+                        properties_by_zip[zip_code].remove(deal_of_the_day)
+                        break
+                html_content += self.generate_property_html(
+                    [deal_of_the_day], "Díll dagsins! 🔥"
+                )
 
             # --- Property Listings ---
             for zip_code in allowed_zips + ["Annað"]:
-                if zip_code in properties_by_zip:
+                if zip_code in properties_by_zip and properties_by_zip[zip_code]:
                     base_name, dative_name = self._get_location_names(zip_code)
                     title = (
                         f"Fasteignir í {zip_code} {dative_name}"
@@ -975,13 +1192,12 @@ class Scraper:
                             else "Fasteignir (óþekkt póstnúmer)"
                         )
                     )
-                    html_body += self.generate_property_html(
+                    html_content += self.generate_property_html(
                         properties_by_zip[zip_code], title
                     )
-                    html_body += "<hr>"
 
-            html_body += "</body></html>"
-            self.send_email_notification(subject, html_body)
+            final_html = self.get_email_template(html_content, subject)
+            self.send_email_notification(subject, final_html)
         else:
             logging.info("No properties found for user.")
 
