@@ -494,20 +494,15 @@
     }
 
     async function handleSendSettingsEmail() {
-        message = 'Vistar og sendir tölvupóst...';
-        const saveOk = await savePreferences(true); // silent save
-        if (saveOk) {
-            const emailOk = await sendTestEmail();
-            if (emailOk) {
-                message = '';
-                showEmailSentModal = true;
-            } else {
-                message = 'Villa við að senda tölvupóst.';
+        showEmailSentModal = true;
+        // Perform saving and sending in the background without blocking the UI
+        savePreferences(true).then(saveOk => {
+            if (saveOk) {
+                sendTestEmail();
             }
-        } else {
-            message = 'Villa við að vista stillingar áður en póstur er sendur.';
-        }
+        });
     }
+
 
     async function savePreferences(silent = false) {
         const token = getToken();
