@@ -1055,12 +1055,7 @@ class Scraper:
             properties_by_zip.setdefault(zip_code, []).append(prop)
 
         for zip_code, props in properties_by_zip.items():
-            props.sort(
-                key=lambda p: (
-                    p.get("price_per_m2") is None,
-                    p.get("price_per_m2") if p.get("price_per_m2") is not None else 0,
-                )
-            )
+            random.shuffle(props)
             base_name, dative_name = self._get_location_names(zip_code)
             if base_name:
                 title = f"Fasteignir í {zip_code} {dative_name}"
