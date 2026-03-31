@@ -495,6 +495,8 @@
 
     async function handleSendSettingsEmail() {
         showEmailSentModal = true;
+        setTimeout(() => { showEmailSentModal = false; }, 5000);
+        
         // Perform saving and sending in the background without blocking the UI
         savePreferences(true).then(saveOk => {
             if (saveOk) {
@@ -984,17 +986,16 @@
     {/if}
 
     {#if showEmailSentModal}
-        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                </div>
-                <p class="text-gray-600 mb-8 text-lg font-medium">
-                    Tölvupóstur er í vinnslu, fylgstu vel með!
-                </p>
+        <div class="fixed bottom-4 right-4 bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform transition-all border border-gray-100 flex items-start gap-4 z-50 animate-fade-in-up">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            </div>
+            <div class="flex-grow">
+                <p class="text-gray-800 text-base font-semibold mb-1">Póstur í vinnslu!</p>
+                <p class="text-gray-500 text-sm mb-3">Tölvupóstur er í vinnslu, fylgstu vel með!</p>
                 <button
                     onclick={() => showEmailSentModal = false}
-                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+                    class="text-blue-600 font-bold text-sm hover:text-blue-800 transition-colors"
                 >
                     Loka
                 </button>
