@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import (
@@ -85,6 +86,7 @@ class User(Base):
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
     onboarding_completed = Column(Boolean, default=False)
+    ignored_properties = Column(String, nullable=True)  # Comma separated list
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 
@@ -164,6 +166,8 @@ with engine.begin() as conn:
                 "ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE;"
             )
         )
+    if "ignored_properties" not in existing_columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN ignored_properties TEXT;"))
 
 # --- Password Hashing ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -378,6 +382,11 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
             if current_user.ignored_streets
             else []
         ),
+        "ignored_properties": (
+            current_user.ignored_properties.split(",")
+            if current_user.ignored_properties
+            else []
+        ),
         "EINBYLISHUS": "yes" if current_user.einbylishus else "no",
         "FJOLBYLISHUS": "yes" if current_user.fjolbylishus else "no",
         "ATVINNUHUSNAEDI": "yes" if current_user.atvinnuhusnaedi else "no",
@@ -528,6 +537,32 @@ async def verify_email(token: str = Query(...), db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Email verified successfully"}
+
+
+@app.get("/ignore-property-public", response_class=HTMLResponse)
+async def ignore_property_public(
+    email: str, fasteignanumer: str, db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        return "<html><body><h2 style='text-align:center; padding: 50px; font-family: sans-serif;'>Aðgangur fannst ekki</h2></body></html>"
+
+    ignored = user.ignored_properties.split(",") if user.ignored_properties else []
+    if fasteignanumer not in ignored:
+        ignored.append(fasteignanumer)
+        user.ignored_properties = ",".join(ignored)
+        db.commit()
+
+    return f"""
+    <html>
+        <head><meta charset="utf-8"></head>
+        <body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+            <h2>Eign {fasteignanumer} hefur verið fjarlægð!</h2>
+            <p>Þú munt ekki fá póst um þessa eign framvegis.</p>
+            <script>setTimeout(() => window.close(), 3000);</script>
+        </body>
+    </html>
+    """
 
 
 @app.get("/items/{item_id}")

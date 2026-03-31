@@ -64,6 +64,7 @@ class User(Base):
     oflokkad = Column(Boolean, default=False)
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
+    ignored_properties = Column(String, nullable=True)
 
 
 def get_db_users() -> list[dict]:
@@ -95,6 +96,9 @@ def get_db_users() -> list[dict]:
                 "want_garage": u.want_garage or False,
                 "ignored_strings": (
                     u.ignored_streets.split(",") if u.ignored_streets else []
+                ),
+                "ignored_properties": (
+                    u.ignored_properties.split(",") if u.ignored_properties else []
                 ),
                 "EINBYLISHUS": "yes" if u.einbylishus else "no",
                 "FJOLBYLISHUS": "yes" if u.fjolbylishus else "no",
@@ -190,7 +194,11 @@ class Scraper:
         self.ZIP_CODES = self.user_config.get("ZIP_CODES")
         self.OUTDOOR_FILTER = self.user_config.get("outdoor_filter", "none")
         self.WANT_GARAGE = self.user_config.get("want_garage", False)
+        self.IGNORED_PROPERTIES = self.user_config.get("ignored_properties", [])
         self.FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip(
+            "/"
+        )
+        self.BACKEND_URL = os.getenv("VITE_API_URL", "http://localhost:8000").rstrip(
             "/"
         )
 
@@ -502,6 +510,19 @@ class Scraper:
                 else:
                     prop["build_year"] = "N/A"
 
+            if prop.get("fasteignanumer") is None:
+                fnum_elem = soup.find(string=re.compile("Fasteignanúmer", re.I))
+                if (
+                    fnum_elem
+                    and fnum_elem.parent
+                    and fnum_elem.parent.find_next_sibling()
+                ):
+                    prop["fasteignanumer"] = (
+                        fnum_elem.parent.find_next_sibling().get_text(strip=True)
+                    )
+                else:
+                    prop["fasteignanumer"] = "N/A"
+
             if prop.get("fasteignamat") is None:
                 fmat_elem = soup.find(string=re.compile("Fasteignamat", re.I))
                 if (
@@ -550,6 +571,8 @@ class Scraper:
                 prop["has_garage"] = False
             if prop.get("build_year") is None:
                 prop["build_year"] = "N/A"
+            if prop.get("fasteignanumer") is None:
+                prop["fasteignanumer"] = "N/A"
             if prop.get("fasteignamat") is None:
                 prop["fasteignamat"] = "N/A"
 
@@ -938,7 +961,12 @@ class Scraper:
             except (ValueError, TypeError, KeyError):
                 pass
 
-            html += f"<div style='margin-top: 15px;'><a href='{prop['link']}' class='button'>Skoða eign á Vísi</a></div>"
+            html += f"<div style='margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;'>"
+            html += f"  <a href='{prop['link']}' class='button'>Skoða eign á Vísi</a>"
+            if prop.get("fasteignanumer") and prop["fasteignanumer"] != "N/A":
+                ignore_link = f"{self.BACKEND_URL}/ignore-property-public?email={self.TO_EMAIL}&fasteignanumer={prop['fasteignanumer']}"
+                html += f"  <a href='{ignore_link}' style='display: inline-block; padding: 6px 12px; background-color: #ef4444; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 11px; text-align: center;'>Ég vill ekki sjá þessa eign aftur</a>"
+            html += f"</div>"
             html += "</div></div>"  # end property-info and property-card
         return html
 
@@ -1017,6 +1045,8 @@ class Scraper:
         # Filter based on outdoor preferences and garage
         filtered_properties = []
         for prop in new_properties:
+            if prop.get("fasteignanumer") in self.IGNORED_PROPERTIES:
+                continue
             if self.WANT_GARAGE and not prop.get("has_garage"):
                 continue
             if self.OUTDOOR_FILTER == "balcony":
