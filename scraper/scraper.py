@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import logging
 import time
+import random
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
@@ -1036,6 +1037,7 @@ class Scraper:
         allowed_zips = [
             z.strip() for z in (self.ZIP_CODES or "").split(",") if z.strip()
         ]
+        random.shuffle(allowed_zips)
 
         properties_by_zip = {}
         for prop in new_properties:
