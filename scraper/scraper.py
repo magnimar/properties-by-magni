@@ -1094,7 +1094,8 @@ class Scraper:
                         total_price / bedroom_counts[bedrooms]
                     )
 
-            for zip_code in allowed_zips + ["Annað"]:
+            sorted_zips = sorted(allowed_zips, key=lambda x: int(x) if x.isdigit() else x)
+            for zip_code in sorted_zips + ["Annað"]:
                 if zip_code in properties_by_zip:
                     zip_props = properties_by_zip[zip_code]
                     zip_total_m2_price = sum(
