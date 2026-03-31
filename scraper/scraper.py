@@ -363,6 +363,9 @@ class Scraper:
             bedrooms_text = bedrooms_tag.get_text(strip=True) if bedrooms_tag else "N/A"
             bedrooms = "1" if bedrooms_text == "N/A" else bedrooms_text
 
+            open_house_tag = card.find("div", class_=lambda c: c and "open-house" in c.lower())
+            open_house = open_house_tag.get_text(strip=True) if open_house_tag else None
+
             price_per_m2 = None
             if size != "N/A" and price_num:
                 try:
@@ -386,6 +389,7 @@ class Scraper:
                         "bedrooms": bedrooms,
                         "link": link,
                         "image_url": image_url,
+                        "open_house": open_house,
                     }
                 )
         return out, raw_count
@@ -535,6 +539,18 @@ class Scraper:
                     )
                 else:
                     prop["fasteignamat"] = "N/A"
+
+            if not prop.get("open_house") or prop.get("open_house").strip().lower() in ["opið hús", "opið hús:"]:
+                oh_elem = soup.find(string=re.compile("Opið hús", re.I))
+                if oh_elem:
+                    text = oh_elem.parent.get_text(strip=True, separator=" ")
+                    if len(text) < 15 and oh_elem.parent.parent:
+                        text = oh_elem.parent.parent.get_text(strip=True, separator=" ")
+                    if len(text) < 15 and oh_elem.parent.parent and oh_elem.parent.parent.find_next_sibling():
+                        text += " " + oh_elem.parent.parent.find_next_sibling().get_text(strip=True, separator=" ")
+                    prop["open_house"] = text if len(text) < 150 else text[:147] + "..."
+                else:
+                    prop["open_house"] = None
 
             if not prop.get("image_url") or "staticmap" in (
                 prop.get("image_url") or ""
@@ -912,6 +928,8 @@ class Scraper:
             html += "<div class='property-card'>"
             if prop.get("image_url"):
                 html += f"<img src='{prop['image_url']}' alt='{prop['address']}' class='property-image' />"
+            if prop.get("open_house"):
+                html += f"<div style='background-color: #1d4ed8; color: white; padding: 12px; font-weight: 800; text-align: center; font-size: 1.1em;'>{prop['open_house']}</div>"
 
             html += "<div class='property-info'>"
             html += f"<h3 class='property-title'>{prop['address']}</h3>"
@@ -1026,6 +1044,7 @@ class Scraper:
                 or prop.get("has_garage") is None
                 or prop.get("build_year") is None
                 or prop.get("fasteignamat") is None
+                or not prop.get("open_house") or prop.get("open_house").strip().lower() in ["opið hús", "opið hús:"]
                 or not prop.get("image_url")
                 or "staticmap" in (prop.get("image_url") or "")
             )
