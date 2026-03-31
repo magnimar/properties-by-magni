@@ -120,7 +120,7 @@ def get_db_users() -> list[dict]:
 def run_schedule_loop():
     """Wait until 13:00 daily, then run Scraper for each user in parallel."""
     hour = 13
-    minute = 50
+    minute = 0
 
     logging.info(
         "Schedule mode: will run daily at %02d:%02d for all verified users (in parallel).",
