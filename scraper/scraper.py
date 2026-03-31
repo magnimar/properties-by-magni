@@ -190,7 +190,9 @@ class Scraper:
         self.ZIP_CODES = self.user_config.get("ZIP_CODES")
         self.OUTDOOR_FILTER = self.user_config.get("outdoor_filter", "none")
         self.WANT_GARAGE = self.user_config.get("want_garage", False)
-        self.FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        self.FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip(
+            "/"
+        )
 
         # Property categories
         categories = []
@@ -887,35 +889,37 @@ class Scraper:
             html += "<div class='property-card'>"
             if prop.get("image_url"):
                 html += f"<img src='{prop['image_url']}' alt='{prop['address']}' class='property-image' />"
-            
+
             html += "<div class='property-info'>"
             html += f"<h3 class='property-title'>{prop['address']}</h3>"
             html += f"<div class='property-price'>{prop['price']}</div>"
-            
+
             html += "<div class='property-details'>"
             if prop.get("fasteignamat") and prop["fasteignamat"] != "N/A":
                 html += f"<div class='detail-item'><span class='detail-label'>Fasteignamat:</span> {prop['fasteignamat']}</div>"
-            
+
             html += f"<div class='detail-item'><span class='detail-label'>Stærð:</span> {prop['size_m2']}</div>"
             html += f"<div class='detail-item'><span class='detail-label'>Svefnherbergi:</span> {prop['bedrooms']}</div>"
-            
+
             if prop.get("price_per_m2"):
                 price_per_m2_formatted = f"{prop['price_per_m2']:,}".replace(",", ".")
                 html += f"<div class='detail-item'><span class='detail-label'>Fermetraverð:</span> {price_per_m2_formatted} kr.</div>"
 
             if prop.get("build_year") and prop["build_year"] != "N/A":
                 html += f"<div class='detail-item'><span class='detail-label'>Byggt:</span> {prop['build_year']}</div>"
-            
+
             outdoor = []
-            if prop.get("has_balcony"): outdoor.append("Svalir")
-            if prop.get("has_terrace"): outdoor.append("Garður")
+            if prop.get("has_balcony"):
+                outdoor.append("Svalir")
+            if prop.get("has_terrace"):
+                outdoor.append("Garður")
             if outdoor:
                 html += f"<div class='detail-item'><span class='detail-label'>Útisvæði:</span> {', '.join(outdoor)}</div>"
-            
+
             if prop.get("has_garage"):
                 html += f"<div class='detail-item'><span class='detail-label'>Bílskúr:</span> Já</div>"
-            
-            html += "</div>" # end property-details
+
+            html += "</div>"  # end property-details
 
             try:
                 numeric_price = int(prop["price"].replace(".", "").replace(" kr", ""))
@@ -935,7 +939,7 @@ class Scraper:
                 pass
 
             html += f"<div style='margin-top: 15px;'><a href='{prop['link']}' class='button'>Skoða eign á Vísi</a></div>"
-            html += "</div></div>" # end property-info and property-card
+            html += "</div></div>"  # end property-info and property-card
         return html
 
     def print_properties(self, properties, title):
@@ -1034,6 +1038,20 @@ class Scraper:
             f"Found {len(new_properties)} properties matching outdoor/garage filters."
         )
 
+        deal_of_the_day = None
+        best_ratio = float("inf")
+        for prop in new_properties:
+            price_val = self.get_numeric_price(prop.get("price", ""))
+            fmat_val = self.get_numeric_price(prop.get("fasteignamat", ""))
+            if price_val > 0 and fmat_val > 0:
+                ratio = price_val / fmat_val
+                if ratio < best_ratio:
+                    best_ratio = ratio
+                    deal_of_the_day = prop
+
+        if deal_of_the_day:
+            logging.info(f"Deal of the day found: {deal_of_the_day['address']}")
+
         allowed_zips = [
             z.strip() for z in (self.ZIP_CODES or "").split(",") if z.strip()
         ]
@@ -1067,10 +1085,10 @@ class Scraper:
 
         if new_properties:
             subject = f"Fann {len(new_properties)} eignir fyrir þig"
-            
+
             stats_html = "<div class='stats-box'>"
             stats_html += "<h3>Meðalfermetraverð eftir hverfi:</h3><ul>"
-            
+
             # --- Average Price Statistics ---
             avg_price_per_m2 = {}
             bedroom_counts = {}
@@ -1082,14 +1100,15 @@ class Scraper:
                 if prop.get("price_per_m2"):
                     avg_price_per_m2[bedrooms] += prop["price_per_m2"]
                     bedroom_counts[bedrooms] += 1
-
             for bedrooms, total_price in avg_price_per_m2.items():
                 if bedroom_counts[bedrooms] > 0:
                     avg_price_per_m2[bedrooms] = int(
                         total_price / bedroom_counts[bedrooms]
                     )
 
-            sorted_zips = sorted(allowed_zips, key=lambda x: int(x) if x.isdigit() else x)
+            sorted_zips = sorted(
+                allowed_zips, key=lambda x: int(x) if x.isdigit() else x
+            )
             for zip_code in sorted_zips + ["Annað"]:
                 if zip_code in properties_by_zip:
                     zip_props = properties_by_zip[zip_code]
@@ -1121,9 +1140,18 @@ class Scraper:
 
             html_content = stats_html
 
+            if deal_of_the_day:
+                for zip_code in list(properties_by_zip.keys()):
+                    if deal_of_the_day in properties_by_zip[zip_code]:
+                        properties_by_zip[zip_code].remove(deal_of_the_day)
+                        break
+                html_content += self.generate_property_html(
+                    [deal_of_the_day], "Díll dagsins! 🔥"
+                )
+
             # --- Property Listings ---
             for zip_code in allowed_zips + ["Annað"]:
-                if zip_code in properties_by_zip:
+                if zip_code in properties_by_zip and properties_by_zip[zip_code]:
                     base_name, dative_name = self._get_location_names(zip_code)
                     title = (
                         f"Fasteignir í {zip_code} {dative_name}"
