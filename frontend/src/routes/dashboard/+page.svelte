@@ -151,14 +151,14 @@
                 if (el.inputValue !== undefined) el.inputValue = '';
             }
             
-            savePreferences();
+            savePreferences(true);
         }
     }
 
     function removeStreet(street) {
         ignoredStreets = ignoredStreets.filter(s => s !== street);
         // Auto-save to the database
-        savePreferences();
+        savePreferences(true);
     }
 
     const zipOptionsGrouped = [
@@ -506,9 +506,14 @@
     }
 
 
+    let isSaving = $state(false);
+
     async function savePreferences(silent = false) {
         const token = getToken();
-        if (!silent) message = 'Saving...';
+        if (!silent) {
+            isSaving = true;
+            message = 'Vistar...';
+        }
         
         try {
             const res = await fetch(`${getApiUrl()}/me/preferences`, {
@@ -542,17 +547,22 @@
 
             if (res.ok) {
                 if (!silent) {
-                    message = '';
+                    message = 'Vistað!';
                     showSuccessModal = true;
+                    setTimeout(() => {
+                        if (message === 'Vistað!') message = '';
+                    }, 3000);
                 }
                 return true;
             } else {
-                if (!silent) message = 'Failed to save preferences.';
+                if (!silent) message = 'Ekki tókst að vista stillingar.';
                 return false;
             }
         } catch (e) {
-            if (!silent) message = 'Error saving preferences.';
+            if (!silent) message = 'Villa við að vista stillingar.';
             return false;
+        } finally {
+            if (!silent) isSaving = false;
         }
     }
 
@@ -929,19 +939,19 @@
             <div class="flex flex-col items-center gap-8 py-8">
                 <div class="flex flex-col items-center gap-4">
                     <button 
-                        onclick={savePreferences}
-                        class="px-12 py-6 rounded-full bg-blue-600 text-white font-bold text-xl hover:bg-blue-700 transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center text-center"
+                        onclick={() => savePreferences(false)}
+                        disabled={isSaving}
+                        class="px-12 py-6 rounded-full bg-blue-600 text-white font-bold text-xl hover:bg-blue-700 transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center text-center disabled:opacity-50 disabled:cursor-not-allowed min-w-[240px]"
                     >
-                        Vista stillingar
+                        {isSaving ? 'Vistar...' : 'Vista stillingar'}
                     </button>
-
+                    
                     <button 
                         onclick={handleSendSettingsEmail}
                         class="px-8 py-4 rounded-full bg-green-600 text-white font-bold text-lg hover:bg-green-700 transition-all shadow-md hover:scale-105 active:scale-95 flex items-center justify-center text-center"
                     >
                         Senda tölvupóst með þessum stillingum
                     </button>
-
                 </div>
                 
                 {#if message}
@@ -958,14 +968,14 @@
     {/if}
 
     {#if showSuccessModal}
-        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl border border-gray-200 transform transition-all">
                 <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                 </div>
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Frábært!</h3>
                 <p class="text-gray-600 mb-8">
-                    Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst með eignum sem passa við þínar kröfur.
+                    Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst milli 13 og 14 með eignum sem passa við þínar kröfur.
                 </p>
                 <div class="flex flex-col gap-3">
                     <button
@@ -986,19 +996,21 @@
     {/if}
 
     {#if showEmailSentModal}
-        <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl transition-all border border-gray-100 flex flex-col items-center text-center gap-6 z-50">
-            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-                <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-            </div>
-            <div class="flex-grow">
-                <p class="text-gray-800 text-2xl font-bold mb-2">Póstur í vinnslu!</p>
-                <p class="text-gray-600 text-lg mb-6">Tölvupóstur er í vinnslu, fylgstu vel með!</p>
-                <button
-                    onclick={() => showEmailSentModal = false}
-                    class="w-full bg-blue-600 text-white font-bold text-lg px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-md"
-                >
-                    Loka
-                </button>
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+            <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl transition-all border border-gray-100 flex flex-col items-center text-center gap-6">
+                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                    <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+                <div class="flex-grow">
+                    <p class="text-gray-800 text-2xl font-bold mb-2">Póstur í vinnslu!</p>
+                    <p class="text-gray-600 text-lg mb-6">Tölvupóstur er í vinnslu, fylgstu vel með!</p>
+                    <button
+                        onclick={() => showEmailSentModal = false}
+                        class="w-full bg-blue-600 text-white font-bold text-lg px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-md"
+                    >
+                        Loka
+                    </button>
+                </div>
             </div>
         </div>
     {/if}
