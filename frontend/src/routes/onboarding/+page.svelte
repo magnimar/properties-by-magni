@@ -156,6 +156,28 @@
     }
 
     function nextStep() {
+        if (step === 2) {
+            const price = parseNumber(maxPrice);
+            if (price < 40000000) {
+                message = 'Vinsamlegast sláðu inn hámarksverð sem er að minnsta kosti 40.000.000 ISK.';
+                return;
+            }
+        }
+        
+        if (step === 4 && selectedZipCodes.length === 0) {
+            message = 'Vinsamlegast veldu að minnsta kosti eitt póstnúmer til að halda áfram.';
+            return;
+        }
+
+        if (step === 5) {
+            if (!(einbylishus || fjolbylishus || radhus_parhus || parhus || haed || sumarhus || jord_lod || atvinnuhusnaedi || hesthus || oflokkad)) {
+                message = 'Vinsamlegast veldu að minnsta kosti eina tegund eignar.';
+                return;
+            }
+        }
+
+        message = ''; // Clear message if validation passes
+
         if (step < 8) {
             step++;
             // Optional: Auto-save at each step
@@ -617,7 +639,7 @@
                                 <span class="font-bold">{minPrice} - {maxPrice} ISK</span>
                             </div>
                             <div class="flex justify-between border-b border-gray-200 pb-2">
-                                <span class="text-gray-500">Herbergi</span>
+                                <span class="text-gray-500">Svefnherbergi</span>
                                 <span class="font-bold">{minBedrooms} - {maxBedrooms}</span>
                             </div>
                             <div class="flex justify-between border-b border-gray-200 pb-2">
@@ -685,8 +707,8 @@
 </div>
 
 {#if showSuccessModal}
-    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl border border-gray-200 transform transition-all">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
@@ -713,8 +735,8 @@
 {/if}
 
 {#if showEmailSentModal}
-    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl transform transition-all">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl border border-gray-200 transform transition-all">
             <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
             </div>

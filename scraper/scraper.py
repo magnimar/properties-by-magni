@@ -548,7 +548,7 @@ class Scraper:
                         text = oh_elem.parent.parent.get_text(strip=True, separator=" ")
                     if len(text) < 15 and oh_elem.parent.parent and oh_elem.parent.parent.find_next_sibling():
                         text += " " + oh_elem.parent.parent.find_next_sibling().get_text(strip=True, separator=" ")
-                    prop["open_house"] = text if len(text) < 150 else text[:147] + "..."
+                    prop["open_house"] = text if len(text) < 150 else text[:147]
                 else:
                     prop["open_house"] = None
 
@@ -1218,7 +1218,22 @@ class Scraper:
             final_html = self.get_email_template(html_content, subject)
             self.send_email_notification(subject, final_html)
         else:
-            logging.info("No properties found for user.")
+            logging.info("No properties found for user. Sending 'no results' email.")
+            subject = "Engar eignir fundust"
+            no_results_content = """
+                <div style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+                    <h2 style="color: #1e293b; margin-bottom: 12px;">Engar eignir fundust</h2>
+                    <p style="font-size: 16px; color: #475569; margin-bottom: 24px;">
+                        Við leituðum í gegnum allar nýjustu skráningarnar en fundum því miður ekkert sem passaði við þínar kröfur að þessu sinni.
+                    </p>
+                    <p style="font-size: 14px; color: #64748b; font-style: italic;">
+                        Héðan í frá verða öll vettlingatök afnuminn í leit af fasteign fyrir þig!
+                    </p>
+                </div>
+            """
+            final_html = self.get_email_template(no_results_content, subject)
+            self.send_email_notification(subject, final_html)
 
 
 def _parse_args():
