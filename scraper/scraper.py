@@ -940,7 +940,7 @@ class Scraper:
                 html += f"<div class='detail-item'><span class='detail-label'>Útisvæði:</span> {', '.join(outdoor)}</div>"
 
             if prop.get("has_garage"):
-                html += f"<div class='detail-item'><span class='detail-label'>Bílskúr:</span> Já</div>"
+                html += "<div class='detail-item'><span class='detail-label'>Bílskúr:</span> Já</div>"
 
             html += "</div>"  # end property-details
 
@@ -961,12 +961,12 @@ class Scraper:
             except (ValueError, TypeError, KeyError):
                 pass
 
-            html += f"<div style='margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;'>"
+            html += "<div style='margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;'>"
             html += f"  <a href='{prop['link']}' class='button'>Skoða eign á Vísi</a>"
             if prop.get("fasteignanumer") and prop["fasteignanumer"] != "N/A":
                 ignore_link = f"{self.BACKEND_URL}/ignore-property-public?email={self.TO_EMAIL}&fasteignanumer={prop['fasteignanumer']}"
                 html += f"  <a href='{ignore_link}' style='display: inline-block; padding: 6px 12px; background-color: #ef4444; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 11px; text-align: center;'>Ég vill ekki sjá þessa eign aftur</a>"
-            html += f"</div>"
+            html += "</div>"
             html += "</div></div>"  # end property-info and property-card
         return html
 
