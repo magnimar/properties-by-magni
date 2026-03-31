@@ -896,7 +896,7 @@ class Scraper:
                 html += f"<div class='detail-item'><span class='detail-label'>Fasteignamat:</span> {prop['fasteignamat']}</div>"
             
             html += f"<div class='detail-item'><span class='detail-label'>Stærð:</span> {prop['size_m2']}</div>"
-            html += f"<div class='detail-item'><span class='detail-label'>Herbergi:</span> {prop['bedrooms']}</div>"
+            html += f"<div class='detail-item'><span class='detail-label'>Svefnherbergi:</span> {prop['bedrooms']}</div>"
             
             if prop.get("price_per_m2"):
                 price_per_m2_formatted = f"{prop['price_per_m2']:,}".replace(",", ".")
