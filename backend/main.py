@@ -536,7 +536,16 @@ async def verify_email(token: str = Query(...), db: Session = Depends(get_db)):
     user.verification_token = None
     db.commit()
 
-    return {"message": "Email verified successfully"}
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+
+    return {
+        "message": "Email verified and logged in successfully",
+        "token": access_token,
+        "user": {"email": user.email, "is_pro": user.is_pro},
+    }
 
 
 @app.get("/ignore-property-public", response_class=HTMLResponse)
