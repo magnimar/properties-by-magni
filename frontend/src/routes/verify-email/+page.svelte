@@ -20,10 +20,12 @@
           const data = await res.json();
   
           if (res.ok) {
-              status = 'Netfang staðfest! Þú getur nú skráð þig inn.';
+              // Save token and auto-login
+              document.cookie = `token=${data.token}; path=/;`;
+              status = 'Netfang staðfest! Verið að skrá þig inn...';
               setTimeout(() => {
-                  window.location.href = '/login';
-              }, 3000);
+                  window.location.href = '/dashboard';
+              }, 2000);
           } else {
               status = '';
               error = data.detail || 'Staðfesting mistókst. Hlekkurinn gæti verið ógildur eða útrunninn.';
