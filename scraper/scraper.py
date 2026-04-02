@@ -202,9 +202,10 @@ class Scraper:
         self.MAX_BEDROOMS = self.user_config.get("MAX_BEDROOMS")
         self.MIN_BUILD_YEAR = self.user_config.get("MIN_BUILD_YEAR", 1900)
         self.MAX_BUILD_YEAR = self.user_config.get("MAX_BUILD_YEAR", 2027)
-        self.GOOGLE_MAPS_API_KEY = self.user_config.get(
-            "GOOGLE_MAPS_API_KEY"
-        ) or "AIzaSyAAJL11FGR1AImjuxi9kYcxmBTovEZqS7s"
+        self.GOOGLE_MAPS_API_KEY = (
+            self.user_config.get("GOOGLE_MAPS_API_KEY")
+            or "AIzaSyAAJL11FGR1AImjuxi9kYcxmBTovEZqS7s"
+        )
         self.ZIP_CODES = self.user_config.get("ZIP_CODES")
         self.OUTDOOR_FILTER = self.user_config.get("outdoor_filter", "none")
         self.WANT_GARAGE = self.user_config.get("want_garage", False)
