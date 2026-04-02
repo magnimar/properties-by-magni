@@ -170,12 +170,12 @@
             }
         }
         
-        if (step === 4 && selectedZipCodes.length === 0) {
+        if (step === 5 && selectedZipCodes.length === 0) {
             message = 'Vinsamlegast veldu að minnsta kosti eitt póstnúmer til að halda áfram.';
             return;
         }
 
-        if (step === 5) {
+        if (step === 6) {
             if (!(einbylishus || fjolbylishus || radhus_parhus || parhus || haed || sumarhus || jord_lod || atvinnuhusnaedi || hesthus || oflokkad)) {
                 message = 'Vinsamlegast veldu að minnsta kosti eina tegund eignar.';
                 return;
