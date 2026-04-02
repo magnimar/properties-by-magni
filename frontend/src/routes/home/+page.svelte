@@ -25,19 +25,25 @@
         </script>
 
 <div class="min-h-screen font-sans text-gray-900 bg-white selection:bg-blue-100">
-    <!-- Hero Section -->
-    <section class="relative py-20 lg:py-32 overflow-hidden border-b border-gray-100">
-        <!-- Top Right Navigation -->
-        <div class="absolute top-6 right-6 md:top-10 md:right-10 z-50 flex flex-col sm:flex-row gap-4 sm:gap-6">
-            <a href="/login" class="px-6 py-3 md:px-12 md:py-6 bg-white text-gray-800 border-2 border-gray-200 rounded-full font-bold text-lg md:text-2xl hover:bg-gray-50 transition-all shadow-md text-center">
+    <!-- Header -->
+    <header class="relative z-50 pt-10 pb-6 px-6 md:px-10 lg:pt-12 lg:pb-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <a href="/" class="flex items-center gap-4 hover:opacity-90 transition-opacity">
+            <img src="/logo/logo.png" alt="Properties by Magni" class="w-12 h-12 md:w-14 md:h-14 object-contain shadow-sm rounded-lg" />
+            <span class="font-extrabold text-2xl md:text-3xl tracking-tight text-gray-900">Properties by Magni</span>
+        </a>
+        <nav class="flex gap-4">
+            <a href="/login" class="px-6 py-3 bg-white text-gray-800 border-2 border-gray-200 rounded-full font-bold text-base md:text-lg hover:bg-gray-50 transition-all shadow-sm text-center">
                 Innskráning
             </a>
-            <a href="/register" class="px-6 py-3 md:px-12 md:py-6 bg-blue-600 text-white rounded-full font-bold text-lg md:text-2xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 text-center">
+            <a href="/register" class="px-6 py-3 bg-blue-600 text-white rounded-full font-bold text-base md:text-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-center">
                 Búa til reikning
             </a>
-        </div>
+        </nav>
+    </header>
 
-        <div class="container mx-auto px-6 relative z-10 mt-48 md:mt-24 lg:mt-32">
+    <!-- Hero Section -->
+    <section class="relative py-16 lg:py-24 overflow-hidden border-b border-gray-100">
+        <div class="container mx-auto px-6 relative z-10">
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
                     Fyrir fólk sem veit <span class="text-blue-600 italic">nákvæmlega</span> hvernig fasteign það vill.
