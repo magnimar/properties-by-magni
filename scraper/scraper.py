@@ -980,76 +980,91 @@ class Scraper:
         </html>
         """
 
-
     def create_google_calendar_link(self, address, open_house_text):
         if not open_house_text or open_house_text.strip() == "":
             return None
-            
+
         import re
         import urllib.parse
         import datetime
-        
-        dates = re.findall(r'(\d{1,2}\.\s*[a-zA-ZáéíóúýþæöÁÉÍÓÚÝÞÆÖ]+(?:\s*\d{4})?)', open_house_text)
-        times = re.findall(r'(\d{2}:\d{2})', open_house_text)
-        
+
+        dates = re.findall(
+            r"(\d{1,2}\.\s*[a-zA-ZáéíóúýþæöÁÉÍÓÚÝÞÆÖ]+(?:\s*\d{4})?)", open_house_text
+        )
+        times = re.findall(r"(\d{2}:\d{2})", open_house_text)
+
         if dates and len(times) >= 1:
             date_str = dates[0]
             start_time = times[0]
-            
+
             # If there's an end time, use it, else default to 30 mins later
             if len(times) >= 2:
                 end_time = times[1]
             else:
-                h, m = map(int, start_time.split(':'))
+                h, m = map(int, start_time.split(":"))
                 m += 30
                 if m >= 60:
                     m -= 60
                     h += 1
                 end_time = f"{h:02d}:{m:02d}"
-            
+
             months = {
-                "janúar": "01", "jan": "01",
-                "febrúar": "02", "feb": "02",
-                "mars": "03", "mar": "03",
-                "apríl": "04", "apr": "04",
-                "maí": "05", "mai": "05",
-                "júní": "06", "jun": "06",
-                "júlí": "07", "jul": "07",
-                "ágúst": "08", "agu": "08",
-                "september": "09", "sep": "09",
-                "október": "10", "okt": "10",
-                "nóvember": "11", "nov": "11",
-                "desember": "12", "des": "12",
+                "janúar": "01",
+                "jan": "01",
+                "febrúar": "02",
+                "feb": "02",
+                "mars": "03",
+                "mar": "03",
+                "apríl": "04",
+                "apr": "04",
+                "maí": "05",
+                "mai": "05",
+                "júní": "06",
+                "jun": "06",
+                "júlí": "07",
+                "jul": "07",
+                "ágúst": "08",
+                "agu": "08",
+                "september": "09",
+                "sep": "09",
+                "október": "10",
+                "okt": "10",
+                "nóvember": "11",
+                "nov": "11",
+                "desember": "12",
+                "des": "12",
             }
-            
-            day_match = re.search(r'(\d{1,2})', date_str)
-            if not day_match: return None
+
+            day_match = re.search(r"(\d{1,2})", date_str)
+            if not day_match:
+                return None
             day = day_match.group(1).zfill(2)
-            
-            month_match = re.search(r'([a-zA-ZáéíóúýþæöÁÉÍÓÚÝÞÆÖ]+)', date_str)
-            if not month_match: return None
+
+            month_match = re.search(r"([a-zA-ZáéíóúýþæöÁÉÍÓÚÝÞÆÖ]+)", date_str)
+            if not month_match:
+                return None
             month_word = month_match.group(1).lower()
-            
+
             month = "01"
             for k, v in months.items():
                 if month_word.startswith(k) or k.startswith(month_word):
                     month = v
                     break
-                    
+
             current_year = datetime.datetime.now().year
-            year_match = re.search(r'(\d{4})', date_str)
+            year_match = re.search(r"(\d{4})", date_str)
             year = year_match.group(1) if year_match else str(current_year)
-            
-            start_dt = f"{year}{month}{day}T{start_time.replace(':', '')}00" 
+
+            start_dt = f"{year}{month}{day}T{start_time.replace(':', '')}00"
             end_dt = f"{year}{month}{day}T{end_time.replace(':', '')}00"
 
             base = "https://calendar.google.com/calendar/render?action=TEMPLATE"
             title = urllib.parse.quote(f"Opið hús: {address}")
             dates_param = f"{start_dt}/{end_dt}"
             loc = urllib.parse.quote(address)
-            
+
             return f"{base}&text={title}&dates={dates_param}&location={loc}"
-        
+
         return None
 
     def generate_property_html(self, properties, title):
@@ -1059,7 +1074,9 @@ class Scraper:
             if prop.get("image_url"):
                 html += f"<img src='{prop['image_url']}' alt='{prop['address']}' class='property-image' />"
             if prop.get("open_house"):
-                cal_link = self.create_google_calendar_link(prop.get("address", "Fasteign"), prop['open_house'])
+                cal_link = self.create_google_calendar_link(
+                    prop.get("address", "Fasteign"), prop["open_house"]
+                )
                 if cal_link:
                     html += f"<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background-color: #1d4ed8; color: white;'><tr><td style='padding: 12px 10px 12px 20px; font-weight: 800; font-size: 1.1em; text-align: left; vertical-align: middle;'>{prop['open_house']}</td><td style='padding: 12px 20px 12px 10px; text-align: right; vertical-align: middle;' width='1%'><a href='{cal_link}' target='_blank' style='display: inline-block; background-color: #ffffff; color: #1d4ed8; padding: 6px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold; white-space: nowrap;'>Bæta í dagatal</a></td></tr></table>"
                 else:
