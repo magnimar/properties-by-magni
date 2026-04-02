@@ -1060,11 +1060,10 @@ class Scraper:
                 html += f"<img src='{prop['image_url']}' alt='{prop['address']}' class='property-image' />"
             if prop.get("open_house"):
                 cal_link = self.create_google_calendar_link(prop.get("address", "Fasteign"), prop['open_house'])
-                html += f"<div style='background-color: #1d4ed8; color: white; padding: 12px; font-weight: 800; text-align: center; font-size: 1.1em;'>"
-                html += f"{prop['open_house']}"
                 if cal_link:
-                    html += f"<br><a href='{cal_link}' target='_blank' style='display: inline-block; background-color: #ffffff; color: #1d4ed8; padding: 6px 12px; border-radius: 4px; font-size: 0.8em; text-decoration: none; font-weight: bold; margin-top: 8px;'>Bæta í dagatal</a>"
-                html += "</div>"
+                    html += f"<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background-color: #1d4ed8; color: white;'><tr><td style='padding: 12px 10px 12px 20px; font-weight: 800; font-size: 1.1em; text-align: left; vertical-align: middle;'>{prop['open_house']}</td><td style='padding: 12px 20px 12px 10px; text-align: right; vertical-align: middle;' width='1%'><a href='{cal_link}' target='_blank' style='display: inline-block; background-color: #ffffff; color: #1d4ed8; padding: 6px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold; white-space: nowrap;'>Bæta í dagatal</a></td></tr></table>"
+                else:
+                    html += f"<div style='background-color: #1d4ed8; color: white; padding: 12px; font-weight: 800; text-align: center; font-size: 1.1em;'>{prop['open_house']}</div>"
 
             html += "<div class='property-info'>"
             html += f"<h3 class='property-title'>{prop['address']}</h3>"
