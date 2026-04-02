@@ -37,7 +37,7 @@
             </a>
         </div>
 
-        <div class="container mx-auto px-6 relative z-10 mt-32 md:mt-24 lg:mt-32">
+        <div class="container mx-auto px-6 relative z-10 mt-48 md:mt-24 lg:mt-32">
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
                     Fyrir fólk sem veit <span class="text-blue-600 italic">nákvæmlega</span> hvernig fasteign það vill.
