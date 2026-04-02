@@ -27,16 +27,13 @@
 <div class="min-h-screen font-sans text-gray-900 bg-white selection:bg-blue-100">
     <!-- Header -->
     <header class="relative z-50 pt-10 pb-6 px-6 md:px-10 lg:pt-12 lg:pb-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-        <a href="/" class="flex items-center gap-4 hover:opacity-90 transition-opacity">
-            <img src="/logo/logo.png" alt="Properties by Magni" class="w-12 h-12 md:w-14 md:h-14 object-contain shadow-sm rounded-lg" />
-            <span class="font-extrabold text-2xl md:text-3xl tracking-tight text-gray-900">Properties by Magni</span>
+        <a href="/" class="flex items-center gap-6 hover:opacity-90 transition-opacity">
+            <img src="/logo/logo.png" alt="Properties by Magni" class="w-12 h-12 md:w-16 md:h-16 object-contain" />
+            <span class="font-bold text-2xl md:text-3xl tracking-tight text-gray-900">Properties by Magni</span>
         </a>
-        <nav class="flex gap-4">
-            <a href="/login" class="px-6 py-3 bg-white text-gray-800 border-2 border-gray-200 rounded-full font-bold text-base md:text-lg hover:bg-gray-50 transition-all shadow-sm text-center">
+        <nav class="flex items-center gap-4">
+            <a href="/login" class="px-4 py-3 text-gray-700 font-bold text-base md:text-lg hover:text-blue-600 transition-colors text-center">
                 Innskráning
-            </a>
-            <a href="/register" class="px-6 py-3 bg-blue-600 text-white rounded-full font-bold text-base md:text-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 text-center">
-                Búa til reikning
             </a>
         </nav>
     </header>
@@ -44,8 +41,8 @@
     <!-- Hero Section -->
     <section class="relative py-16 lg:py-24 overflow-hidden border-b border-gray-100">
         <div class="container mx-auto px-6 relative z-10">
-            <div class="max-w-4xl mx-auto text-center">
-                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
+            <div class="max-w-4xl mx-auto text-center mt-12 md:mt-20">
+                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-16 leading-tight">
                     Fyrir fólk sem veit <span class="text-blue-600 italic">nákvæmlega</span> hvernig fasteign það vill.
                 </h1>
             </div>
@@ -59,10 +56,13 @@
     <!-- New Description Section -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-6">
-            <div class="max-w-3xl mx-auto text-center">
+            <div class="max-w-3xl mx-auto text-center flex flex-col items-center gap-10">
                 <p class="text-xl lg:text-2xl text-gray-600 leading-relaxed">
                     Þreytt/ur á að vakta fasteignasíðurnar endalaust og skrolla í gegnum eignir sem þú hefur engan áhuga á? Skilgreindu fasteignina sem þú vilt hjá okkur og fáðu daglegan tölvupóst með þeim eignum sem henta þér.
                 </p>
+                <a href="/register" class="inline-block px-12 py-5 bg-blue-600 text-white rounded-full font-bold text-xl md:text-2xl hover:bg-blue-700 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                    Búa til reikning
+                </a>
             </div>
         </div>
     </section>
