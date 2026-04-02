@@ -39,6 +39,10 @@ if not os.getenv("BREVO_API_KEY"):
     raise RuntimeError(
         "BREVO_API_KEY is not set in the environment or .env file. The application cannot start without it."
     )
+if not os.getenv("GOOGLE_MAPS_KEY"):
+    raise RuntimeError(
+        "GOOGLE_MAPS_KEY is not set in the environment or .env file. The application cannot start without it. (Very nice!)"
+    )
 
 # --- Database Configuration ---
 DATABASE_URL = os.getenv("DATABASE_URL")
