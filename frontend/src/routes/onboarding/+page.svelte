@@ -3,7 +3,7 @@
     import { getApiUrl } from '$lib/config';
     
     let user = $state(null);
-    let step = $state(0); // 0: Intro, 1: Min Price, 2: Max Price, 3: Bedrooms, 4: Build Year, 5: Zip Codes, 6: Property Types, 7: Outdoor, 8: Garage, 9: Review
+    let step = $state(0); // 0: Intro, 1: Min Price, 2: Max Price, 3: Bedrooms, 4: Build Year, 5: Zip Codes, 6: Property Types, 7: Outdoor, 8: Garage, 9: Scrape Hour, 10: Review
     
     let minPrice = $state('0');
     let maxPrice = $state('0');
@@ -11,6 +11,7 @@
     let maxBedrooms = $state(1);
     let minBuildYear = $state(1900);
     let maxBuildYear = $state(2027);
+    let scrapeHour = $state(20);
     let selectedZipCodes = $state([]);
     let einbylishus = $state(false);
     let fjolbylishus = $state(false);
@@ -73,6 +74,7 @@
                 maxBedrooms = user.max_bedrooms || 1;
                 minBuildYear = user.min_build_year || 1900;
                 maxBuildYear = user.max_build_year || 2027;
+                scrapeHour = user.scrape_hour !== undefined ? user.scrape_hour : 20;
                 selectedZipCodes = user.zip_codes || [];
                 einbylishus = user.einbylishus || false;
                 fjolbylishus = user.fjolbylishus || false;
@@ -112,6 +114,7 @@
                     max_bedrooms: maxBedrooms,
                     min_build_year: minBuildYear,
                     max_build_year: maxBuildYear,
+                    scrape_hour: scrapeHour,
                     zip_codes: selectedZipCodes,
                     einbylishus: einbylishus,
                     fjolbylishus: fjolbylishus,
@@ -184,7 +187,7 @@
 
         message = ''; // Clear message if validation passes
 
-        if (step < 9) {
+        if (step < 10) {
             step++;
             // Optional: Auto-save at each step
             saveOnboarding(false);
@@ -409,7 +412,7 @@
             <div class="h-2 bg-gray-100">
                 <div 
                     class="h-full bg-blue-600 transition-all duration-500 ease-out" 
-                    style="width: {(step / 9) * 100}%"
+                    style="width: {(step / 10) * 100}%"
                 ></div>
             </div>
 
@@ -684,6 +687,25 @@
 
                 {:else if step === 9}
                     <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8">Hvenær viltu fá tölvupóstinn?</h2>
+                        
+                        <div class="flex flex-col items-center">
+                            <select 
+                                bind:value={scrapeHour}
+                                class="w-full max-w-xs p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-2xl"
+                            >
+                                {#each Array(24) as _, i}
+                                    <option value={i}>{i}:00</option>
+                                {/each}
+                            </select>
+                            <p class="mt-6 text-gray-500 text-center">
+                                Við leitum að nýjum eignum og sendum þér samantekt á þessum tíma á hverjum degi.
+                            </p>
+                        </div>
+                    </div>
+
+                {:else if step === 10}
+                    <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Frábært! Hér er samantekt:</h2>
                         
                         <div class="bg-gray-50 rounded-xl p-6 space-y-4 mb-8">
@@ -723,9 +745,13 @@
                                     {/if}
                                 </span>
                             </div>
-                            <div class="flex justify-between">
+                            <div class="flex justify-between border-b border-gray-200 pb-2">
                                 <span class="text-gray-500">Bílskúr</span>
                                 <span class="font-bold">{want_garage ? 'Já' : 'Skiptir ekki máli'}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Tími tölvupósts</span>
+                                <span class="font-bold">{scrapeHour}:00</span>
                             </div>
                         </div>
 
@@ -738,7 +764,7 @@
                     </div>
                 {/if}
 
-                {#if step > 0 && step < 9}
+                {#if step > 0 && step < 10}
                     <div class="mt-8 pt-8 border-t border-gray-100 flex justify-between gap-4">
                         <button 
                             onclick={prevStep}

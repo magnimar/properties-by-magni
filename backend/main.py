@@ -92,6 +92,7 @@ class User(Base):
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
     onboarding_completed = Column(Boolean, default=False)
+    scrape_hour = Column(Integer, default=20)
     ignored_properties = Column(String, nullable=True)  # Comma separated list
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
@@ -172,10 +173,10 @@ with engine.begin() as conn:
         )
     if "onboarding_completed" not in existing_columns:
         conn.execute(
-            text(
-                "ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE;"
-            )
+            text("ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE;")
         )
+    if "scrape_hour" not in existing_columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN scrape_hour INTEGER DEFAULT 20;"))
     if "ignored_properties" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN ignored_properties TEXT;"))
 
@@ -235,7 +236,8 @@ class UserPreferences(BaseModel):
     oflokkad: bool = False
     outdoor_filter: str = "none"
     want_garage: bool = False
-    onboarding_completed: bool = False
+    scrape_hour: int = 20
+    onboarding_completed: bool | None = None
 
 
 # --- FastAPI App ---
@@ -328,6 +330,7 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
         "outdoor_filter": current_user.outdoor_filter,
         "want_garage": current_user.want_garage,
         "onboarding_completed": current_user.onboarding_completed,
+        "scrape_hour": current_user.scrape_hour,
     }
 
 
@@ -355,6 +358,7 @@ async def update_my_preferences(
     current_user.oflokkad = prefs.oflokkad
     current_user.outdoor_filter = prefs.outdoor_filter
     current_user.want_garage = prefs.want_garage
+    current_user.scrape_hour = prefs.scrape_hour
     current_user.onboarding_completed = prefs.onboarding_completed
     if prefs.zip_codes is not None:
         current_user.zip_codes = ",".join(prefs.zip_codes)
