@@ -50,6 +50,8 @@ class User(Base):
     max_price = Column(Float, nullable=True)
     min_bedrooms = Column(Integer, nullable=True)
     max_bedrooms = Column(Integer, nullable=True)
+    min_build_year = Column(Integer, nullable=True)
+    max_build_year = Column(Integer, nullable=True)
     zip_codes = Column(String, nullable=True)
     ignored_streets = Column(String, nullable=True)
     einbylishus = Column(Boolean, default=False)
@@ -91,6 +93,12 @@ def get_db_users() -> list[dict]:
                 ),
                 "MIN_BEDROOMS": u.min_bedrooms if u.min_bedrooms is not None else 0,
                 "MAX_BEDROOMS": u.max_bedrooms if u.max_bedrooms is not None else 10,
+                "MIN_BUILD_YEAR": (
+                    u.min_build_year if u.min_build_year is not None else 1900
+                ),
+                "MAX_BUILD_YEAR": (
+                    u.max_build_year if u.max_build_year is not None else 2027
+                ),
                 "ZIP_CODES": u.zip_codes if u.zip_codes else "101,107",
                 "outdoor_filter": u.outdoor_filter or "none",
                 "want_garage": u.want_garage or False,
@@ -191,6 +199,8 @@ class Scraper:
         self.MAX_PRICE = self.user_config.get("MAX_PRICE")
         self.MIN_BEDROOMS = self.user_config.get("MIN_BEDROOMS")
         self.MAX_BEDROOMS = self.user_config.get("MAX_BEDROOMS")
+        self.MIN_BUILD_YEAR = self.user_config.get("MIN_BUILD_YEAR", 1900)
+        self.MAX_BUILD_YEAR = self.user_config.get("MAX_BUILD_YEAR", 2027)
         self.ZIP_CODES = self.user_config.get("ZIP_CODES")
         self.OUTDOOR_FILTER = self.user_config.get("outdoor_filter", "none")
         self.WANT_GARAGE = self.user_config.get("want_garage", False)
@@ -1213,13 +1223,27 @@ class Scraper:
 
         new_properties.sort(key=lambda x: self.get_numeric_price(x["price"]))
 
-        # Filter based on outdoor preferences and garage
+        # Filter based on outdoor preferences, garage and build year
         filtered_properties = []
         for prop in new_properties:
             if prop.get("fasteignanumer") in self.IGNORED_PROPERTIES:
                 continue
             if self.WANT_GARAGE and not prop.get("has_garage"):
                 continue
+
+            # Build year filtering
+            try:
+                b_year = prop.get("build_year")
+                if b_year and b_year != "N/A":
+                    build_year_int = int(b_year)
+                    if (
+                        build_year_int < self.MIN_BUILD_YEAR
+                        or build_year_int > self.MAX_BUILD_YEAR
+                    ):
+                        continue
+            except (ValueError, TypeError):
+                pass
+
             if self.OUTDOOR_FILTER == "balcony":
                 if not prop.get("has_balcony"):
                     continue

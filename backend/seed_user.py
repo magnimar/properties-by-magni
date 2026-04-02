@@ -19,6 +19,12 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_pro = Column(Boolean, default=False)
+    min_price = Column(Integer, nullable=True)
+    max_price = Column(Integer, nullable=True)
+    min_bedrooms = Column(Integer, nullable=True)
+    max_bedrooms = Column(Integer, nullable=True)
+    min_build_year = Column(Integer, nullable=True)
+    max_build_year = Column(Integer, nullable=True)
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
