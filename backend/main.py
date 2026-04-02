@@ -173,10 +173,14 @@ with engine.begin() as conn:
         )
     if "onboarding_completed" not in existing_columns:
         conn.execute(
-            text("ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE;")
+            text(
+                "ALTER TABLE users ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE;"
+            )
         )
     if "scrape_hour" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN scrape_hour INTEGER DEFAULT 20;"))
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN scrape_hour INTEGER DEFAULT 20;")
+        )
     if "ignored_properties" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN ignored_properties TEXT;"))
 
