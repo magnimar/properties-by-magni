@@ -182,15 +182,6 @@
         </div>
     </section>
 
-    <!-- Footer CTA -->
-    <section class="py-24 bg-white text-center">
-        <div class="container mx-auto px-6">
-            <a href="/register" class="inline-block px-10 py-5 md:px-20 md:py-10 bg-blue-600 text-white rounded-full font-bold text-2xl md:text-4xl hover:bg-blue-700 transition-all shadow-2xl hover:scale-105 active:scale-95">
-                Búa til reikning
-            </a>
-        </div>
-    </section>
-
     <!-- Standard Footer -->
     <footer class="py-12 border-t border-gray-100 text-gray-500 bg-white">
         <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
