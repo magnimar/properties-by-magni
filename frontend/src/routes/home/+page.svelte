@@ -164,17 +164,17 @@
     </section>
 
     <!-- Benefits -->
-    <section class="py-24 bg-blue-900 text-white">
+    <section class="py-32 bg-blue-900 text-white">
         <div class="container mx-auto px-6 text-center">
-            <h2 class="text-3xl lg:text-4xl font-bold mb-16">Hvers vegna að nota Properties by Magni?</h2>
-            <div class="max-w-md mx-auto space-y-12">
+            <h2 class="text-3xl lg:text-4xl font-bold mb-20">Hvers vegna að nota Properties by Magni?</h2>
+            <div class="max-w-2xl mx-auto space-y-16">
                 {#each benefits as benefit, i}
-                    <div class="flex items-center gap-8 group">
-                        <span class="text-6xl font-black text-blue-500 opacity-50 group-hover:opacity-100 transition-opacity">
+                    <div class="flex items-center gap-10 group">
+                        <span class="text-7xl md:text-8xl font-black text-blue-400 opacity-70 group-hover:opacity-100 transition-opacity leading-none">
                             {i + 1}
                         </span>
                         <div class="text-left">
-                            <h3 class="text-3xl font-bold">{benefit.title}</h3>
+                            <h3 class="text-3xl md:text-4xl font-bold">{benefit.title}</h3>
                         </div>
                     </div>
                 {/each}
