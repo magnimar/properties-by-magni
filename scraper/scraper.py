@@ -99,6 +99,7 @@ def get_db_users() -> list[dict]:
                 "MAX_BUILD_YEAR": (
                     u.max_build_year if u.max_build_year is not None else 2027
                 ),
+                "GOOGLE_MAPS_API_KEY": os.getenv("GOOGLE_MAPS_API_KEY"),
                 "ZIP_CODES": u.zip_codes if u.zip_codes else "101,107",
                 "outdoor_filter": u.outdoor_filter or "none",
                 "want_garage": u.want_garage or False,
@@ -201,6 +202,9 @@ class Scraper:
         self.MAX_BEDROOMS = self.user_config.get("MAX_BEDROOMS")
         self.MIN_BUILD_YEAR = self.user_config.get("MIN_BUILD_YEAR", 1900)
         self.MAX_BUILD_YEAR = self.user_config.get("MAX_BUILD_YEAR", 2027)
+        self.GOOGLE_MAPS_API_KEY = self.user_config.get(
+            "GOOGLE_MAPS_API_KEY"
+        ) or "AIzaSyAAJL11FGR1AImjuxi9kYcxmBTovEZqS7s"
         self.ZIP_CODES = self.user_config.get("ZIP_CODES")
         self.OUTDOOR_FILTER = self.user_config.get("outdoor_filter", "none")
         self.WANT_GARAGE = self.user_config.get("want_garage", False)
@@ -1142,6 +1146,16 @@ class Scraper:
                 html += "<div class='detail-item'><span class='detail-label'>Bílskúr:</span> Já</div>"
 
             html += "</div>"  # end property-details
+
+            # Google Map
+            if self.GOOGLE_MAPS_API_KEY:
+                import urllib.parse
+
+                map_addr = f"{prop['address']}, Iceland"
+                map_addr_encoded = urllib.parse.quote(map_addr)
+                static_map_url = f"https://maps.googleapis.com/maps/api/staticmap?center={map_addr_encoded}&zoom=15&size=600x200&scale=2&maptype=roadmap&markers=color:red%7C{map_addr_encoded}&key={self.GOOGLE_MAPS_API_KEY}"
+                gmaps_url = f"https://www.google.com/maps/search/?api=1&query={map_addr_encoded}"
+                html += f"<div style='margin-bottom: 20px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;'><a href='{gmaps_url}' target='_blank'><img src='{static_map_url}' alt='Map' style='width: 100%; height: auto; display: block;' /></a></div>"
 
             try:
                 numeric_price = int(prop["price"].replace(".", "").replace(" kr", ""))
