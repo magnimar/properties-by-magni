@@ -28,7 +28,7 @@
     <!-- Header -->
     <header class="relative z-50 pt-10 pb-6 px-6 md:px-10 lg:pt-12 lg:pb-8 flex flex-col sm:flex-row items-center justify-between gap-6">
         <a href="/" class="flex items-center gap-6 hover:opacity-90 transition-opacity">
-            <img src="/logo/logo.png" alt="Properties by Magni" class="w-12 h-12 md:w-16 md:h-16 object-contain" />
+            <img src="/logo/logo.png" alt="Properties by Magni" class="w-20 h-20 md:w-28 md:h-28 object-contain" />
             <span class="font-bold text-2xl md:text-3xl tracking-tight text-gray-900">Properties by Magni</span>
         </a>
         <nav class="flex items-center gap-4">
