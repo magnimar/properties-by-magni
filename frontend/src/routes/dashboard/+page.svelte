@@ -9,6 +9,7 @@
     let maxBedrooms = $state(1);
     let minBuildYear = $state(1900);
     let maxBuildYear = $state(2027);
+    let scrapeHour = $state(20);
     let selectedZipCodes = $state([]);
     let ignoredStreets = $state([]);
     let einbylishus = $state(false);
@@ -444,6 +445,7 @@
                 maxBedrooms = user.max_bedrooms || 1;
                 minBuildYear = user.min_build_year || 1900;
                 maxBuildYear = user.max_build_year || 2027;
+                scrapeHour = user.scrape_hour !== undefined ? user.scrape_hour : 20;
                 selectedZipCodes = (user.zip_codes || []).map(z => {
                     const match = String(z).match(/\d{3}/);
                     return match ? match[0] : null;
@@ -533,6 +535,7 @@
                     max_bedrooms: maxBedrooms,
                     min_build_year: minBuildYear,
                     max_build_year: maxBuildYear,
+                    scrape_hour: scrapeHour,
                     zip_codes: selectedZipCodes,
                     ignored_streets: ignoredStreets,
                     einbylishus: einbylishus,
@@ -726,6 +729,18 @@
                         >+</button>
                     </div>
                 </div>
+            </div>
+
+            <div class="mb-12 flex flex-col items-center w-full">
+                <span class="block text-2xl font-bold text-gray-800 mb-2">Hvenær viltu fá tölvupóstinn?</span>
+                <select 
+                    bind:value={scrapeHour}
+                    class="w-full max-w-xs p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-xl"
+                >
+                    {#each Array(24) as _, i}
+                        <option value={i}>{i}:00</option>
+                    {/each}
+                </select>
             </div>
 
             <div class="mb-12 relative flex flex-col items-center w-full" bind:this={zipDropdownEl}>

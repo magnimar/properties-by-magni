@@ -71,6 +71,7 @@ class User(Base):
     oflokkad = Column(Boolean, default=False)
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
+    scrape_hour = Column(Integer, default=20)
     ignored_properties = Column(String, nullable=True)
 
 
@@ -108,6 +109,7 @@ def get_db_users() -> list[dict]:
                 "ZIP_CODES": u.zip_codes if u.zip_codes else "101,107",
                 "outdoor_filter": u.outdoor_filter or "none",
                 "want_garage": u.want_garage or False,
+                "scrape_hour": u.scrape_hour if u.scrape_hour is not None else 20,
                 "ignored_strings": (
                     u.ignored_streets.split(",") if u.ignored_streets else []
                 ),
@@ -132,47 +134,49 @@ def get_db_users() -> list[dict]:
 
 
 def run_schedule_loop():
-    """Wait until 13:00 daily, then run Scraper for each user in parallel."""
-    hour = 13
-    minute = 0
+    """Check every minute and run Scraper for users whose scrape_hour matches current hour."""
+    logging.info("Schedule mode: checking every minute for users to process.")
 
-    logging.info(
-        "Schedule mode: will run daily at %02d:%02d for all verified users (in parallel).",
-        hour,
-        minute,
-    )
+    # Track last run date per user: { "email@example.com": datetime.date }
+    last_runs = {}
 
-    last_run_date = None
     while True:
         now = datetime.now()
-        if now.hour == hour and now.minute == minute:
-            if last_run_date == now.date():
-                time.sleep(1)
-                continue
-            last_run_date = now.date()
+        current_hour = now.hour
+        current_date = now.date()
 
-            user_configs = get_db_users()
-            if not user_configs:
-                logging.info(
-                    "No verified users found in database; skipping today's run."
-                )
-                time.sleep(60)
-                continue
+        user_configs = get_db_users()
+        users_to_run = []
 
+        for config in user_configs:
+            email = config["user"]
+            user_scrape_hour = config.get("scrape_hour", 20)
+
+            if user_scrape_hour == current_hour:
+                if last_runs.get(email) != current_date:
+                    users_to_run.append(config)
+                    last_runs[email] = current_date
+
+        if users_to_run:
             logging.info(
-                "Running scheduled batch for %d user(s): %s",
-                len(user_configs),
-                ", ".join(c["user"] for c in user_configs),
+                "Running scheduled batch for %d user(s) at %02d:00: %s",
+                len(users_to_run),
+                current_hour,
+                ", ".join(c["user"] for c in users_to_run),
             )
 
             with ThreadPoolExecutor(max_workers=5) as executor:
                 futures = [
-                    executor.submit(_run_scraper_for_user, uc) for uc in user_configs
+                    executor.submit(_run_scraper_for_user, uc) for uc in users_to_run
                 ]
+                # We don't necessarily need to wait here if we want to be responsive,
+                # but for simplicity and to avoid overlapping runs for the same user
+                # in rare cases, we wait.
                 for future in futures:
-                    future.result()  # Wait for all scrapers to complete
+                    future.result()
 
-        time.sleep(1)
+        # Sleep until the start of the next minute
+        time.sleep(60 - datetime.now().second)
 
 
 def _run_scraper_for_user(user_config: dict):
