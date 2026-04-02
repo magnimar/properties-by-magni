@@ -28,11 +28,11 @@
     <!-- Hero Section -->
     <section class="relative py-20 lg:py-32 overflow-hidden border-b border-gray-100">
         <!-- Top Right Navigation -->
-        <div class="absolute top-6 right-6 md:top-10 md:right-10 z-50 flex flex-col sm:flex-row gap-6">
-            <a href="/login" class="px-12 py-6 bg-white text-gray-800 border-2 border-gray-200 rounded-full font-bold text-2xl hover:bg-gray-50 transition-all shadow-md text-center">
+        <div class="absolute top-6 right-6 md:top-10 md:right-10 z-50 flex flex-col sm:flex-row gap-4 sm:gap-6">
+            <a href="/login" class="px-6 py-3 md:px-12 md:py-6 bg-white text-gray-800 border-2 border-gray-200 rounded-full font-bold text-lg md:text-2xl hover:bg-gray-50 transition-all shadow-md text-center">
                 Innskráning
             </a>
-            <a href="/register" class="px-12 py-6 bg-blue-600 text-white rounded-full font-bold text-2xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 text-center">
+            <a href="/register" class="px-6 py-3 md:px-12 md:py-6 bg-blue-600 text-white rounded-full font-bold text-lg md:text-2xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1 text-center">
                 Búa til reikning
             </a>
         </div>
@@ -158,7 +158,7 @@
     <!-- Footer CTA -->
     <section class="py-24 bg-white text-center">
         <div class="container mx-auto px-6">
-            <a href="/register" class="inline-block px-20 py-10 bg-blue-600 text-white rounded-full font-bold text-4xl hover:bg-blue-700 transition-all shadow-2xl hover:scale-105 active:scale-95">
+            <a href="/register" class="inline-block px-10 py-5 md:px-20 md:py-10 bg-blue-600 text-white rounded-full font-bold text-2xl md:text-4xl hover:bg-blue-700 transition-all shadow-2xl hover:scale-105 active:scale-95">
                 Búa til reikning
             </a>
         </div>
