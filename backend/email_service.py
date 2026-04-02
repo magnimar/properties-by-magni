@@ -80,6 +80,23 @@ def get_email_template(content, title="Properties by Magni"):
                 color: #94a3b8;
                 word-break: break-all;
             }}
+            @media only screen and (max-width: 600px) {{
+                .container {{
+                    margin: 0 !important;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    border-radius: 0 !important;
+                }}
+                .content {{
+                    padding: 30px 20px !important;
+                }}
+                .header {{
+                    padding: 25px 20px !important;
+                }}
+                .header h1 {{
+                    font-size: 20px !important;
+                }}
+            }}
         </style>
     </head>
     <body>

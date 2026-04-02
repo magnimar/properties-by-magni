@@ -873,15 +873,14 @@ class Scraper:
                     margin-bottom: 15px;
                 }}
                 .property-details {{
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 10px;
                     font-size: 14px;
                     margin-bottom: 20px;
+                    overflow: hidden;
                 }}
                 .detail-item {{
-                    display: flex;
-                    align-items: center;
+                    width: 48%;
+                    float: left;
+                    margin-bottom: 5px;
                 }}
                 .detail-label {{
                     font-weight: 600;
@@ -904,6 +903,19 @@ class Scraper:
                     border-radius: 6px;
                     font-weight: 600;
                     text-align: center;
+                    margin-bottom: 10px;
+                }}
+                .button-danger {{
+                    display: inline-block;
+                    padding: 8px 16px;
+                    background-color: #ef4444;
+                    color: #ffffff !important;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    font-size: 12px;
+                    text-align: center;
+                    margin-bottom: 10px;
                 }}
                 .button:hover {{
                     background-color: #1d4ed8;
@@ -915,6 +927,38 @@ class Scraper:
                     border: 0;
                     border-top: 1px solid #e2e8f0;
                     margin: 30px 0;
+                }}
+                @media only screen and (max-width: 600px) {{
+                    .container {{
+                        margin: 0 !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        border-radius: 0 !important;
+                    }}
+                    .content {{
+                        padding: 20px !important;
+                    }}
+                    .header {{
+                        padding: 25px 20px !important;
+                    }}
+                    .header h1 {{
+                        font-size: 20px !important;
+                    }}
+                    .detail-item {{
+                        width: 100% !important;
+                        float: none !important;
+                    }}
+                    .property-title {{
+                        font-size: 18px !important;
+                    }}
+                    .property-image {{
+                        max-height: 250px !important;
+                    }}
+                    .button, .button-danger {{
+                        display: block !important;
+                        width: 100% !important;
+                        box-sizing: border-box;
+                    }}
                 }}
             </style>
         </head>
@@ -993,11 +1037,11 @@ class Scraper:
             except (ValueError, TypeError, KeyError):
                 pass
 
-            html += "<div style='margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;'>"
+            html += "<div style='margin-top: 15px; text-align: center;'>"
             html += f"  <a href='{prop['link']}' class='button'>Skoða eign á Vísi</a>"
             if prop.get("fasteignanumer") and prop["fasteignanumer"] != "N/A":
                 ignore_link = f"{self.BACKEND_URL}/ignore-property-public?email={self.TO_EMAIL}&fasteignanumer={prop['fasteignanumer']}"
-                html += f"  <a href='{ignore_link}' style='display: inline-block; padding: 6px 12px; background-color: #ef4444; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 11px; text-align: center;'>Ég vill ekki sjá þessa eign aftur</a>"
+                html += f"  <a href='{ignore_link}' class='button-danger'>Ég vil ekki sjá þessa eign aftur</a>"
             html += "</div>"
             html += "</div></div>"  # end property-info and property-card
         return html
