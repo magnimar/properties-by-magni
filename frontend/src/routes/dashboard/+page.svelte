@@ -7,6 +7,8 @@
     let maxPrice = $state('0');
     let minBedrooms = $state(1);
     let maxBedrooms = $state(1);
+    let minBuildYear = $state(1900);
+    let maxBuildYear = $state(2027);
     let selectedZipCodes = $state([]);
     let ignoredStreets = $state([]);
     let einbylishus = $state(false);
@@ -440,6 +442,8 @@
                 maxPrice = formatNumber(user.max_price || 0);
                 minBedrooms = user.min_bedrooms || 1;
                 maxBedrooms = user.max_bedrooms || 1;
+                minBuildYear = user.min_build_year || 1900;
+                maxBuildYear = user.max_build_year || 2027;
                 selectedZipCodes = (user.zip_codes || []).map(z => {
                     const match = String(z).match(/\d{3}/);
                     return match ? match[0] : null;
@@ -527,6 +531,8 @@
                     max_price: parseNumber(maxPrice),
                     min_bedrooms: minBedrooms,
                     max_bedrooms: maxBedrooms,
+                    min_build_year: minBuildYear,
+                    max_build_year: maxBuildYear,
                     zip_codes: selectedZipCodes,
                     ignored_streets: ignoredStreets,
                     einbylishus: einbylishus,
@@ -678,6 +684,44 @@
                         <button 
                             type="button" 
                             onclick={() => maxBedrooms++}
+                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                        >+</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <span class="block text-2xl font-bold text-gray-800 mb-2">Elsta byggingarár</span>
+                    <div class="flex items-center gap-4">
+                        <button 
+                            type="button" 
+                            onclick={() => minBuildYear = Math.max(1800, minBuildYear - 1)}
+                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                        >−</button>
+                        <div class="px-4 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
+                            {minBuildYear}
+                        </div>
+                        <button 
+                            type="button" 
+                            onclick={() => minBuildYear++}
+                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                        >+</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <span class="block text-2xl font-bold text-gray-800 mb-2">Nýjasta byggingarár</span>
+                    <div class="flex items-center gap-4">
+                        <button 
+                            type="button" 
+                            onclick={() => maxBuildYear = Math.max(1800, maxBuildYear - 1)}
+                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                        >−</button>
+                        <div class="px-4 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
+                            {maxBuildYear}
+                        </div>
+                        <button 
+                            type="button" 
+                            onclick={() => maxBuildYear++}
                             class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
                         >+</button>
                     </div>

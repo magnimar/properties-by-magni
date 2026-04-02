@@ -71,6 +71,8 @@ class User(Base):
     max_price = Column(Float, nullable=True)
     min_bedrooms = Column(Integer, nullable=True)
     max_bedrooms = Column(Integer, nullable=True)
+    min_build_year = Column(Integer, nullable=True)
+    max_build_year = Column(Integer, nullable=True)
     zip_codes = Column(String, nullable=True)  # Comma separated list
     ignored_streets = Column(String, nullable=True)  # Comma separated list
     einbylishus = Column(Boolean, default=False)
@@ -112,6 +114,10 @@ with engine.begin() as conn:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_bedrooms INTEGER;"))
     if "max_bedrooms" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN max_bedrooms INTEGER;"))
+    if "min_build_year" not in existing_columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN min_build_year INTEGER;"))
+    if "max_build_year" not in existing_columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN max_build_year INTEGER;"))
     if "zip_codes" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN zip_codes TEXT;"))
     if "ignored_streets" not in existing_columns:
@@ -209,6 +215,8 @@ class UserPreferences(BaseModel):
     max_price: float | None = None
     min_bedrooms: int | None = None
     max_bedrooms: int | None = None
+    min_build_year: int | None = None
+    max_build_year: int | None = None
     zip_codes: list[str] | None = None
     ignored_streets: list[str] | None = None
     einbylishus: bool = False
@@ -293,6 +301,8 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
         "max_price": current_user.max_price,
         "min_bedrooms": current_user.min_bedrooms,
         "max_bedrooms": current_user.max_bedrooms,
+        "min_build_year": current_user.min_build_year,
+        "max_build_year": current_user.max_build_year,
         "zip_codes": (
             current_user.zip_codes.split(",") if current_user.zip_codes else []
         ),
@@ -327,6 +337,8 @@ async def update_my_preferences(
     current_user.max_price = prefs.max_price
     current_user.min_bedrooms = prefs.min_bedrooms
     current_user.max_bedrooms = prefs.max_bedrooms
+    current_user.min_build_year = prefs.min_build_year
+    current_user.max_build_year = prefs.max_build_year
     current_user.einbylishus = prefs.einbylishus
     current_user.fjolbylishus = prefs.fjolbylishus
     current_user.atvinnuhusnaedi = prefs.atvinnuhusnaedi
@@ -373,6 +385,16 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
         ),
         "MAX_BEDROOMS": (
             current_user.max_bedrooms if current_user.max_bedrooms is not None else 10
+        ),
+        "MIN_BUILD_YEAR": (
+            current_user.min_build_year
+            if current_user.min_build_year is not None
+            else 1900
+        ),
+        "MAX_BUILD_YEAR": (
+            current_user.max_build_year
+            if current_user.max_build_year is not None
+            else 2027
         ),
         "ZIP_CODES": current_user.zip_codes if current_user.zip_codes else "101,107",
         "outdoor_filter": current_user.outdoor_filter or "none",

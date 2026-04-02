@@ -3,12 +3,14 @@
     import { getApiUrl } from '$lib/config';
     
     let user = $state(null);
-    let step = $state(0); // 0: Intro, 1: Min Price, 2: Max Price, 3: Bedrooms, 4: Zip Codes, 5: Property Types, 6: Outdoor, 7: Garage, 8: Review
+    let step = $state(0); // 0: Intro, 1: Min Price, 2: Max Price, 3: Bedrooms, 4: Build Year, 5: Zip Codes, 6: Property Types, 7: Outdoor, 8: Garage, 9: Review
     
     let minPrice = $state('0');
     let maxPrice = $state('0');
     let minBedrooms = $state(1);
     let maxBedrooms = $state(1);
+    let minBuildYear = $state(1900);
+    let maxBuildYear = $state(2027);
     let selectedZipCodes = $state([]);
     let einbylishus = $state(false);
     let fjolbylishus = $state(false);
@@ -69,6 +71,8 @@
                 maxPrice = formatNumber(user.max_price || 0);
                 minBedrooms = user.min_bedrooms || 1;
                 maxBedrooms = user.max_bedrooms || 1;
+                minBuildYear = user.min_build_year || 1900;
+                maxBuildYear = user.max_build_year || 2027;
                 selectedZipCodes = user.zip_codes || [];
                 einbylishus = user.einbylishus || false;
                 fjolbylishus = user.fjolbylishus || false;
@@ -106,6 +110,8 @@
                     max_price: parseNumber(maxPrice),
                     min_bedrooms: minBedrooms,
                     max_bedrooms: maxBedrooms,
+                    min_build_year: minBuildYear,
+                    max_build_year: maxBuildYear,
                     zip_codes: selectedZipCodes,
                     einbylishus: einbylishus,
                     fjolbylishus: fjolbylishus,
@@ -178,7 +184,7 @@
 
         message = ''; // Clear message if validation passes
 
-        if (step < 8) {
+        if (step < 9) {
             step++;
             // Optional: Auto-save at each step
             saveOnboarding(false);
@@ -403,7 +409,7 @@
             <div class="h-2 bg-gray-100">
                 <div 
                     class="h-full bg-blue-600 transition-all duration-500 ease-out" 
-                    style="width: {(step / 8) * 100}%"
+                    style="width: {(step / 9) * 100}%"
                 ></div>
             </div>
 
@@ -502,6 +508,53 @@
 
                 {:else if step === 4}
                     <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8">Byggingarár</h2>
+                        <div class="grid grid-cols-2 gap-8">
+                            <div class="flex flex-col items-center">
+                                <label class="block text-xl font-bold text-gray-700 mb-4">Elsta ár</label>
+                                <div class="flex items-center gap-4">
+                                    <div class="px-4 h-16 rounded-full border-4 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-700">
+                                        {minBuildYear}
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <button 
+                                            type="button" 
+                                            onclick={() => minBuildYear++}
+                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
+                                        >+</button>
+                                        <button 
+                                            type="button" 
+                                            onclick={() => minBuildYear = Math.max(1800, minBuildYear - 1)}
+                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
+                                        >−</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <label class="block text-xl font-bold text-gray-700 mb-4">Nýjasta ár</label>
+                                <div class="flex items-center gap-4">
+                                    <div class="px-4 h-16 rounded-full border-4 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-700">
+                                        {maxBuildYear}
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <button 
+                                            type="button" 
+                                            onclick={() => maxBuildYear++}
+                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
+                                        >+</button>
+                                        <button 
+                                            type="button" 
+                                            onclick={() => maxBuildYear = Math.max(1800, maxBuildYear - 1)}
+                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
+                                        >−</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {:else if step === 5}
+                    <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvar viltu búa?</h2>
                         <p class="text-gray-600 mb-6">Veldu þau póstnúmer sem þú hefur áhuga á.</p>
                         
@@ -550,7 +603,7 @@
                         </div>
                     </div>
 
-                {:else if step === 5}
+                {:else if step === 6}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvers konar eign?</h2>
                         <p class="text-gray-600 mb-6">Veldu þær tegundir sem koma til greina.</p>
@@ -587,7 +640,7 @@
                         </div>
                     </div>
 
-                {:else if step === 6}
+                {:else if step === 7}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8">Svalir eða garður?</h2>
                         
@@ -607,7 +660,7 @@
                         </div>
                     </div>
 
-                {:else if step === 7}
+                {:else if step === 8}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8">Er bílskúr nauðsynlegur?</h2>
                         
@@ -629,7 +682,7 @@
                         </div>
                     </div>
 
-                {:else if step === 8}
+                {:else if step === 9}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Frábært! Hér er samantekt:</h2>
                         
@@ -641,6 +694,10 @@
                             <div class="flex justify-between border-b border-gray-200 pb-2">
                                 <span class="text-gray-500">Svefnherbergi</span>
                                 <span class="font-bold">{minBedrooms} - {maxBedrooms}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Byggingarár</span>
+                                <span class="font-bold">{minBuildYear} - {maxBuildYear}</span>
                             </div>
                             <div class="flex justify-between border-b border-gray-200 pb-2">
                                 <span class="text-gray-500">Póstnúmer</span>
@@ -681,7 +738,7 @@
                     </div>
                 {/if}
 
-                {#if step > 0 && step < 8}
+                {#if step > 0 && step < 9}
                     <div class="mt-8 pt-8 border-t border-gray-100 flex justify-between gap-4">
                         <button 
                             onclick={prevStep}
