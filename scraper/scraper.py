@@ -810,6 +810,7 @@ class Scraper:
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
             <title>{title}</title>
             <style>
                 body {{
@@ -949,6 +950,10 @@ class Scraper:
                     font-family: inherit !important;
                     font-weight: inherit !important;
                     line-height: inherit !important;
+                }}
+                .open-house-text a {{
+                    color: #ffffff !important;
+                    text-decoration: none !important;
                 }}
                 @media only screen and (max-width: 600px) {{
                     .container {{
@@ -1100,9 +1105,9 @@ class Scraper:
                     prop.get("address", "Fasteign"), prop["open_house"]
                 )
                 if cal_link:
-                    html += f"<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background-color: #1d4ed8; color: white;'><tr><td style='padding: 12px 10px 12px 20px; font-weight: 800; font-size: 1.1em; text-align: left; vertical-align: middle;'><span style='color: #ffffff !important; text-decoration: none !important;'>{prop['open_house']}</span></td><td style='padding: 12px 20px 12px 10px; text-align: right; vertical-align: middle;' width='1%'><a href='{cal_link}' target='_blank' style='display: inline-block; background-color: #ffffff; color: #1d4ed8; padding: 6px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold; white-space: nowrap;'>Bæta í dagatal</a></td></tr></table>"
+                    html += f"<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background-color: #1d4ed8; color: white;'><tr><td style='padding: 12px 10px 12px 20px; font-weight: 800; font-size: 1.1em; text-align: left; vertical-align: middle;' class='open-house-text'><span style='color: #ffffff !important; text-decoration: none !important;'>{prop['open_house']}</span></td><td style='padding: 12px 20px 12px 10px; text-align: right; vertical-align: middle;' width='1%'><a href='{cal_link}' target='_blank' style='display: inline-block; background-color: #ffffff; color: #1d4ed8; padding: 6px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold; white-space: nowrap;'>Bæta í dagatal</a></td></tr></table>"
                 else:
-                    html += f"<div style='background-color: #1d4ed8; color: white; padding: 12px; font-weight: 800; text-align: center; font-size: 1.1em;'><span style='color: #ffffff !important; text-decoration: none !important;'>{prop['open_house']}</span></div>"
+                    html += f"<div style='background-color: #1d4ed8; color: white; padding: 12px; font-weight: 800; text-align: center; font-size: 1.1em;' class='open-house-text'><span style='color: #ffffff !important; text-decoration: none !important;'>{prop['open_house']}</span></div>"
 
             html += "<div class='property-info'>"
             html += f"<h3 class='property-title'>{prop['address']}</h3>"
