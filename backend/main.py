@@ -396,7 +396,7 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
             if current_user.max_build_year is not None
             else 2027
         ),
-        "GOOGLE_MAPS_API_KEY": os.getenv("GOOGLE_MAPS_API_KEY"),
+        "GOOGLE_MAPS_API_KEY": os.getenv("GOOGLE_MAPS_KEY"),
         "ZIP_CODES": current_user.zip_codes if current_user.zip_codes else "101,107",
         "outdoor_filter": current_user.outdoor_filter or "none",
         "want_garage": current_user.want_garage or False,

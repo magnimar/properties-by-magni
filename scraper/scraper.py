@@ -99,7 +99,7 @@ def get_db_users() -> list[dict]:
                 "MAX_BUILD_YEAR": (
                     u.max_build_year if u.max_build_year is not None else 2027
                 ),
-                "GOOGLE_MAPS_API_KEY": os.getenv("GOOGLE_MAPS_API_KEY"),
+                "GOOGLE_MAPS_API_KEY": os.getenv("GOOGLE_MAPS_KEY"),
                 "ZIP_CODES": u.zip_codes if u.zip_codes else "101,107",
                 "outdoor_filter": u.outdoor_filter or "none",
                 "want_garage": u.want_garage or False,
