@@ -31,8 +31,11 @@ def _configure_logging():
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
+
 if not os.getenv("GOOGLE_MAPS_KEY"):
-    raise RuntimeError("CRITICAL: GOOGLE_MAPS_KEY is missing from environment. The scraper requires it to generate maps.")
+    raise RuntimeError(
+        "CRITICAL: GOOGLE_MAPS_KEY is missing from environment. The scraper requires it to generate maps."
+    )
 
 # --- Database Setup ---
 DATABASE_URL = os.getenv("DATABASE_URL")
