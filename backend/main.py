@@ -383,7 +383,7 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
         "user": current_user.email,
         "TO_EMAIL": current_user.email,
         "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
-        "FROM_EMAIL": os.getenv("FROM_EMAIL"),
+        "FROM_EMAIL": "propertiesbymagni@propertiesbymagni.com",
         "MIN_PRICE": (
             int(current_user.min_price) if current_user.min_price is not None else 0
         ),

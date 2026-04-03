@@ -120,7 +120,7 @@ def get_email_template(content, title="Properties by Magni"):
 
 def send_verification_email(to_email, verification_token):
     api_key = os.getenv("BREVO_API_KEY")
-    from_email = os.getenv("FROM_EMAIL", "magnimarboss@gmail.com")
+    from_email = "propertiesbymagni@propertiesbymagni.com"
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 
     if not api_key:
@@ -166,7 +166,7 @@ def send_verification_email(to_email, verification_token):
 
 def send_password_reset_email(to_email, reset_token):
     api_key = os.getenv("BREVO_API_KEY")
-    from_email = os.getenv("FROM_EMAIL", "magnimarboss@gmail.com")
+    from_email = "propertiesbymagni@propertiesbymagni.com"
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
 
     if not api_key:
