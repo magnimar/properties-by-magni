@@ -716,22 +716,10 @@
                 </div>
             </div>
 
-            <div class="mb-12 flex flex-col items-center w-full">
-                <span class="block text-2xl font-bold text-gray-800 mb-2">Hvenær viltu fá tölvupóstinn?</span>
-                <select 
-                    bind:value={scrapeHour}
-                    class="w-full max-w-xs p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-xl"
-                >
-                    {#each Array(24) as _, i}
-                        <option value={i}>{i}:00</option>
-                    {/each}
-                </div>
-                </div>
+            <hr class="border-gray-100 mb-10" />
 
-                <hr class="border-gray-100 mb-10" />
-
-                <!-- Staðsetning Section -->
-                <div class="mb-10">
+            <!-- Staðsetning Section -->
+            <div class="mb-10">
                 <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
                     <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
                     Staðsetning
@@ -912,6 +900,7 @@
                     </div>
                 {/if}
             </div>
+            </div>
 
             <hr class="border-gray-100 mb-10" />
 
@@ -994,6 +983,7 @@
                     </label>
                 </div>
             </div>
+            </div>
 
             <hr class="border-gray-100 mb-10" />
 
@@ -1004,6 +994,8 @@
                     Stillingar tölvupósts
                 </h2>
                 
+                <div class="flex flex-col items-center w-full">
+                    <span class="block text-2xl font-bold text-gray-800 mb-4">Hvenær viltu fá tölvupóstinn?</span>
                     <select 
                         bind:value={scrapeHour}
                         class="w-full max-w-xs p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-xl"
