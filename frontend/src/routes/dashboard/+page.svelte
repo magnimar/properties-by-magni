@@ -617,7 +617,13 @@
         <p>Loading your profile...</p>
     {:else if user}
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <div class="grid grid-cols-2 gap-12 mb-12">
+            <!-- Verð og stærð Section -->
+            <div class="mb-10">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
+                    <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
+                    Verð og stærð
+                </h2>
+                <div class="grid grid-cols-2 gap-12">
                 <div class="flex flex-col items-center">
                     <label for="minPrice" class="block text-2xl font-bold text-gray-800 mb-2">Lágmarksverð</label>
                     <div class="relative w-full max-w-sm">
@@ -719,10 +725,18 @@
                     {#each Array(24) as _, i}
                         <option value={i}>{i}:00</option>
                     {/each}
-                </select>
-            </div>
+                </div>
+                </div>
 
-            <div class="mb-12 relative flex flex-col items-center w-full" bind:this={zipDropdownEl}>
+                <hr class="border-gray-100 mb-10" />
+
+                <!-- Staðsetning Section -->
+                <div class="mb-10">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
+                    <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
+                    Staðsetning
+                </h2>
+                <div class="mb-8 relative flex flex-col items-center w-full" bind:this={zipDropdownEl}>
                 <span class="block text-2xl font-bold text-gray-800 mb-2">Póstnúmer</span>
                 <div class="relative w-full max-w-sm">
                     <button 
@@ -899,8 +913,16 @@
                 {/if}
             </div>
 
-            <div class="mb-12 flex flex-col items-center">
-                <span class="block text-2xl font-bold text-gray-800 mb-6">Tegundir eigna</span>
+            <hr class="border-gray-100 mb-10" />
+
+            <!-- Eiginleikar Section -->
+            <div class="mb-10">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
+                    <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
+                    Eiginleikar
+                </h2>
+                <div class="mb-12 flex flex-col items-center">
+                    <span class="block text-2xl font-bold text-gray-800 mb-6">Tegundir eigna</span>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
                     <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {einbylishus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
                         <input type="checkbox" bind:checked={einbylishus} class="hidden" />
@@ -973,6 +995,25 @@
                 </div>
             </div>
 
+            <hr class="border-gray-100 mb-10" />
+
+            <!-- Stillingar tölvupósts Section -->
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
+                    <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
+                    Stillingar tölvupósts
+                </h2>
+                
+                    <select 
+                        bind:value={scrapeHour}
+                        class="w-full max-w-xs p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-xl"
+                    >
+                        {#each Array(24) as _, i}
+                            <option value={i}>{i}:00</option>
+                        {/each}
+                    </select>
+                </div>
+            </div>
 
             <div class="flex flex-col items-center gap-8 py-8">
                 <div class="flex flex-col items-center gap-4">
