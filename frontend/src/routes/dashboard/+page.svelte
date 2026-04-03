@@ -687,40 +687,26 @@
 
                 <div class="flex flex-col items-center">
                     <span class="block text-2xl font-bold text-gray-800 mb-2 text-center">Elsta byggingarár</span>
-                    <div class="flex items-center gap-4">
-                        <button 
-                            type="button" 
-                            onclick={() => minBuildYear = Math.max(1800, minBuildYear - 1)}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >−</button>
-                        <div class="px-4 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
-                            {minBuildYear}
-                        </div>
-                        <button 
-                            type="button" 
-                            onclick={() => minBuildYear++}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >+</button>
-                    </div>
+                    <select 
+                        bind:value={minBuildYear}
+                        class="w-full max-w-[200px] p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-xl"
+                    >
+                        {#each Array.from({ length: 2027 - 1800 + 1 }, (_, i) => 1800 + i) as year}
+                            <option value={year}>{year}</option>
+                        {/each}
+                    </select>
                 </div>
 
                 <div class="flex flex-col items-center">
                     <span class="block text-2xl font-bold text-gray-800 mb-2 text-center">Nýjasta byggingarár</span>
-                    <div class="flex items-center gap-4">
-                        <button 
-                            type="button" 
-                            onclick={() => maxBuildYear = Math.max(1800, maxBuildYear - 1)}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >−</button>
-                        <div class="px-4 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
-                            {maxBuildYear}
-                        </div>
-                        <button 
-                            type="button" 
-                            onclick={() => maxBuildYear++}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >+</button>
-                    </div>
+                    <select 
+                        bind:value={maxBuildYear}
+                        class="w-full max-w-[200px] p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-xl"
+                    >
+                        {#each Array.from({ length: 2027 - 1800 + 1 }, (_, i) => 1800 + i) as year}
+                            <option value={year}>{year}</option>
+                        {/each}
+                    </select>
                 </div>
             </div>
 

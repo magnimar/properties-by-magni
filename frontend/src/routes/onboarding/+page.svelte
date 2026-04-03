@@ -515,51 +515,32 @@
 
                 {:else if step === 3}
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-8">Byggingarár</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Byggingarár</h2>
                         <div class="grid grid-cols-2 gap-8">
                             <div class="flex flex-col items-center">
-                                <label class="block text-xl font-bold text-gray-700 mb-4">Elsta ár</label>
-                                <div class="flex items-center gap-4">
-                                    <div class="px-4 h-16 rounded-full border-4 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-700">
-                                        {minBuildYear}
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <button 
-                                            type="button" 
-                                            onclick={() => minBuildYear++}
-                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
-                                        >+</button>
-                                        <button 
-                                            type="button" 
-                                            onclick={() => minBuildYear = Math.max(1800, minBuildYear - 1)}
-                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
-                                        >−</button>
-                                    </div>
-                                </div>
+                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Elsta ár</label>
+                                <select 
+                                    bind:value={minBuildYear}
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors bg-white text-center font-semibold text-xl"
+                                >
+                                    {#each Array.from({ length: 2027 - 1800 + 1 }, (_, i) => 1800 + i) as year}
+                                        <option value={year}>{year}</option>
+                                    {/each}
+                                </select>
                             </div>
                             <div class="flex flex-col items-center">
-                                <label class="block text-xl font-bold text-gray-700 mb-4">Nýjasta ár</label>
-                                <div class="flex items-center gap-4">
-                                    <div class="px-4 h-16 rounded-full border-4 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-700">
-                                        {maxBuildYear}
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <button 
-                                            type="button" 
-                                            onclick={() => maxBuildYear++}
-                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
-                                        >+</button>
-                                        <button 
-                                            type="button" 
-                                            onclick={() => maxBuildYear = Math.max(1800, maxBuildYear - 1)}
-                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
-                                        >−</button>
-                                    </div>
-                                </div>
+                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Nýjasta ár</label>
+                                <select 
+                                    bind:value={maxBuildYear}
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors bg-white text-center font-semibold text-xl"
+                                >
+                                    {#each Array.from({ length: 2027 - 1800 + 1 }, (_, i) => 1800 + i) as year}
+                                        <option value={year}>{year}</option>
+                                    {/each}
+                                </select>
                             </div>
                         </div>
                     </div>
-
                 {:else if step === 4}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvar viltu búa?</h2>
