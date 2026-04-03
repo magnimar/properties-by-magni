@@ -37,3 +37,6 @@ jobs:
 
     - name: Run Black Formatter Check
       run: black --check ${{ matrix.directory }}
+
+    - name: Compile Python files
+      run: python -m compileall ${{ matrix.directory }}
