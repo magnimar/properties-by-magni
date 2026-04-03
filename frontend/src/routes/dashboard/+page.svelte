@@ -609,6 +609,7 @@
             Útskráning
         </button>
     </div>
+    
     <div class="flex justify-center items-center mb-8 text-center">
         <h1 class="text-3xl font-bold">Finndu fasteign sem segir já!</h1>
     </div>
@@ -714,16 +715,18 @@
                         {/each}
                     </select>
                 </div>
+            </div>
+        </div>
 
-                <hr class="border-gray-100 my-10 w-full col-span-2" />
+        <hr class="border-gray-100 my-10 w-full" />
 
-                <!-- Staðsetning Section -->
-                <div class="col-span-2">
-                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
-                        <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
-                        Staðsetning
-                    </h2>
-                    <div class="mb-8 relative flex flex-col items-center w-full" bind:this={zipDropdownEl}>
+        <!-- Staðsetning Section -->
+        <div class="mb-10">
+            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-2">
+                <span class="w-2 h-2 bg-blue-600 rounded-full"></span>
+                Staðsetning
+            </h2>
+            <div class="mb-8 relative flex flex-col items-center w-full" bind:this={zipDropdownEl}>
                 <span class="block text-2xl font-bold text-gray-800 mb-2">Póstnúmer</span>
                 <div class="relative w-full max-w-sm">
                     <button 
@@ -1028,9 +1031,8 @@
                     </span>
                 {/if}
             </div>
-        </div>
 
-        <div class="mt-8 text-center flex flex-col items-center gap-4">
+            <div class="mt-8 text-center flex flex-col items-center gap-4">
             <p class="text-gray-500 italic text-sm">Signed in as: {user.email}</p>
             <button 
                 onclick={handleDeleteAccount}
