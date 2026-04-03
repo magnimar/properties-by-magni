@@ -19,8 +19,7 @@ import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
 load_dotenv("/opt/properties-by-magni/.env")
@@ -1434,10 +1433,15 @@ class Scraper:
                         properties_by_zip[zip_code], title
                     )
 
+            logging.info(
+                "Sending email with %d properties to %s",
+                len(new_properties),
+                self.TO_EMAIL,
+            )
             final_html = self.get_email_template(html_content, subject)
             self.send_email_notification(subject, final_html)
         else:
-            logging.info("No properties found for user. Sending 'no results' email.")
+            logging.info("No properties found for user %s. Sending 'no results' email.", self.TO_EMAIL)
             subject = "Engar eignir fundust"
             no_results_content = """
                 <div style="text-align: center; padding: 40px 20px;">
