@@ -1441,7 +1441,10 @@ class Scraper:
             final_html = self.get_email_template(html_content, subject)
             self.send_email_notification(subject, final_html)
         else:
-            logging.info("No properties found for user %s. Sending 'no results' email.", self.TO_EMAIL)
+            logging.info(
+                "No properties found for user %s. Sending 'no results' email.",
+                self.TO_EMAIL,
+            )
             subject = "Engar eignir fundust"
             no_results_content = """
                 <div style="text-align: center; padding: 40px 20px;">
