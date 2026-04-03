@@ -602,20 +602,13 @@
 
 <div class="p-8 max-w-2xl mx-auto">
     <div class="fixed top-0 right-0 p-4 flex gap-2 z-50">
-        <button 
-            onclick={handleDeleteAccount}
-            class="bg-red-100 text-red-600 px-4 py-2 rounded-full hover:bg-red-200 transition-colors font-semibold text-sm shadow-sm"
-        >
-            Eyða aðgangi
-        </button>
-        <button 
+        <button
             onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}
             class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors font-semibold text-sm shadow-sm"
         >
             Útskráning
         </button>
     </div>
-
     <div class="flex justify-center items-center mb-8 text-center">
         <h1 class="text-3xl font-bold">Finndu fasteign sem segir já!</h1>
     </div>
@@ -1021,8 +1014,14 @@
             </div>
         </div>
 
-        <div class="mt-8 text-center">
+        <div class="mt-8 text-center flex flex-col items-center gap-4">
             <p class="text-gray-500 italic text-sm">Signed in as: {user.email}</p>
+            <button 
+                onclick={handleDeleteAccount}
+                class="text-gray-400 hover:text-gray-600 text-sm underline transition-colors"
+            >
+                Eyða aðgangi
+            </button>
         </div>
     {/if}
 
