@@ -281,9 +281,11 @@ class Scraper:
             return None
 
     def send_email_notification(self, subject, html_body):
+        self.FROM_EMAIL = "propertiesbymagni@propertiesbymagni.com"
+        
         if not all([self.API_KEY, self.FROM_EMAIL, self.TO_EMAIL]):
             logging.warning(
-                "Email sending skipped due to missing API_KEY, FROM_EMAIL, or TO_EMAIL in config/env."
+                "Email sending skipped due to missing API_KEY or TO_EMAIL in config/env."
             )
             return False
 
@@ -293,7 +295,7 @@ class Scraper:
             sib_api_v3_sdk.ApiClient(configuration)
         )
 
-        sender = {"name": "Property Scraper", "email": self.FROM_EMAIL}
+        sender = {"name": "Properties by Magni", "email": self.FROM_EMAIL}
         to = [{"email": self.TO_EMAIL}]
 
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
