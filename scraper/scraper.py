@@ -282,7 +282,7 @@ class Scraper:
 
     def send_email_notification(self, subject, html_body):
         self.FROM_EMAIL = "propertiesbymagni@propertiesbymagni.com"
-        
+
         if not all([self.API_KEY, self.FROM_EMAIL, self.TO_EMAIL]):
             logging.warning(
                 "Email sending skipped due to missing API_KEY or TO_EMAIL in config/env."
