@@ -624,7 +624,7 @@
         <p>Loading your profile...</p>
     {:else if user}
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <div class="grid grid-cols-1 gap-12 mb-12">
+            <div class="grid grid-cols-2 gap-12 mb-12">
                 <div class="flex flex-col items-center">
                     <label for="minPrice" class="block text-2xl font-bold text-gray-800 mb-2">Lágmarksverð</label>
                     <div class="relative w-full max-w-sm">
@@ -655,7 +655,7 @@
                 </div>
 
                 <div class="flex flex-col items-center">
-                    <span class="block text-2xl font-bold text-gray-800 mb-2">Lágmarksfjöldi svefnherbergja</span>
+                    <span class="block text-2xl font-bold text-gray-800 mb-2 text-center">Lágmarksfjöldi svefnherbergja</span>
                     <div class="flex items-center gap-4">
                         <button 
                             type="button" 
@@ -674,7 +674,7 @@
                 </div>
 
                 <div class="flex flex-col items-center">
-                    <span class="block text-2xl font-bold text-gray-800 mb-2">Hámarksfjöldi svefnherbergja</span>
+                    <span class="block text-2xl font-bold text-gray-800 mb-2 text-center">Hámarksfjöldi svefnherbergja</span>
                     <div class="flex items-center gap-4">
                         <button 
                             type="button" 
@@ -693,7 +693,7 @@
                 </div>
 
                 <div class="flex flex-col items-center">
-                    <span class="block text-2xl font-bold text-gray-800 mb-2">Elsta byggingarár</span>
+                    <span class="block text-2xl font-bold text-gray-800 mb-2 text-center">Elsta byggingarár</span>
                     <div class="flex items-center gap-4">
                         <button 
                             type="button" 
@@ -712,7 +712,7 @@
                 </div>
 
                 <div class="flex flex-col items-center">
-                    <span class="block text-2xl font-bold text-gray-800 mb-2">Nýjasta byggingarár</span>
+                    <span class="block text-2xl font-bold text-gray-800 mb-2 text-center">Nýjasta byggingarár</span>
                     <div class="flex items-center gap-4">
                         <button 
                             type="button" 
