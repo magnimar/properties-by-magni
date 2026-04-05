@@ -1005,7 +1005,6 @@ class Scraper:
             </style>
             <div class="container">
                 <div class="header">
-                    <img src="{logo_url}" alt="Properties by Magni">
                     <h1>Properties by Magni</h1>
                 </div>
                 <div class="content">
