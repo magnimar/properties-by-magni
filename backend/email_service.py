@@ -189,9 +189,7 @@ def send_password_reset_email(to_email, reset_token):
         <p>Ef þú baðst ekki um þetta getur þú hunsað þennan tölvupóst.</p>
         <div class="link-alt">{reset_link}</div>
     """
-    html_content = get_email_template(
-        content, "Endurstilla lykilorð - Propio"
-    )
+    html_content = get_email_template(content, "Endurstilla lykilorð - Propio")
 
     sender = {"name": "Propio", "email": from_email}
     to = [{"email": to_email}]
