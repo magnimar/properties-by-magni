@@ -3,15 +3,15 @@ import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
 import fs from 'fs';
+import path from 'path';
 
-const envPath = '/opt/properties-by-magni/.env';
+const envDir = path.resolve(__dirname, '..');
+const envPath = path.join(envDir, '.env');
 
-if (!fs.existsSync(envPath)) {
+if (!fs.existsSync(envPath) && !process.env.CI) {
 	console.error(`CRITICAL ERROR: Environment file not found at ${envPath}`);
 	process.exit(1);
 }
-
-const envDir = '/opt/properties-by-magni';
 
 export default defineConfig({
 	envDir,
