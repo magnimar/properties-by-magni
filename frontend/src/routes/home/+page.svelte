@@ -28,8 +28,7 @@
     <!-- Header -->
     <header class="relative z-50 pt-10 pb-6 px-6 md:px-10 lg:pt-12 lg:pb-8 flex flex-col sm:flex-row items-center justify-between gap-6">
         <a href="/" class="flex items-center gap-5 hover:opacity-90 transition-opacity">
-            <img src="/logo/logo.png" alt="Properties by Magni" class="w-20 h-20 md:w-28 md:h-28 object-contain" />
-            <span class="font-bold text-2xl md:text-3xl tracking-tight text-gray-900 mt-2 ml-1" style="letter-spacing: -0.02em;">Properties by Magni</span>
+            <span class="font-bold text-2xl md:text-3xl tracking-tight text-gray-900 mt-2 ml-1" style="letter-spacing: -0.02em;">Propio</span>
         </a>
         <nav class="flex items-center gap-4">
             <a href="/login" class="px-4 py-3 text-gray-700 font-bold text-base md:text-lg hover:text-blue-600 transition-colors text-center">
