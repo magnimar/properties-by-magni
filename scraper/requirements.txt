@@ -4,3 +4,4 @@ python-dotenv
 sib-api-v3-sdk
 sqlalchemy
 psycopg2-binary
+premailer

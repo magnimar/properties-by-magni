@@ -6,17 +6,21 @@ from dotenv import load_dotenv
 load_dotenv("/opt/properties-by-magni/.env")
 
 
+from premailer import transform
+
 def get_email_template(content, title="Properties by Magni"):
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
     logo_url = f"{frontend_url}/logo/logo.png"
 
-    return f"""
+    html = f"""
     <!DOCTYPE html>
     <html lang="is">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{title}</title>
+    </head>
+    <body>
         <style>
             body {{
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -96,11 +100,9 @@ def get_email_template(content, title="Properties by Magni"):
                 .header h1 {{
                     font-size: 20px !important;
                 }}
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
+                }}
+            </style>
+            <div class="container">
             <div class="header">
                 <img src="{logo_url}" alt="Properties by Magni">
                 <h1>Properties by Magni</h1>
@@ -116,6 +118,7 @@ def get_email_template(content, title="Properties by Magni"):
     </body>
     </html>
     """
+    return transform(html)
 
 
 def send_verification_email(to_email, verification_token):
