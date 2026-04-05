@@ -566,7 +566,7 @@
                                                             {#each sg.options as opt}
                                                                 <button 
                                                                     onclick={() => toggleZipCode(opt.code)}
-                                                                    class="p-2 text-sm rounded-lg border-2 transition-all {selectedZipCodes.includes(opt.code) ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
+                                                                    class="p-2 text-sm rounded-lg border-2 transition-all {selectedZipCodes.includes(opt.code) ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
                                                                 >
                                                                     {opt.code} {opt.name}
                                                                 </button>
@@ -578,7 +578,7 @@
                                                 {#each group.options as opt}
                                                     <button 
                                                         onclick={() => toggleZipCode(opt.code)}
-                                                        class="p-2 text-sm rounded-lg border-2 transition-all {selectedZipCodes.includes(opt.code) ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
+                                                        class="p-2 text-sm rounded-lg border-2 transition-all {selectedZipCodes.includes(opt.code) ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
                                                     >
                                                         {opt.code} {opt.name}
                                                     </button>
