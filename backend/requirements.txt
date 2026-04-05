@@ -10,4 +10,4 @@ sib-api-v3-sdk
 pyjwt
 beautifulsoup4
 requests
-sib-api-v3-sdk
+premailer

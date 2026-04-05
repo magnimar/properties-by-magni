@@ -814,9 +814,9 @@ class Scraper:
         return locations.get(zip_code, ("", ""))
 
     def get_email_template(self, content, title="Properties by Magni"):
-        logo_url = f"{self.FRONTEND_URL}/logo/logo.png"
+        from premailer import transform
 
-        return f"""
+        html = f"""
         <!DOCTYPE html>
         <html lang="is">
         <head>
@@ -824,6 +824,8 @@ class Scraper:
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
             <title>{title}</title>
+        </head>
+        <body>
             <style>
                 body {{
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1000,11 +1002,8 @@ class Scraper:
                     }}
                 }}
             </style>
-        </head>
-        <body>
             <div class="container">
                 <div class="header">
-                    <img src="{logo_url}" alt="Properties by Magni">
                     <h1>Properties by Magni</h1>
                 </div>
                 <div class="content">
@@ -1018,6 +1017,7 @@ class Scraper:
         </body>
         </html>
         """
+        return transform(html)
 
     def create_google_calendar_link(self, address, open_house_text):
         if not open_house_text or open_house_text.strip() == "":
