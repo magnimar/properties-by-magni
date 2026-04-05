@@ -602,20 +602,14 @@
 
 <div class="p-8 max-w-2xl mx-auto">
     <div class="fixed top-0 right-0 p-4 flex gap-2 z-50">
-        <button 
-            onclick={handleDeleteAccount}
-            class="bg-red-100 text-red-600 px-4 py-2 rounded-full hover:bg-red-200 transition-colors font-semibold text-sm shadow-sm"
-        >
-            Eyða aðgangi
-        </button>
-        <button 
+        <button
             onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}
             class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors font-semibold text-sm shadow-sm"
         >
             Útskráning
         </button>
     </div>
-
+    
     <div class="flex justify-center items-center mb-8 text-center">
         <h1 class="text-3xl font-bold">Finndu fasteign sem segir já!</h1>
     </div>
@@ -624,127 +618,118 @@
         <p>Loading your profile...</p>
     {:else if user}
         <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <div class="grid grid-cols-1 gap-12 mb-12">
-                <div class="flex flex-col items-center">
-                    <label for="minPrice" class="block text-2xl font-bold text-gray-800 mb-2">Lágmarksverð</label>
-                    <div class="relative w-full max-w-sm">
-                        <input 
-                            type="text" 
-                            inputmode="numeric"
-                            id="minPrice" 
-                            value={minPrice}
-                            oninput={(e) => minPrice = formatNumber(e.target.value)}
-                            class="w-full p-4 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-semibold"
-                        />
-                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xl">kr.</span>
-                    </div>
-                </div>
-                <div class="flex flex-col items-center">
-                    <label for="maxPrice" class="block text-2xl font-bold text-gray-800 mb-2">Hámarksverð</label>
-                    <div class="relative w-full max-w-sm">
-                        <input 
-                            type="text" 
-                            inputmode="numeric"
-                            id="maxPrice" 
-                            value={maxPrice}
-                            oninput={(e) => maxPrice = formatNumber(e.target.value)}
-                            class="w-full p-4 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-xl font-semibold"
-                        />
-                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xl">kr.</span>
+            <!-- Verð og stærð Section -->
+            <div class="mb-10">
+                
+                <div class="mb-8 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Verð</span>
+                    <div class="grid grid-cols-2 gap-4 w-full">
+                        <div class="flex flex-col items-center">
+                            <label for="minPrice" class="block text-sm font-bold text-gray-700 mb-2">Lágmarksverð</label>
+                            <div class="relative w-full">
+                                <input 
+                                    type="text" 
+                                    inputmode="numeric"
+                                    id="minPrice" 
+                                    value={minPrice}
+                                    oninput={(e) => minPrice = formatNumber(e.target.value)}
+                                    class="w-full p-3 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-lg font-semibold"
+                                />
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">kr.</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <label for="maxPrice" class="block text-sm font-bold text-gray-700 mb-2">Hámarksverð</label>
+                            <div class="relative w-full">
+                                <input 
+                                    type="text" 
+                                    inputmode="numeric"
+                                    id="maxPrice" 
+                                    value={maxPrice}
+                                    oninput={(e) => maxPrice = formatNumber(e.target.value)}
+                                    class="w-full p-3 pr-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-lg font-semibold"
+                                />
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">kr.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex flex-col items-center">
-                    <span class="block text-2xl font-bold text-gray-800 mb-2">Lágmarksfjöldi svefnherbergja</span>
-                    <div class="flex items-center gap-4">
-                        <button 
-                            type="button" 
-                            onclick={() => minBedrooms = Math.max(0, minBedrooms - 1)}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >−</button>
-                        <div class="w-12 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
-                            {minBedrooms}
+                <div class="mb-8 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Fjöldi svefnherbergja</span>
+                    <div class="grid grid-cols-2 gap-4 w-full">
+                        <div class="flex flex-col items-center">
+                            <span class="block text-sm font-bold text-gray-700 mb-2 text-center">Lágmarksfjöldi</span>
+                            <div class="flex items-center gap-4">
+                                <button 
+                                    type="button" 
+                                    onclick={() => minBedrooms = Math.max(0, minBedrooms - 1)}
+                                    class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                                >−</button>
+                                <div class="w-12 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
+                                    {minBedrooms}
+                                </div>
+                                <button 
+                                    type="button" 
+                                    onclick={() => minBedrooms++}
+                                    class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                                >+</button>
+                            </div>
                         </div>
-                        <button 
-                            type="button" 
-                            onclick={() => minBedrooms++}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >+</button>
+                        <div class="flex flex-col items-center">
+                            <span class="block text-sm font-bold text-gray-700 mb-2 text-center">Hámarksfjöldi</span>
+                            <div class="flex items-center gap-4">
+                                <button 
+                                    type="button" 
+                                    onclick={() => maxBedrooms = Math.max(0, maxBedrooms - 1)}
+                                    class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                                >−</button>
+                                <div class="w-12 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
+                                    {maxBedrooms}
+                                </div>
+                                <button 
+                                    type="button" 
+                                    onclick={() => maxBedrooms++}
+                                    class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
+                                >+</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex flex-col items-center">
-                    <span class="block text-2xl font-bold text-gray-800 mb-2">Hámarksfjöldi svefnherbergja</span>
-                    <div class="flex items-center gap-4">
-                        <button 
-                            type="button" 
-                            onclick={() => maxBedrooms = Math.max(0, maxBedrooms - 1)}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >−</button>
-                        <div class="w-12 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
-                            {maxBedrooms}
+                <div class="mb-4 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Byggingarár</span>
+                    <div class="grid grid-cols-2 gap-4 w-full">
+                        <div class="flex flex-col items-center">
+                            <span class="block text-sm font-bold text-gray-700 mb-2 text-center">Elsta ár</span>
+                            <select 
+                                bind:value={minBuildYear}
+                                class="w-full max-w-[200px] p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-lg"
+                            >
+                                {#each Array.from({ length: 2027 - 1800 + 1 }, (_, i) => 1800 + i) as year}
+                                    <option value={year}>{year}</option>
+                                {/each}
+                            </select>
                         </div>
-                        <button 
-                            type="button" 
-                            onclick={() => maxBedrooms++}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >+</button>
-                    </div>
-                </div>
-
-                <div class="flex flex-col items-center">
-                    <span class="block text-2xl font-bold text-gray-800 mb-2">Elsta byggingarár</span>
-                    <div class="flex items-center gap-4">
-                        <button 
-                            type="button" 
-                            onclick={() => minBuildYear = Math.max(1800, minBuildYear - 1)}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >−</button>
-                        <div class="px-4 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
-                            {minBuildYear}
+                        <div class="flex flex-col items-center">
+                            <span class="block text-sm font-bold text-gray-700 mb-2 text-center">Nýjasta ár</span>
+                            <select 
+                                bind:value={maxBuildYear}
+                                class="w-full max-w-[200px] p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-lg"
+                            >
+                                {#each Array.from({ length: 2027 - 1800 + 1 }, (_, i) => 1800 + i) as year}
+                                    <option value={year}>{year}</option>
+                                {/each}
+                            </select>
                         </div>
-                        <button 
-                            type="button" 
-                            onclick={() => minBuildYear++}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >+</button>
-                    </div>
-                </div>
-
-                <div class="flex flex-col items-center">
-                    <span class="block text-2xl font-bold text-gray-800 mb-2">Nýjasta byggingarár</span>
-                    <div class="flex items-center gap-4">
-                        <button 
-                            type="button" 
-                            onclick={() => maxBuildYear = Math.max(1800, maxBuildYear - 1)}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >−</button>
-                        <div class="px-4 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
-                            {maxBuildYear}
-                        </div>
-                        <button 
-                            type="button" 
-                            onclick={() => maxBuildYear++}
-                            class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
-                        >+</button>
                     </div>
                 </div>
             </div>
 
-            <div class="mb-12 flex flex-col items-center w-full">
-                <span class="block text-2xl font-bold text-gray-800 mb-2">Hvenær viltu fá tölvupóstinn?</span>
-                <select 
-                    bind:value={scrapeHour}
-                    class="w-full max-w-xs p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-xl"
-                >
-                    {#each Array(24) as _, i}
-                        <option value={i}>{i}:00</option>
-                    {/each}
-                </select>
-            </div>
-
-            <div class="mb-12 relative flex flex-col items-center w-full" bind:this={zipDropdownEl}>
-                <span class="block text-2xl font-bold text-gray-800 mb-2">Póstnúmer</span>
+        <!-- Staðsetning Section -->
+        <div class="mb-10">
+            <div class="mb-8 relative flex flex-col items-center w-full" bind:this={zipDropdownEl}>
+                <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Póstnúmer</span>
                 <div class="relative w-full max-w-sm">
                     <button 
                         type="button"
@@ -752,12 +737,7 @@
                         class="w-full text-left p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white flex justify-between items-center text-center font-semibold"
                     >
                         <span class="w-full text-center truncate">
-                            {selectedZipCodes.length > 0 
-                                ? selectedZipCodes.map(code => {
-                                    const opt = zipOptions.find(o => o.code === String(code));
-                                    return opt ? `${opt.code}` : code;
-                                }).join(', ') 
-                                : 'Veldu póstnúmer...'}
+                            Veldu póstnúmer
                         </span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -881,10 +861,28 @@
                         </div>
                     {/if}
                 </div>
+
+                {#if selectedZipCodes.length > 0}
+                    <div class="mt-4 flex flex-wrap gap-2 w-full max-w-lg">
+                        {#each selectedZipCodes as code}
+                            <span class="inline-flex items-center bg-blue-50 text-blue-700 text-sm font-bold px-3 py-1.5 rounded-full border border-blue-200 shadow-sm transition-all hover:shadow hover:bg-blue-100">
+                                {zipOptions.find(o => o.code === String(code))?.code || code}
+                                <button 
+                                    type="button" 
+                                    aria-label="Remove {code}"
+                                    onclick={(e) => { e.stopPropagation(); toggleZipCode(code); }}
+                                    class="ml-2 text-blue-400 hover:text-blue-600 focus:outline-none transition-colors"
+                                >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </span>
+                        {/each}
+                    </div>
+                {/if}
             </div>
 
-            <div class="mb-12 flex flex-col items-center">
-                <span class="block text-2xl font-bold text-gray-800 mb-4">Götur sem á að hunsa</span>
+            <div class="mb-8 flex flex-col items-center w-full">
+                <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Götur sem á að hunsa</span>
                 <div class="mb-3 flex items-center gap-2 w-full max-w-lg">
                     <div class="w-full flex-grow" use:setupPlaces>
                         <!-- Google Maps PlaceAutocompleteElement will inject here -->
@@ -893,7 +891,7 @@
                         type="button"
                         onclick={addPendingStreet}
                         disabled={!pendingStreetName}
-                        class="bg-blue-600 text-white px-6 py-2 h-[42px] rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                        class="border-2 border-blue-600 text-blue-600 px-6 py-2 h-[42px] rounded-xl font-bold hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap bg-white"
                     >
                         Bæta við
                     </button>
@@ -919,81 +917,100 @@
                     </div>
                 {/if}
             </div>
+        </div>
 
-            <div class="mb-12 flex flex-col items-center">
-                <span class="block text-2xl font-bold text-gray-800 mb-6">Tegundir eigna</span>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {einbylishus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={einbylishus} class="hidden" />
-                        <span class="text-sm font-bold text-center">Einbýlishús</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {parhus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={parhus} class="hidden" />
-                        <span class="text-sm font-bold text-center">Parhús</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {radhus_parhus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={radhus_parhus} class="hidden" />
-                        <span class="text-sm font-bold text-center">Raðhús</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {fjolbylishus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={fjolbylishus} class="hidden" />
-                        <span class="text-sm font-bold text-center">Fjölbýlishús</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {haed ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={haed} class="hidden" />
-                        <span class="text-sm font-bold text-center">Hæð</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {atvinnuhusnaedi ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={atvinnuhusnaedi} class="hidden" />
-                        <span class="text-sm font-bold text-center">Atvinnuhúsnæði</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {sumarhus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={sumarhus} class="hidden" />
-                        <span class="text-sm font-bold text-center">Sumarhús</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {jord_lod ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={jord_lod} class="hidden" />
-                        <span class="text-sm font-bold text-center">Jörð/Lóð</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {hesthus ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={hesthus} class="hidden" />
-                        <span class="text-sm font-bold text-center">Hesthús</span>
-                    </label>
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {oflokkad ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                        <input type="checkbox" bind:checked={oflokkad} class="hidden" />
-                        <span class="text-sm font-bold text-center">Óflokkað</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="mb-12 flex flex-col items-center">
-                <span class="block text-2xl font-bold text-gray-800 mb-6">Svalir og garður</span>
-                <div class="flex flex-col gap-3 w-full max-w-md">
-                    {#each [
-                        { val: 'balcony', label: 'Bara svalir' },
-                        { val: 'garden', label: 'Bara garður' },
-                        { val: 'either', label: 'Annað hvort' },
-                        { val: 'both', label: 'Bæði' },
-                        { val: 'none', label: 'Skiptir ekki máli' }
-                    ] as opt}
-                        <label class="flex items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-all {outdoorFilter === opt.val ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'}">
-                            <input type="radio" name="outdoorFilter" value={opt.val} bind:group={outdoorFilter} class="hidden" />
-                            <span class="text-sm font-bold text-center">{opt.label}</span>
+        <!-- Eiginleikar Section -->
+            <div class="mb-10">
+                <div class="mb-8 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Tegundir eigna</span>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {einbylishus ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={einbylishus} class="hidden" />
+                            <span class="text-sm font-bold text-center">Einbýlishús</span>
                         </label>
-                    {/each}
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {parhus ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={parhus} class="hidden" />
+                            <span class="text-sm font-bold text-center">Parhús</span>
+                        </label>
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {radhus_parhus ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={radhus_parhus} class="hidden" />
+                            <span class="text-sm font-bold text-center">Raðhús</span>
+                        </label>
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {fjolbylishus ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={fjolbylishus} class="hidden" />
+                            <span class="text-sm font-bold text-center">Fjölbýlishús</span>
+                        </label>
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {haed ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={haed} class="hidden" />
+                            <span class="text-sm font-bold text-center">Hæð</span>
+                        </label>
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {atvinnuhusnaedi ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={atvinnuhusnaedi} class="hidden" />
+                            <span class="text-sm font-bold text-center">Atvinnuhúsnæði</span>
+                        </label>
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {sumarhus ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={sumarhus} class="hidden" />
+                            <span class="text-sm font-bold text-center">Sumarhús</span>
+                        </label>
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {jord_lod ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={jord_lod} class="hidden" />
+                            <span class="text-sm font-bold text-center">Jörð/Lóð</span>
+                        </label>
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {hesthus ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={hesthus} class="hidden" />
+                            <span class="text-sm font-bold text-center">Hesthús</span>
+                        </label>
+                        <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {oflokkad ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                            <input type="checkbox" bind:checked={oflokkad} class="hidden" />
+                            <span class="text-sm font-bold text-center">Óflokkað</span>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <div class="mb-12 flex flex-col items-center">
-                <span class="block text-2xl font-bold text-gray-800 mb-6">Annað</span>
-                <div class="flex justify-center w-full max-w-sm">
-                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {want_garage ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600'} w-full">
+                <div class="mb-8 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Svalir og garður</span>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full">
+                        {#each [
+                            { val: 'balcony', label: 'Bara svalir' },
+                            { val: 'garden', label: 'Bara garður' },
+                            { val: 'either', label: 'Annað hvort' },
+                            { val: 'both', label: 'Bæði' },
+                            { val: 'none', label: 'Skiptir ekki máli' }
+                        ] as opt}
+                            <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {outdoorFilter === opt.val ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'}">
+                                <input type="radio" name="outdoorFilter" value={opt.val} bind:group={outdoorFilter} class="hidden" />
+                                <span class="text-sm font-bold text-center">{opt.label}</span>
+                            </label>
+                        {/each}
+                    </div>
+                </div>
+
+                <div class="mb-4 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Bílskúr</span>
+                    <label class="flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all {want_garage ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600'} w-full max-w-[200px]">
                         <input type="checkbox" bind:checked={want_garage} class="hidden" />
-                        <span class="text-sm font-bold text-center">Bílskúr</span>
+                        <span class="text-sm font-bold text-center">Bílskúr nauðsynlegur</span>
                     </label>
                 </div>
             </div>
 
+        <hr class="border-gray-100 my-10 w-full" />
+
+        <!-- Stillingar tölvupósts Section -->
+            <div class="mb-6">
+                
+                <div class="mb-8 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Hvenær viltu fá tölvupóstinn?</span>
+                    <select 
+                        bind:value={scrapeHour}
+                        class="w-full max-w-[200px] p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-lg"
+                    >
+                        {#each Array(24) as _, i}
+                            <option value={i}>{i}:00</option>
+                        {/each}
+                    </select>
+                </div>
+            </div>
 
             <div class="flex flex-col items-center gap-8 py-8">
                 <div class="flex flex-col items-center gap-4">
@@ -1007,7 +1024,7 @@
                     
                     <button 
                         onclick={handleSendSettingsEmail}
-                        class="px-8 py-4 rounded-full bg-green-600 text-white font-bold text-lg hover:bg-green-700 transition-all shadow-md hover:scale-105 active:scale-95 flex items-center justify-center text-center"
+                        class="px-8 py-4 rounded-full border-2 border-green-600 text-green-600 bg-white font-bold text-lg hover:bg-green-50 transition-all hover:scale-105 active:scale-95 flex items-center justify-center text-center"
                     >
                         Senda tölvupóst með þessum stillingum
                     </button>
@@ -1021,8 +1038,14 @@
             </div>
         </div>
 
-        <div class="mt-8 text-center">
+        <div class="mt-8 text-center flex flex-col items-center gap-4">
             <p class="text-gray-500 italic text-sm">Signed in as: {user.email}</p>
+            <button 
+                onclick={handleDeleteAccount}
+                class="text-gray-400 hover:text-gray-600 text-sm underline transition-colors"
+            >
+                Eyða aðgangi
+            </button>
         </div>
     {/if}
 

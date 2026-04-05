@@ -3,7 +3,7 @@
     import { getApiUrl } from '$lib/config';
     
     let user = $state(null);
-    let step = $state(0); // 0: Intro, 1: Min Price, 2: Max Price, 3: Bedrooms, 4: Build Year, 5: Zip Codes, 6: Property Types, 7: Outdoor, 8: Garage, 9: Scrape Hour, 10: Review
+    let step = $state(0); // 0: Intro, 1: Price Range, 2: Bedrooms, 3: Build Year, 4: Zip Codes, 5: Property Types, 6: Outdoor, 7: Garage, 8: Scrape Hour, 9: Review
     
     let minPrice = $state('0');
     let maxPrice = $state('0');
@@ -165,7 +165,7 @@
     }
 
     function nextStep() {
-        if (step === 2) {
+        if (step === 1) {
             const price = parseNumber(maxPrice);
             if (price < 40000000) {
                 message = 'Vinsamlegast sláðu inn hámarksverð sem er að minnsta kosti 40.000.000 ISK.';
@@ -173,12 +173,12 @@
             }
         }
         
-        if (step === 5 && selectedZipCodes.length === 0) {
+        if (step === 4 && selectedZipCodes.length === 0) {
             message = 'Vinsamlegast veldu að minnsta kosti eitt póstnúmer til að halda áfram.';
             return;
         }
 
-        if (step === 6) {
+        if (step === 5) {
             if (!(einbylishus || fjolbylishus || radhus_parhus || parhus || haed || sumarhus || jord_lod || atvinnuhusnaedi || hesthus || oflokkad)) {
                 message = 'Vinsamlegast veldu að minnsta kosti eina tegund eignar.';
                 return;
@@ -187,7 +187,7 @@
 
         message = ''; // Clear message if validation passes
 
-        if (step < 10) {
+        if (step < 9) {
             step++;
             // Optional: Auto-save at each step
             saveOnboarding(false);
@@ -412,7 +412,7 @@
             <div class="h-2 bg-gray-100">
                 <div 
                     class="h-full bg-blue-600 transition-all duration-500 ease-out" 
-                    style="width: {(step / 10) * 100}%"
+                    style="width: {(step / 9) * 100}%"
                 ></div>
             </div>
 
@@ -430,39 +430,43 @@
 
                 {:else if step === 1}
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvert er lágmarksverðið?</h2>
-                        <p class="text-gray-600 mb-8">Sláðu inn lægsta verðið sem þú ert að skoða.</p>
-                        <div class="relative">
-                            <input 
-                                type="text" 
-                                inputmode="numeric"
-                                bind:value={minPrice}
-                                oninput={(e) => minPrice = formatNumber(e.target.value)}
-                                class="w-full p-4 text-2xl border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors"
-                                placeholder="0"
-                            />
-                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">ISK</span>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2 text-center">Hvert er verðbilið?</h2>
+                        <p class="text-gray-600 mb-8 text-center">Veldu lágmarks- og hámarksverð sem þú ert að skoða.</p>
+                        
+                        <div class="grid grid-cols-2 gap-8">
+                            <div class="flex flex-col items-center">
+                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Lágmarksverð</label>
+                                <div class="relative w-full">
+                                    <input 
+                                        type="text" 
+                                        inputmode="numeric"
+                                        bind:value={minPrice}
+                                        oninput={(e) => minPrice = formatNumber(e.target.value)}
+                                        class="w-full p-4 text-2xl border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors pr-12 text-center"
+                                        placeholder="0"
+                                    />
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">kr.</span>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col items-center">
+                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Hámarksverð</label>
+                                <div class="relative w-full">
+                                    <input 
+                                        type="text" 
+                                        inputmode="numeric"
+                                        bind:value={maxPrice}
+                                        oninput={(e) => maxPrice = formatNumber(e.target.value)}
+                                        class="w-full p-4 text-2xl border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors pr-12 text-center"
+                                        placeholder="0"
+                                    />
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">kr.</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                 {:else if step === 2}
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvert er hámarksverðið?</h2>
-                        <p class="text-gray-600 mb-8">Hvað er mesta sem þú vilt borga?</p>
-                        <div class="relative">
-                            <input 
-                                type="text" 
-                                inputmode="numeric"
-                                bind:value={maxPrice}
-                                oninput={(e) => maxPrice = formatNumber(e.target.value)}
-                                class="w-full p-4 text-2xl border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors"
-                                placeholder="0"
-                            />
-                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">ISK</span>
-                        </div>
-                    </div>
-
-                {:else if step === 3}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8">Svefnherbergi</h2>
                         <div class="grid grid-cols-2 gap-8">
@@ -509,54 +513,35 @@
                         </div>
                     </div>
 
-                {:else if step === 4}
+                {:else if step === 3}
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-8">Byggingarár</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Byggingarár</h2>
                         <div class="grid grid-cols-2 gap-8">
                             <div class="flex flex-col items-center">
-                                <label class="block text-xl font-bold text-gray-700 mb-4">Elsta ár</label>
-                                <div class="flex items-center gap-4">
-                                    <div class="px-4 h-16 rounded-full border-4 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-700">
-                                        {minBuildYear}
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <button 
-                                            type="button" 
-                                            onclick={() => minBuildYear++}
-                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
-                                        >+</button>
-                                        <button 
-                                            type="button" 
-                                            onclick={() => minBuildYear = Math.max(1800, minBuildYear - 1)}
-                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
-                                        >−</button>
-                                    </div>
-                                </div>
+                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Elsta ár</label>
+                                <select 
+                                    bind:value={minBuildYear}
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors bg-white text-center font-semibold text-xl"
+                                >
+                                    {#each Array.from({ length: 2027 - 1800 + 1 }, (_, i) => 1800 + i) as year}
+                                        <option value={year}>{year}</option>
+                                    {/each}
+                                </select>
                             </div>
                             <div class="flex flex-col items-center">
-                                <label class="block text-xl font-bold text-gray-700 mb-4">Nýjasta ár</label>
-                                <div class="flex items-center gap-4">
-                                    <div class="px-4 h-16 rounded-full border-4 border-blue-500 flex items-center justify-center text-2xl font-bold text-blue-700">
-                                        {maxBuildYear}
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <button 
-                                            type="button" 
-                                            onclick={() => maxBuildYear++}
-                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
-                                        >+</button>
-                                        <button 
-                                            type="button" 
-                                            onclick={() => maxBuildYear = Math.max(1800, maxBuildYear - 1)}
-                                            class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
-                                        >−</button>
-                                    </div>
-                                </div>
+                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Nýjasta ár</label>
+                                <select 
+                                    bind:value={maxBuildYear}
+                                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors bg-white text-center font-semibold text-xl"
+                                >
+                                    {#each Array.from({ length: 2027 - 1800 + 1 }, (_, i) => 1800 + i) as year}
+                                        <option value={year}>{year}</option>
+                                    {/each}
+                                </select>
                             </div>
                         </div>
                     </div>
-
-                {:else if step === 5}
+                {:else if step === 4}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvar viltu búa?</h2>
                         <p class="text-gray-600 mb-6">Veldu þau póstnúmer sem þú hefur áhuga á.</p>
@@ -581,7 +566,7 @@
                                                             {#each sg.options as opt}
                                                                 <button 
                                                                     onclick={() => toggleZipCode(opt.code)}
-                                                                    class="p-2 text-sm rounded-lg border-2 transition-all {selectedZipCodes.includes(opt.code) ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
+                                                                    class="p-2 text-sm rounded-lg border-2 transition-all {selectedZipCodes.includes(opt.code) ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
                                                                 >
                                                                     {opt.code} {opt.name}
                                                                 </button>
@@ -593,7 +578,7 @@
                                                 {#each group.options as opt}
                                                     <button 
                                                         onclick={() => toggleZipCode(opt.code)}
-                                                        class="p-2 text-sm rounded-lg border-2 transition-all {selectedZipCodes.includes(opt.code) ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
+                                                        class="p-2 text-sm rounded-lg border-2 transition-all {selectedZipCodes.includes(opt.code) ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
                                                     >
                                                         {opt.code} {opt.name}
                                                     </button>
@@ -606,7 +591,7 @@
                         </div>
                     </div>
 
-                {:else if step === 6}
+                {:else if step === 5}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvers konar eign?</h2>
                         <p class="text-gray-600 mb-6">Veldu þær tegundir sem koma til greina.</p>
@@ -643,7 +628,7 @@
                         </div>
                     </div>
 
-                {:else if step === 7}
+                {:else if step === 6}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8">Svalir eða garður?</h2>
                         
@@ -663,7 +648,7 @@
                         </div>
                     </div>
 
-                {:else if step === 8}
+                {:else if step === 7}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8">Er bílskúr nauðsynlegur?</h2>
                         
@@ -685,7 +670,7 @@
                         </div>
                     </div>
 
-                {:else if step === 9}
+                {:else if step === 8}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8">Hvenær viltu fá tölvupóstinn?</h2>
                         
@@ -704,7 +689,7 @@
                         </div>
                     </div>
 
-                {:else if step === 10}
+                {:else if step === 9}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Frábært! Hér er samantekt:</h2>
                         
@@ -764,7 +749,7 @@
                     </div>
                 {/if}
 
-                {#if step > 0 && step < 10}
+                {#if step > 0 && step < 9}
                     <div class="mt-8 pt-8 border-t border-gray-100 flex justify-between gap-4">
                         <button 
                             onclick={prevStep}
