@@ -2,16 +2,12 @@ import os
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from dotenv import load_dotenv
+from premailer import transform
 
 load_dotenv("/opt/properties-by-magni/.env")
 
 
-from premailer import transform
-
 def get_email_template(content, title="Properties by Magni"):
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
-    logo_url = f"{frontend_url}/logo/logo.png"
-
     html = f"""
     <!DOCTYPE html>
     <html lang="is">

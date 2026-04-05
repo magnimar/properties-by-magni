@@ -815,7 +815,6 @@ class Scraper:
 
     def get_email_template(self, content, title="Properties by Magni"):
         from premailer import transform
-        logo_url = f"{self.FRONTEND_URL}/logo/logo.png"
 
         html = f"""
         <!DOCTYPE html>
