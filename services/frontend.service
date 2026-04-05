@@ -1,5 +1,5 @@
 [Unit]
-Description=Properties by Magni Frontend Service
+Description=Propio Frontend Service
 After=network.target
 
 [Service]
