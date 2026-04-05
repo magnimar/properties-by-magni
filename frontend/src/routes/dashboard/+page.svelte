@@ -601,6 +601,12 @@
 </script>
 
 <div class="p-8 max-w-2xl mx-auto">
+    <div class="fixed top-0 left-0 p-4 z-50">
+        <a href="/home" class="flex items-center hover:opacity-90 transition-opacity">
+            <span class="font-bold text-4xl md:text-5xl tracking-tight text-blue-500 mt-2 ml-1" style="letter-spacing: -0.02em;">Propio</span>
+        </a>
+    </div>
+
     <div class="fixed top-0 right-0 p-4 flex gap-2 z-50">
         <button
             onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}

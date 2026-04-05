@@ -1,4 +1,15 @@
 <script>
+    import { onMount } from 'svelte';
+
+    let isLoggedIn = $state(false);
+
+    onMount(() => {
+        const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+        if (token) {
+            isLoggedIn = true;
+        }
+    });
+
     const steps = [
         {
             title: "1. Skilgreindu þína leit",
@@ -22,22 +33,27 @@
         { title: "Ekki missa af neinu", desc: "Fáðu tölvupóst með öllum þeim eignum sem henta þínum kröfum." },
         { title: "Fáðu einungis eignir sem þú vilt", desc: "Fáðu daglega uppfærslu með aðeins þeim eignum sem passa þér fullkomlega." }
         ];
-        </script>
+</script>
 
 <div class="min-h-screen font-sans text-gray-900 bg-white selection:bg-blue-100">
     <!-- Header -->
     <header class="relative z-50 pt-10 pb-6 px-6 md:px-10 lg:pt-12 lg:pb-8 flex flex-col sm:flex-row items-center justify-between gap-6">
         <a href="/" class="flex items-center gap-5 hover:opacity-90 transition-opacity">
-            <img src="/logo/logo.png" alt="Properties by Magni" class="w-20 h-20 md:w-28 md:h-28 object-contain" />
-            <span class="font-bold text-2xl md:text-3xl tracking-tight text-gray-900 mt-2 ml-1" style="letter-spacing: -0.02em;">Properties by Magni</span>
+            <span class="font-bold text-4xl md:text-5xl tracking-tight text-blue-500 mt-2 ml-1" style="letter-spacing: -0.02em;">Propio</span>
         </a>
         <nav class="flex items-center gap-4">
-            <a href="/login" class="px-4 py-3 text-gray-700 font-bold text-base md:text-lg hover:text-blue-600 transition-colors text-center">
-                Innskráning
-            </a>
-            <a href="/register" class="px-6 py-2.5 text-blue-600 border-2 border-blue-600 rounded-full font-bold text-base md:text-lg hover:bg-blue-50 transition-colors text-center">
-                Búa til reikning
-            </a>
+            {#if isLoggedIn}
+                <a href="/dashboard" class="px-6 py-2.5 bg-blue-600 text-white rounded-full font-bold text-base md:text-lg hover:bg-blue-700 transition-all shadow-lg text-center">
+                    Fara á stjórnborð
+                </a>
+            {:else}
+                <a href="/login" class="px-4 py-3 text-gray-700 font-bold text-base md:text-lg hover:text-blue-600 transition-colors text-center">
+                    Innskráning
+                </a>
+                <a href="/register" class="px-6 py-2.5 text-blue-600 border-2 border-blue-600 rounded-full font-bold text-base md:text-lg hover:bg-blue-50 transition-colors text-center">
+                    Búa til reikning
+                </a>
+            {/if}
         </nav>
     </header>
 
@@ -63,8 +79,8 @@
                 <p class="text-xl lg:text-2xl text-gray-600 leading-relaxed">
                     Þreytt/ur á að vakta fasteignasíðurnar endalaust og skrolla í gegnum eignir sem þú hefur engan áhuga á? Skilgreindu fasteignina sem þú vilt hjá okkur og fáðu daglegan tölvupóst með þeim eignum sem henta þér.
                 </p>
-                <a href="/register" class="inline-block px-12 py-5 bg-blue-600 text-white rounded-full font-bold text-xl md:text-2xl hover:bg-blue-700 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
-                    Búa til reikning
+                <a href={isLoggedIn ? "/dashboard" : "/register"} class="inline-block px-12 py-5 bg-blue-600 text-white rounded-full font-bold text-xl md:text-2xl hover:bg-blue-700 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                    {isLoggedIn ? "Fara á stjórnborð" : "Búa til reikning"}
                 </a>
             </div>
         </div>
@@ -76,7 +92,7 @@
             <div class="grid md:grid-cols-3 gap-12 mb-24 mt-8 md:mt-16">
                 {#each steps as step}
                     <div class="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center text-center group hover:shadow-md transition-shadow">
-                        <div class="mb-8 p-5 bg-blue-50 text-blue-600 rounded-full group-hover:scale-110 transition-transform">
+                        <div class="mb-8 p-5 bg-blue-50 text-blue-600 rounded-full scale-110 transition-transform">
                             {@html step.icon.replace('w-10 h-10', 'w-12 h-12')}
                         </div>
                         <h3 class="text-2xl font-bold mb-4">{step.title}</h3>
@@ -166,7 +182,7 @@
     <!-- Benefits -->
     <section class="py-32 bg-blue-900 text-white">
         <div class="container mx-auto px-6 text-center">
-            <h2 class="text-3xl lg:text-4xl font-bold mb-20">Hvers vegna að nota Properties by Magni?</h2>
+            <h2 class="text-3xl lg:text-4xl font-bold mb-20">Hvers vegna að nota Propio?</h2>
             <div class="max-w-2xl mx-auto space-y-16">
                 {#each benefits as benefit, i}
                     <div class="flex items-center gap-10 group">
@@ -185,8 +201,8 @@
     <!-- Standard Footer -->
     <footer class="py-12 border-t border-gray-100 text-gray-500 bg-white">
         <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-            <div class="font-bold text-gray-900 text-xl tracking-tight">Properties by Magni</div>
-            <p class="text-xs">© 2026 Properties by Magni. Allur réttur áskilinn.</p>
+            <div class="font-bold text-gray-900 text-xl tracking-tight">Propio</div>
+            <p class="text-xs">© 2026 Propio. Allur réttur áskilinn.</p>
         </div>
     </footer>
 </div>

@@ -294,7 +294,7 @@ class Scraper:
             sib_api_v3_sdk.ApiClient(configuration)
         )
 
-        sender = {"name": "Properties by Magni", "email": self.FROM_EMAIL}
+        sender = {"name": "Propio", "email": self.FROM_EMAIL}
         to = [{"email": self.TO_EMAIL}]
 
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
@@ -813,7 +813,7 @@ class Scraper:
         }
         return locations.get(zip_code, ("", ""))
 
-    def get_email_template(self, content, title="Properties by Magni"):
+    def get_email_template(self, content, title="Propio"):
         from premailer import transform
 
         html = f"""
@@ -1004,13 +1004,13 @@ class Scraper:
             </style>
             <div class="container">
                 <div class="header">
-                    <h1>Properties by Magni</h1>
+                    <h1>Propio</h1>
                 </div>
                 <div class="content">
                     {content}
                 </div>
                 <div class="footer">
-                    &copy; 2026 Properties by Magni. Allt rétt áskilinn.<br>
+                    &copy; 2026 Propio. Allt rétt áskilinn.<br>
                     Þú færð þennan tölvupóst því þú ert skráð(ur) á vakt hjá okkur.
                 </div>
             </div>

@@ -1,5 +1,5 @@
 [Unit]
-Description=Properties by Magni Backend Service
+Description=Propio Backend Service
 After=network.target postgresql.service
 Requires=postgresql.service
 

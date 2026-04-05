@@ -7,7 +7,7 @@ from premailer import transform
 load_dotenv("/opt/properties-by-magni/.env")
 
 
-def get_email_template(content, title="Properties by Magni"):
+def get_email_template(content, title="Propio"):
     html = f"""
     <!DOCTYPE html>
     <html lang="is">
@@ -100,13 +100,13 @@ def get_email_template(content, title="Properties by Magni"):
             </style>
             <div class="container">
             <div class="header">
-                <h1>Properties by Magni</h1>
+                <h1>Propio</h1>
             </div>
             <div class="content">
                 {content}
             </div>
             <div class="footer">
-                &copy; {2026} Properties by Magni. Allt rétt áskilinn.<br>
+                &copy; {2026} Propio. Allt rétt áskilinn.<br>
                 Ef þú telur þig hafa fengið þennan póst fyrir mistök, vinsamlegast hunsaðu hann.
             </div>
         </div>
@@ -134,17 +134,17 @@ def send_verification_email(to_email, verification_token):
 
     verification_link = f"{frontend_url}/verify-email?token={verification_token}"
 
-    subject = "Verify your Properties by Magni account"
+    subject = "Verify your Propio account"
     content = f"""
-        <h2 style="color: #1e293b; margin-top: 0;">Welcome to Properties by Magni!</h2>
+        <h2 style="color: #1e293b; margin-top: 0;">Welcome to Propio!</h2>
         <p>Takk fyrir að skrá þig! Til að virkja aðganginn þinn og byrja að vaka yfir fasteignamarkaðnum, vinsamlegast smelltu á hnappinn hér að neðan:</p>
         <a href="{verification_link}" class="button">Virkja aðgang</a>
         <p style="margin-top: 30px;">Ef hnappurinn virkar ekki geturðu líka afritað og límt þennan hlekk í vafrann þinn:</p>
         <div class="link-alt">{verification_link}</div>
     """
-    html_content = get_email_template(content, "Virkja aðgang - Properties by Magni")
+    html_content = get_email_template(content, "Virkja aðgang - Propio")
 
-    sender = {"name": "Properties by Magni", "email": from_email}
+    sender = {"name": "Propio", "email": from_email}
     to = [{"email": to_email}]
 
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
@@ -180,7 +180,7 @@ def send_password_reset_email(to_email, reset_token):
 
     reset_link = f"{frontend_url}/reset-password?token={reset_token}"
 
-    subject = "Endurstilla lykilorð fyrir Properties by Magni"
+    subject = "Endurstilla lykilorð fyrir Propio"
     content = f"""
         <h2 style="color: #1e293b; margin-top: 0;">Beiðni um endurstillingu lykilorðs</h2>
         <p>Þú baðst um að endurstilla lykilorðið þitt. Vinsamlegast smelltu á hnappinn hér að neðan til að velja nýtt lykilorð:</p>
@@ -189,11 +189,9 @@ def send_password_reset_email(to_email, reset_token):
         <p>Ef þú baðst ekki um þetta getur þú hunsað þennan tölvupóst.</p>
         <div class="link-alt">{reset_link}</div>
     """
-    html_content = get_email_template(
-        content, "Endurstilla lykilorð - Properties by Magni"
-    )
+    html_content = get_email_template(content, "Endurstilla lykilorð - Propio")
 
-    sender = {"name": "Properties by Magni", "email": from_email}
+    sender = {"name": "Propio", "email": from_email}
     to = [{"email": to_email}]
 
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
