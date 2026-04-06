@@ -262,9 +262,9 @@ app = FastAPI()
 
 # CORS configuration
 origins = [
-    "https://propertiesbymagni.com",
-    "https://www.propertiesbymagni.com",
-    "https://api.propertiesbymagni.com",
+    "https://fundvis.is",
+    "https://www.fundvis.is",
+    "https://api.fundvis.is",
     "http://localhost:5000",
     "https://localhost:5000",
     "http://localhost:5173",
@@ -398,7 +398,7 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
         "user": current_user.email,
         "TO_EMAIL": current_user.email,
         "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
-        "FROM_EMAIL": "propertiesbymagni@propertiesbymagni.com",
+        "FROM_EMAIL": "fundvis@fundvis.is",
         "MIN_PRICE": (
             int(current_user.min_price) if current_user.min_price is not None else 0
         ),
@@ -652,3 +652,4 @@ def db_check(db: Session = Depends(get_db)):
         return {"status": "ok", "message": "Database connection successful"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
+iled: {e}")
