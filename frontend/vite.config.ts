@@ -17,13 +17,13 @@ export default defineConfig({
 	envDir,
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
-		allowedHosts: ['propertiesbymagni.com', 'www.propertiesbymagni.com', 'localhost'],
+		allowedHosts: ['fundvis.is', 'www.fundvis.is', 'localhost'],
 		host: true, // This allows the tunnel to connect to the local IP
 		port: 5000,
 		// Commented out to fix local development WebSocket connection
 		// hmr: {
 		// 	clientPort: 443,
-		// 	host: 'propertiesbymagni.com'
+		// 	host: 'fundvis.is'
 		// }
 	},
 	test: {

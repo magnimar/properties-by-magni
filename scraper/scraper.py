@@ -284,7 +284,7 @@ class Scraper:
             return None
 
     def send_email_notification(self, subject, html_body):
-        self.FROM_EMAIL = "propertiesbymagni@propertiesbymagni.com"
+        self.FROM_EMAIL = "fundvis@fundvis.is"
 
         if not all([self.API_KEY, self.FROM_EMAIL, self.TO_EMAIL]):
             logging.warning(
