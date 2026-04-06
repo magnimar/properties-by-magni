@@ -7,6 +7,8 @@
     let maxPrice = $state('0');
     let minBedrooms = $state(1);
     let maxBedrooms = $state(1);
+    let minSize = $state(0);
+    let maxSize = $state(1000);
     let minBuildYear = $state(1900);
     let maxBuildYear = $state(2027);
     let scrapeHour = $state(20);
@@ -533,6 +535,8 @@
                     max_price: parseNumber(maxPrice),
                     min_bedrooms: minBedrooms,
                     max_bedrooms: maxBedrooms,
+                    min_size: minSize,
+                    max_size: maxSize,
                     min_build_year: minBuildYear,
                     max_build_year: maxBuildYear,
                     scrape_hour: scrapeHour,
