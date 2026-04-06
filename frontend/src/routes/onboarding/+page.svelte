@@ -396,9 +396,10 @@
                         <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Hvað má eignin kosta?</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="flex flex-col items-center">
-                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Lágmarksverð</label>
+                                <label for="minPrice" class="block text-xl font-bold text-gray-700 mb-4 text-center">Lágmarksverð</label>
                                 <div class="relative w-full">
                                     <input 
+                                        id="minPrice"
                                         type="text" 
                                         inputmode="numeric"
                                         bind:value={minPrice}
@@ -411,9 +412,10 @@
                             </div>
 
                             <div class="flex flex-col items-center">
-                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Hámarksverð</label>
+                                <label for="maxPrice" class="block text-xl font-bold text-gray-700 mb-4 text-center">Hámarksverð</label>
                                 <div class="relative w-full">
                                     <input 
+                                        id="maxPrice"
                                         type="text" 
                                         inputmode="numeric"
                                         bind:value={maxPrice}
