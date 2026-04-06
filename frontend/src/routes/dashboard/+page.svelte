@@ -703,6 +703,36 @@
                     </div>
                 </div>
 
+                <div class="mb-8 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Stærð (m²)</span>
+                    <div class="grid grid-cols-2 gap-8 w-full max-w-sm">
+                        <div class="flex flex-col items-center">
+                            <label for="minSize" class="block text-sm font-bold text-gray-700 mb-2">Lágmarksstærð</label>
+                            <div class="relative w-full">
+                                <input
+                                    type="number"
+                                    id="minSize"
+                                    bind:value={minSize}
+                                    class="w-full p-3 pr-10 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-lg font-semibold"
+                                />
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">m²</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <label for="maxSize" class="block text-sm font-bold text-gray-700 mb-2">Hámarksstærð</label>
+                            <div class="relative w-full">
+                                <input
+                                    type="number"
+                                    id="maxSize"
+                                    bind:value={maxSize}
+                                    class="w-full p-3 pr-10 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-lg font-semibold"
+                                />
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">m²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-4 flex flex-col items-center w-full">
                     <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Byggingarár</span>
                     <div class="grid grid-cols-2 gap-4 w-full">

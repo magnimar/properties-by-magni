@@ -208,6 +208,8 @@ class Scraper:
         self.MAX_PRICE = self.user_config.get("MAX_PRICE")
         self.MIN_BEDROOMS = self.user_config.get("MIN_BEDROOMS")
         self.MAX_BEDROOMS = self.user_config.get("MAX_BEDROOMS")
+        self.MIN_SIZE = self.user_config.get("MIN_SIZE", 0)
+        self.MAX_SIZE = self.user_config.get("MAX_SIZE", 1000000)
         self.MIN_BUILD_YEAR = self.user_config.get("MIN_BUILD_YEAR", 1900)
         self.MAX_BUILD_YEAR = self.user_config.get("MAX_BUILD_YEAR", 2027)
         self.GOOGLE_MAPS_KEY = self.user_config.get("GOOGLE_MAPS_KEY")
@@ -1286,6 +1288,17 @@ class Scraper:
             except (ValueError, TypeError):
                 pass
 
+            # Size filtering
+            try:
+                size_str = prop.get("size_m2")
+                if size_str and size_str != "N/A":
+                    # Remove 'm²', replace ',' with '.' and convert to float
+                    size_num = float(size_str.replace("m²", "").replace(",", ".").strip())
+                    if size_num < self.MIN_SIZE or size_num > self.MAX_SIZE:
+                        continue
+            except (ValueError, TypeError):
+                pass
+
             if self.OUTDOOR_FILTER == "balcony":
                 if not prop.get("has_balcony"):
                     continue
@@ -1494,3 +1507,4 @@ if __name__ == "__main__":
         # Default to running once for all users if no args provided?
         # Or just show help. Let's show help.
         print("Usage: scraper.py --schedule OR scraper.py --user EMAIL")
+scraper.py --user EMAIL")
