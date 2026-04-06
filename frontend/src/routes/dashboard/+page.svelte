@@ -607,7 +607,7 @@
         </a>
     </div>
 
-    <div class="fixed top-0 right-0 p-4 flex gap-2 z-50">
+    <div class="fixed top-0 right-0 pt-10 pr-6 md:pr-10 lg:pt-12 flex gap-2 z-50">
         <button
             onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}
             class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors font-semibold text-sm shadow-sm"
