@@ -1295,7 +1295,9 @@ class Scraper:
                 size_str = prop.get("size_m2")
                 if size_str and size_str != "N/A":
                     # Remove 'm²', replace ',' with '.' and convert to float
-                    size_num = float(size_str.replace("m²", "").replace(",", ".").strip())
+                    size_num = float(
+                        size_str.replace("m²", "").replace(",", ".").strip()
+                    )
                     if size_num < self.MIN_SIZE or size_num > self.MAX_SIZE:
                         continue
             except (ValueError, TypeError):

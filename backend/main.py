@@ -124,9 +124,11 @@ with engine.begin() as conn:
     if "min_size" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_size FLOAT DEFAULT 0.0;"))
     conn.execute(text("UPDATE users SET min_size = 0.0 WHERE min_size IS NULL;"))
-    
+
     if "max_size" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN max_size FLOAT DEFAULT 1000.0;"))
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN max_size FLOAT DEFAULT 1000.0;")
+        )
     conn.execute(text("UPDATE users SET max_size = 1000.0 WHERE max_size IS NULL;"))
     if "min_build_year" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_build_year INTEGER;"))
@@ -411,9 +413,7 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
         "MAX_BEDROOMS": (
             current_user.max_bedrooms if current_user.max_bedrooms is not None else 10
         ),
-        "MIN_SIZE": (
-            current_user.min_size if current_user.min_size is not None else 0
-        ),
+        "MIN_SIZE": (current_user.min_size if current_user.min_size is not None else 0),
         "MAX_SIZE": (
             current_user.max_size if current_user.max_size is not None else 1000000
         ),
