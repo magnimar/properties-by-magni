@@ -3,12 +3,14 @@
     import { getApiUrl } from '$lib/config';
     
     let user = $state(null);
-    let step = $state(0); // 0: Intro, 1: Price Range, 2: Bedrooms, 3: Build Year, 4: Zip Codes, 5: Property Types, 6: Outdoor, 7: Garage, 8: Scrape Hour, 9: Review
+    let step = $state(0); // 0: Intro, 1: Price Range, 2: Bedrooms, 3: Size, 4: Build Year, 5: Zip Codes, 6: Property Types, 7: Outdoor, 8: Garage, 9: Scrape Hour, 10: Review
     
     let minPrice = $state('0');
     let maxPrice = $state('0');
     let minBedrooms = $state(1);
     let maxBedrooms = $state(1);
+    let minSize = $state(0);
+    let maxSize = $state(1000);
     let minBuildYear = $state(1900);
     let maxBuildYear = $state(2027);
     let scrapeHour = $state(20);
@@ -72,6 +74,8 @@
                 maxPrice = formatNumber(user.max_price || 0);
                 minBedrooms = user.min_bedrooms || 1;
                 maxBedrooms = user.max_bedrooms || 1;
+                minSize = user.min_size || 0;
+                maxSize = user.max_size || 1000;
                 minBuildYear = user.min_build_year || 1900;
                 maxBuildYear = user.max_build_year || 2027;
                 scrapeHour = user.scrape_hour !== undefined ? user.scrape_hour : 20;
@@ -112,6 +116,8 @@
                     max_price: parseNumber(maxPrice),
                     min_bedrooms: minBedrooms,
                     max_bedrooms: maxBedrooms,
+                    min_size: minSize,
+                    max_size: maxSize,
                     min_build_year: minBuildYear,
                     max_build_year: maxBuildYear,
                     scrape_hour: scrapeHour,
@@ -173,12 +179,12 @@
             }
         }
         
-        if (step === 4 && selectedZipCodes.length === 0) {
+        if (step === 5 && selectedZipCodes.length === 0) {
             message = 'Vinsamlegast veldu að minnsta kosti eitt póstnúmer til að halda áfram.';
             return;
         }
 
-        if (step === 5) {
+        if (step === 6) {
             if (!(einbylishus || fjolbylishus || radhus_parhus || parhus || haed || sumarhus || jord_lod || atvinnuhusnaedi || hesthus || oflokkad)) {
                 message = 'Vinsamlegast veldu að minnsta kosti eina tegund eignar.';
                 return;
@@ -187,7 +193,7 @@
 
         message = ''; // Clear message if validation passes
 
-        if (step < 9) {
+        if (step < 10) {
             step++;
             // Optional: Auto-save at each step
             saveOnboarding(false);
@@ -250,149 +256,97 @@
                 },
                 {
                     name: "Seltjarnarnes",
-                    options: [
-                        { code: "170", name: "Seltjarnarnes" }
-                    ]
+                    options: [{ code: "170", name: "Seltjarnarnes" }]
                 }
-            ]
-        },
-        {
-            name: "Vesturland",
-            options: [
-                { code: "300", name: "Akranes" }, { code: "301", name: "Akranes" },
-                { code: "310", name: "Borgarnes" }, { code: "311", name: "Borgarnes" },
-                { code: "320", name: "Reykholt" }, { code: "340", name: "Stykkishólmur" },
-                { code: "345", name: "Flatey" }, { code: "350", name: "Grundarfjörður" },
-                { code: "355", name: "Ólafsvík" }, { code: "356", name: "Snæfellsbær" },
-                { code: "360", name: "Hellissandur" }, { code: "370", name: "Búðardalur" },
-                { code: "371", name: "Búðardalur" }, { code: "380", name: "Reykhólahreppur" }
-            ]
-        },
-        {
-            name: "Vestfirðir",
-            options: [
-                { code: "400", name: "Ísafjörður" }, { code: "401", name: "Ísafjörður" },
-                { code: "410", name: "Hnífsdalur" }, { code: "415", name: "Bolungarvík" },
-                { code: "416", name: "Bolungarvík" }, { code: "420", name: "Súðavík" },
-                { code: "421", name: "Súðavík" }, { code: "425", name: "Flateyri" },
-                { code: "426", name: "Flateyri" }, { code: "430", name: "Suðureyri" },
-                { code: "431", name: "Suðureyri" }, { code: "450", name: "Patreksfjörður" },
-                { code: "451", name: "Patreksfjörður" }, { code: "460", name: "Tálknafjörður" },
-                { code: "461", name: "Tálknafjörður" }, { code: "465", name: "Bíldudalur" },
-                { code: "466", name: "Bíldudalur" }, { code: "470", name: "Þingeyri" },
-                { code: "471", name: "Þingeyri" }
-            ]
-        },
-        {
-            name: "Norðurland",
-            options: [
-                { code: "500", name: "Staður" }, { code: "510", name: "Hólmavík" },
-                { code: "511", name: "Hólmavík" }, { code: "512", name: "Hólmavík" },
-                { code: "520", name: "Drangsnes" }, { code: "522", name: "Kjörvogur" },
-                { code: "523", name: "Bær" }, { code: "524", name: "Norðurfjörður" },
-                { code: "530", name: "Hvammstangi" }, { code: "531", name: "Hvammstangi" },
-                { code: "540", name: "Blönduós" }, { code: "541", name: "Blönduós" },
-                { code: "545", name: "Skagaströnd" }, { code: "546", name: "Skagaströnd" },
-                { code: "550", name: "Sauðárkrókur" }, { code: "551", name: "Sauðárkrókur" },
-                { code: "560", name: "Varmahlíð" }, { code: "561", name: "Varmahlíð" },
-                { code: "565", name: "Hofsós" }, { code: "566", name: "Hofsós" },
-                { code: "570", name: "Fljót" }, { code: "580", name: "Siglufjörður" },
-                { code: "581", name: "Siglufjörður" }, { code: "600", name: "Akureyri" },
-                { code: "601", name: "Akureyri" }, { code: "602", name: "Akureyri" },
-                { code: "603", name: "Akureyri" }, { code: "604", name: "Akureyri" },
-                { code: "605", name: "Akureyri" }, { code: "606", name: "Akureyri" },
-                { code: "607", name: "Akureyri" }, { code: "610", name: "Árskógssandur" },
-                { code: "611", name: "Grímsey" }, { code: "616", name: "Grenivík" },
-                { code: "620", name: "Dalvík" }, { code: "621", name: "Dalvík" },
-                { code: "625", name: "Ólafsfjörður" }, { code: "626", name: "Ólafsfjörður" },
-                { code: "630", name: "Hrísey" }, { code: "640", name: "Húsavík" },
-                { code: "641", name: "Húsavík" }, { code: "645", name: "Fosshóll" },
-                { code: "650", name: "Laugar" }, { code: "660", name: "Mývatn" },
-                { code: "670", name: "Kópasker" }, { code: "671", name: "Kópasker" },
-                { code: "675", name: "Raufarhöfn" }, { code: "680", name: "Þórshöfn" },
-                { code: "681", name: "Þórshöfn" }
-            ]
-        },
-        {
-            name: "Austurland",
-            options: [
-                { code: "700", name: "Egilsstaðir" }, { code: "701", name: "Egilsstaðir" },
-                { code: "710", name: "Seyðisfjörður" }, { code: "715", name: "Mjóifjörður" },
-                { code: "720", name: "Borgarfjörður eystri" }, { code: "730", name: "Reyðarfjörður" },
-                { code: "735", name: "Eskifjörður" }, { code: "740", name: "Neskaupstaður" },
-                { code: "750", name: "Fáskrúðsfjörður" }, { code: "755", name: "Stöðvarfjörður" },
-                { code: "760", name: "Breiðdalsvík" }, { code: "765", name: "Djúpivogur" },
-                { code: "780", name: "Höfn í Hornafirði" }, { code: "781", name: "Höfn í Hornafirði" },
-                { code: "785", name: "Öræfi" }
-            ]
-        },
-        {
-            name: "Suðurland",
-            options: [
-                { code: "800", name: "Selfoss" }, { code: "801", name: "Selfoss" },
-                { code: "802", name: "Selfoss" }, { code: "803", name: "Selfoss" },
-                { code: "804", name: "Selfoss" }, { code: "805", name: "Selfoss" },
-                { code: "806", name: "Selfoss" }, { code: "810", name: "Hveragerði" },
-                { code: "815", name: "Þorlákshöfn" }, { code: "816", name: "Ölfus" },
-                { code: "820", name: "Eyrarbakki" }, { code: "825", name: "Stokkseyri" },
-                { code: "840", name: "Laugarvatn" }, { code: "845", name: "Flúðir" },
-                { code: "846", name: "Flúðir" }, { code: "850", name: "Hella" },
-                { code: "851", name: "Hella" }, { code: "860", name: "Hvolsvöllur" },
-                { code: "861", name: "Hvolsvöllur" }, { code: "870", name: "Vík" },
-                { code: "871", name: "Vík" }, { code: "880", name: "Kirkjubæjarklaustur" },
-                { code: "881", name: "Kirkjubæjarklaustur" }, { code: "900", name: "Vestmannaeyjar" },
-                { code: "901", name: "Vestmannaeyjabær" }
             ]
         },
         {
             name: "Suðurnes",
             options: [
-                { code: "190", name: "Vogar" }, { code: "191", name: "Vogar" },
-                { code: "230", name: "Keflavík" }, { code: "232", name: "Keflavík" },
-                { code: "233", name: "Hafnir" }, { code: "240", name: "Grindavík" },
-                { code: "241", name: "Grindavík" }, { code: "245", name: "Suðurnesjabær" },
-                { code: "246", name: "Suðurnesjabær" }, { code: "250", name: "Suðurnesjabær" },
-                { code: "251", name: "Suðurnesjabær" }, { code: "260", name: "Njarðvík" },
-                { code: "262", name: "Reykjanesbær" }
+                { code: "230", name: "Reykjanesbær" }, { code: "232", name: "Reykjanesbær" },
+                { code: "233", name: "Reykjanesbær" }, { code: "235", name: "Keflavíkurflugvöllur" },
+                { code: "240", name: "Grindavík" }, { code: "245", name: "Sandgerði" },
+                { code: "246", name: "Garður" }, { code: "250", name: "Garður" },
+                { code: "260", name: "Reykjanesbær" }, { code: "262", name: "Reykjanesbær" },
+                { code: "190", name: "Vogar" }
             ]
         },
         {
-            name: "Útlönd",
+            name: "Vesturland",
             options: [
-                { code: "950", name: "Útlönd" }, { code: "951", name: "Útlönd" },
-                { code: "952", name: "Útlönd" }, { code: "953", name: "Útlönd" },
-                { code: "954", name: "Útlönd" }, { code: "955", name: "Útlönd" },
-                { code: "956", name: "Útlönd" }, { code: "970", name: "Útlönd" },
-                { code: "971", name: "Útlönd" }, { code: "980", name: "Útlönd" },
-                { code: "999", name: "Útlönd" }
+                { code: "300", name: "Akranes" }, { code: "310", name: "Borgarnes" },
+                { code: "311", name: "Borgarnes" }, { code: "340", name: "Stykkishólmur" },
+                { code: "350", name: "Grundarfjörður" }, { code: "355", name: "Ólafsvík" },
+                { code: "360", name: "Hellissandur" }, { code: "370", name: "Búðardalur" },
+                { code: "380", name: "Reykhólahreppur" }
+            ]
+        },
+        {
+            name: "Vestfirðir",
+            options: [
+                { code: "400", name: "Ísafjörður" }, { code: "410", name: "Hnífsdalur" },
+                { code: "415", name: "Bolungarvík" }, { code: "420", name: "Súðavík" },
+                { code: "430", name: "Suðureyri" }, { code: "450", name: "Patreksfjörður" },
+                { code: "460", name: "Tálknafjörður" }, { code: "465", name: "Bíldudalur" },
+                { code: "470", name: "Þingeyri" }
+            ]
+        },
+        {
+            name: "Norðurland",
+            options: [
+                { code: "530", name: "Hvammstangi" }, { code: "540", name: "Blönduós" },
+                { code: "550", name: "Sauðárkrókur" }, { code: "580", name: "Siglufjörður" },
+                { code: "600", name: "Akureyri" }, { code: "603", name: "Akureyri" },
+                { code: "611", name: "Grímsey" }, { code: "620", name: "Dalvík" },
+                { code: "625", name: "Ólafsfjörður" }, { code: "640", name: "Húsavík" }
+            ]
+        },
+        {
+            name: "Austurland",
+            options: [
+                { code: "700", name: "Egilsstaðir" }, { code: "710", name: "Seyðisfjörður" },
+                { code: "720", name: "Borgarfjörður eystra" }, { code: "730", name: "Reyðarfjörður" },
+                { code: "735", name: "Eskifjörður" }, { code: "740", name: "Neskaupstaður" },
+                { code: "750", name: "Fáskrúðsfjörður" }, { code: "760", name: "Breiðdalsvík" },
+                { code: "765", name: "Djúpivogur" }, { code: "780", name: "Höfn í Hornafirði" }
+            ]
+        },
+        {
+            name: "Suðurland",
+            options: [
+                { code: "800", name: "Selfoss" }, { code: "810", name: "Hveragerði" },
+                { code: "815", name: "Þorlákshöfn" }, { code: "820", name: "Eyrarbakki" },
+                { code: "825", name: "Stokkseyri" }, { code: "840", name: "Laugarvatn" },
+                { code: "850", name: "Hella" }, { code: "860", name: "Hvolsvöllur" },
+                { code: "870", name: "Vík" }, { code: "900", name: "Vestmannaeyjar" }
             ]
         }
     ];
 
     let expandedZipGroups = $state({});
 
-    function toggleZipCode(zipCode) {
-        if (selectedZipCodes.includes(zipCode)) {
-            selectedZipCodes = selectedZipCodes.filter(z => z !== zipCode);
-        } else {
-            selectedZipCodes = [...selectedZipCodes, zipCode];
-        }
+    function toggleZipGroup(name) {
+        expandedZipGroups[name] = !expandedZipGroups[name];
     }
 
-    function toggleZipGroup(groupName) {
-        expandedZipGroups[groupName] = !expandedZipGroups[groupName];
+    function toggleZipCode(code) {
+        if (selectedZipCodes.includes(code)) {
+            selectedZipCodes = selectedZipCodes.filter(c => c !== code);
+        } else {
+            selectedZipCodes = [...selectedZipCodes, code];
+        }
     }
 
     function getSelectedPropertyTypes() {
         const types = [];
-        if (einbylishus) types.push('Einbýlishús');
-        if (fjolbylishus) types.push('Fjölbýlishús');
-        if (radhus_parhus) types.push('Raðhús / Parhús');
-        if (haed) types.push('Hæð');
-        if (sumarhus) types.push('Sumarhús');
-        if (jord_lod) types.push('Jörð / Lóð');
-        if (atvinnuhusnaedi) types.push('Atvinnuhúsnæði');
-        return types.length > 0 ? types.join(', ') : 'Allar tegundir';
+        if (einbylishus) types.push("Einbýlishús");
+        if (fjolbylishus) types.push("Fjölbýlishús");
+        if (radhus_parhus) types.push("Raðhús / Parhús");
+        if (haed) types.push("Hæð");
+        if (sumarhus) types.push("Sumarhús");
+        if (jord_lod) types.push("Jörð / Lóð");
+        if (atvinnuhusnaedi) types.push("Atvinnuhúsnæði");
+        return types.length > 0 ? types.join(", ") : "Engar valdar";
     }
 
     onMount(() => {
@@ -400,26 +354,35 @@
     });
 </script>
 
-<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div class="max-w-xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
-        {#if loading}
-            <div class="p-12 text-center">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p class="mt-4 text-gray-600">Sæki upplýsingar...</p>
+<div class="min-h-screen bg-white font-sans text-gray-900">
+    <div class="max-w-2xl mx-auto px-6 py-12 md:py-20">
+        <!-- Progress Bar -->
+        {#if step > 0 && step < 10}
+            <div class="mb-12">
+                <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div 
+                        class="h-full bg-blue-600 transition-all duration-500 ease-out"
+                        style="width: {(step / 10) * 100}%"
+                    ></div>
+                </div>
+                <div class="mt-2 text-right text-sm font-bold text-blue-600">
+                    Skref {step} af 10
+                </div>
             </div>
-        {:else if user}
-            <!-- Progress Bar -->
-            <div class="h-2 bg-gray-100">
-                <div 
-                    class="h-full bg-blue-600 transition-all duration-500 ease-out" 
-                    style="width: {(step / 9) * 100}%"
-                ></div>
-            </div>
+        {/if}
 
-            <div class="p-8 md:p-12">
+        {#if loading}
+            <div class="flex justify-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+            </div>
+        {:else}
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 md:p-12">
                 {#if step === 0}
                     <div class="text-center">
                         <h1 class="text-3xl font-bold text-gray-900 mb-8">Velkomin/n í Fundvís!</h1>
+                        <p class="text-xl text-gray-600 mb-12">
+                            Við ætlum að hjálpa þér að finna draumaeignina. Stillum vaktina þína í örfáum skrefum.
+                        </p>
                         <button 
                             onclick={nextStep}
                             class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-colors shadow-lg"
@@ -430,14 +393,13 @@
 
                 {:else if step === 1}
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2 text-center">Hvert er verðbilið?</h2>
-                        <p class="text-gray-600 mb-8 text-center">Veldu lágmarks- og hámarksverð sem þú ert að skoða.</p>
-                        
-                        <div class="grid grid-cols-2 gap-8">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Hvað má eignin kosta?</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="flex flex-col items-center">
-                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Lágmarksverð</label>
+                                <label for="minPrice" class="block text-xl font-bold text-gray-700 mb-4 text-center">Lágmarksverð</label>
                                 <div class="relative w-full">
                                     <input 
+                                        id="minPrice"
                                         type="text" 
                                         inputmode="numeric"
                                         bind:value={minPrice}
@@ -450,9 +412,10 @@
                             </div>
 
                             <div class="flex flex-col items-center">
-                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Hámarksverð</label>
+                                <label for="maxPrice" class="block text-xl font-bold text-gray-700 mb-4 text-center">Hámarksverð</label>
                                 <div class="relative w-full">
                                     <input 
+                                        id="maxPrice"
                                         type="text" 
                                         inputmode="numeric"
                                         bind:value={maxPrice}
@@ -515,6 +478,37 @@
 
                 {:else if step === 3}
                     <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Stærð (m²)</h2>
+                        <div class="grid grid-cols-2 gap-8">
+                            <div class="flex flex-col items-center">
+                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Lágmarksstærð</label>
+                                <div class="relative w-full">
+                                    <input
+                                        type="number"
+                                        bind:value={minSize}
+                                        class="w-full p-4 text-2xl border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors pr-10 text-center font-semibold"
+                                        placeholder="0"
+                                    />
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">m²</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <label class="block text-xl font-bold text-gray-700 mb-4 text-center">Hámarksstærð</label>
+                                <div class="relative w-full">
+                                    <input
+                                        type="number"
+                                        bind:value={maxSize}
+                                        class="w-full p-4 text-2xl border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none transition-colors pr-10 text-center font-semibold"
+                                        placeholder="1000"
+                                    />
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">m²</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {:else if step === 4}
+                    <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Byggingarár</h2>
                         <div class="grid grid-cols-2 gap-8">
                             <div class="flex flex-col items-center">
@@ -541,7 +535,8 @@
                             </div>
                         </div>
                     </div>
-                {:else if step === 4}
+
+                {:else if step === 5}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvar viltu búa?</h2>
                         <p class="text-gray-600 mb-6">Veldu þau póstnúmer sem þú hefur áhuga á.</p>
@@ -591,7 +586,7 @@
                         </div>
                     </div>
 
-                {:else if step === 5}
+                {:else if step === 6}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">Hvers konar eign?</h2>
                         <p class="text-gray-600 mb-6">Veldu þær tegundir sem koma til greina.</p>
@@ -628,7 +623,7 @@
                         </div>
                     </div>
 
-                {:else if step === 6}
+                {:else if step === 7}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8">Svalir eða garður?</h2>
                         
@@ -648,7 +643,7 @@
                         </div>
                     </div>
 
-                {:else if step === 7}
+                {:else if step === 8}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8">Er bílskúr nauðsynlegur?</h2>
                         
@@ -670,7 +665,7 @@
                         </div>
                     </div>
 
-                {:else if step === 8}
+                {:else if step === 9}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-8">Hvenær viltu fá tölvupóstinn?</h2>
                         
@@ -689,7 +684,7 @@
                         </div>
                     </div>
 
-                {:else if step === 9}
+                {:else if step === 10}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Frábært! Hér er samantekt:</h2>
                         
@@ -701,6 +696,10 @@
                             <div class="flex justify-between border-b border-gray-200 pb-2">
                                 <span class="text-gray-500">Svefnherbergi</span>
                                 <span class="font-bold">{minBedrooms} - {maxBedrooms}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-200 pb-2">
+                                <span class="text-gray-500">Stærð (m²)</span>
+                                <span class="font-bold">{minSize} - {maxSize} m²</span>
                             </div>
                             <div class="flex justify-between border-b border-gray-200 pb-2">
                                 <span class="text-gray-500">Byggingarár</span>
@@ -749,7 +748,7 @@
                     </div>
                 {/if}
 
-                {#if step > 0 && step < 9}
+                {#if step > 0 && step < 10}
                     <div class="mt-8 pt-8 border-t border-gray-100 flex justify-between gap-4">
                         <button 
                             onclick={prevStep}
@@ -785,38 +784,19 @@
                 Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst með eignum sem passa við þínar kröfur.
             </p>
             <div class="flex flex-col gap-3">
-                <button
+                <button 
                     onclick={() => { showSuccessModal = false; window.location.href = '/dashboard'; }}
                     class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
                 >
                     Loka
-                </button>
-                <button
-                    onclick={() => { showSuccessModal = false; showEmailSentModal = true; sendTestEmail(); }}
-                    class="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md"
-                >
-                    Fá prufutölvupóst núna
                 </button>
             </div>
         </div>
     </div>
 {/if}
 
-{#if showEmailSentModal}
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl border border-gray-200 transform transition-all">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-            </div>
-            <p class="text-gray-600 mb-8 text-lg font-medium">
-                Tölvupóstur er í vinnslu, fylgstu vel með!
-            </p>
-            <button
-                onclick={() => { showEmailSentModal = false; window.location.href = '/dashboard'; }}
-                class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
-            >
-                Loka
-            </button>
-        </div>
-    </div>
-{/if}
+<style>
+    :global(html) {
+        scroll-behavior: smooth;
+    }
+</style>

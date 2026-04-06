@@ -7,6 +7,8 @@
     let maxPrice = $state('0');
     let minBedrooms = $state(1);
     let maxBedrooms = $state(1);
+    let minSize = $state(0);
+    let maxSize = $state(1000);
     let minBuildYear = $state(1900);
     let maxBuildYear = $state(2027);
     let scrapeHour = $state(20);
@@ -533,6 +535,8 @@
                     max_price: parseNumber(maxPrice),
                     min_bedrooms: minBedrooms,
                     max_bedrooms: maxBedrooms,
+                    min_size: minSize,
+                    max_size: maxSize,
                     min_build_year: minBuildYear,
                     max_build_year: maxBuildYear,
                     scrape_hour: scrapeHour,
@@ -698,6 +702,36 @@
                                     onclick={() => maxBedrooms++}
                                     class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
                                 >+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Stærð (m²)</span>
+                    <div class="grid grid-cols-2 gap-8 w-full max-w-sm">
+                        <div class="flex flex-col items-center">
+                            <label for="minSize" class="block text-sm font-bold text-gray-700 mb-2">Lágmarksstærð</label>
+                            <div class="relative w-full">
+                                <input
+                                    type="number"
+                                    id="minSize"
+                                    bind:value={minSize}
+                                    class="w-full p-3 pr-10 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-lg font-semibold"
+                                />
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">m²</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <label for="maxSize" class="block text-sm font-bold text-gray-700 mb-2">Hámarksstærð</label>
+                            <div class="relative w-full">
+                                <input
+                                    type="number"
+                                    id="maxSize"
+                                    bind:value={maxSize}
+                                    class="w-full p-3 pr-10 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-center text-lg font-semibold"
+                                />
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">m²</span>
                             </div>
                         </div>
                     </div>

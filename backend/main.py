@@ -75,6 +75,8 @@ class User(Base):
     max_price = Column(Float, nullable=True)
     min_bedrooms = Column(Integer, nullable=True)
     max_bedrooms = Column(Integer, nullable=True)
+    min_size = Column(Float, nullable=True, default=0.0)
+    max_size = Column(Float, nullable=True, default=1000.0)
     min_build_year = Column(Integer, nullable=True)
     max_build_year = Column(Integer, nullable=True)
     zip_codes = Column(String, nullable=True)  # Comma separated list
@@ -119,6 +121,15 @@ with engine.begin() as conn:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_bedrooms INTEGER;"))
     if "max_bedrooms" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN max_bedrooms INTEGER;"))
+    if "min_size" not in existing_columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN min_size FLOAT DEFAULT 0.0;"))
+    conn.execute(text("UPDATE users SET min_size = 0.0 WHERE min_size IS NULL;"))
+
+    if "max_size" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN max_size FLOAT DEFAULT 1000.0;")
+        )
+    conn.execute(text("UPDATE users SET max_size = 1000.0 WHERE max_size IS NULL;"))
     if "min_build_year" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_build_year INTEGER;"))
     if "max_build_year" not in existing_columns:
@@ -224,6 +235,8 @@ class UserPreferences(BaseModel):
     max_price: float | None = None
     min_bedrooms: int | None = None
     max_bedrooms: int | None = None
+    min_size: float | None = None
+    max_size: float | None = None
     min_build_year: int | None = None
     max_build_year: int | None = None
     zip_codes: list[str] | None = None
@@ -348,6 +361,8 @@ async def update_my_preferences(
     current_user.max_price = prefs.max_price
     current_user.min_bedrooms = prefs.min_bedrooms
     current_user.max_bedrooms = prefs.max_bedrooms
+    current_user.min_size = prefs.min_size
+    current_user.max_size = prefs.max_size
     current_user.min_build_year = prefs.min_build_year
     current_user.max_build_year = prefs.max_build_year
     current_user.einbylishus = prefs.einbylishus
@@ -397,6 +412,10 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
         ),
         "MAX_BEDROOMS": (
             current_user.max_bedrooms if current_user.max_bedrooms is not None else 10
+        ),
+        "MIN_SIZE": (current_user.min_size if current_user.min_size is not None else 0),
+        "MAX_SIZE": (
+            current_user.max_size if current_user.max_size is not None else 1000000
         ),
         "MIN_BUILD_YEAR": (
             current_user.min_build_year
