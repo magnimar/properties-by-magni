@@ -200,4 +200,4 @@
       ansible.builtin.systemd:
         name: cloudflared
         state: restarted
-     state: restarted
+
