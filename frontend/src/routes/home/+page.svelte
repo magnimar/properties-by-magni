@@ -37,7 +37,7 @@
 
 <div class="min-h-screen font-sans text-gray-900 bg-white selection:bg-blue-100">
     <!-- Header -->
-    <header class="relative z-50 pt-10 pb-6 px-6 md:px-10 lg:pt-12 lg:pb-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+    <header class="relative z-50 pt-10 pb-6 px-6 md:px-10 lg:pt-12 lg:pb-8 flex flex-wrap items-center justify-between gap-6">
         <a href="/" class="flex items-center gap-5 hover:opacity-90 transition-opacity">
             <span class="font-bold text-4xl md:text-5xl tracking-tight text-blue-500 mt-2 ml-1" style="letter-spacing: -0.02em;">Propio</span>
         </a>
