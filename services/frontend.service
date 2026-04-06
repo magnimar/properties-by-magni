@@ -1,5 +1,5 @@
 [Unit]
-Description=Propio Frontend Service
+Description=Fundvís Frontend Service
 After=network.target
 
 [Service]

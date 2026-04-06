@@ -39,7 +39,7 @@
     <!-- Header -->
     <header class="relative z-50 pt-10 pb-6 px-6 md:px-10 lg:pt-12 lg:pb-8 flex flex-wrap items-center justify-between gap-6">
         <a href="/" class="flex items-center gap-5 hover:opacity-90 transition-opacity">
-            <span class="font-bold text-4xl md:text-5xl tracking-tight text-blue-500 mt-2 ml-1" style="letter-spacing: -0.02em;">Propio</span>
+            <span class="font-bold text-4xl md:text-5xl tracking-tight text-blue-500 mt-2 ml-1" style="letter-spacing: -0.02em;">Fundvís</span>
         </a>
         <nav class="flex items-center gap-4">
             {#if isLoggedIn}
@@ -182,7 +182,7 @@
     <!-- Benefits -->
     <section class="py-32 bg-blue-900 text-white">
         <div class="container mx-auto px-6 text-center">
-            <h2 class="text-3xl lg:text-4xl font-bold mb-20">Hvers vegna að nota Propio?</h2>
+            <h2 class="text-3xl lg:text-4xl font-bold mb-20">Hvers vegna að nota Fundvís?</h2>
             <div class="max-w-2xl mx-auto space-y-16">
                 {#each benefits as benefit, i}
                     <div class="flex items-center gap-10 group">
@@ -201,8 +201,8 @@
     <!-- Standard Footer -->
     <footer class="py-12 border-t border-gray-100 text-gray-500 bg-white">
         <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-            <div class="font-bold text-gray-900 text-xl tracking-tight">Propio</div>
-            <p class="text-xs">© 2026 Propio. Allur réttur áskilinn.</p>
+            <div class="font-bold text-gray-900 text-xl tracking-tight">Fundvís</div>
+            <p class="text-xs">© 2026 Fundvís. Allur réttur áskilinn.</p>
         </div>
     </footer>
 </div>
