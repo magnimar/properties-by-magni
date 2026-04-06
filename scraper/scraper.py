@@ -54,6 +54,8 @@ class User(Base):
     max_price = Column(Float, nullable=True)
     min_bedrooms = Column(Integer, nullable=True)
     max_bedrooms = Column(Integer, nullable=True)
+    min_size = Column(Float, default=0.0)
+    max_size = Column(Float, default=1000.0)
     min_build_year = Column(Integer, nullable=True)
     max_build_year = Column(Integer, nullable=True)
     zip_codes = Column(String, nullable=True)

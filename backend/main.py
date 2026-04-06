@@ -75,6 +75,8 @@ class User(Base):
     max_price = Column(Float, nullable=True)
     min_bedrooms = Column(Integer, nullable=True)
     max_bedrooms = Column(Integer, nullable=True)
+    min_size = Column(Float, nullable=True, default=0.0)
+    max_size = Column(Float, nullable=True, default=1000.0)
     min_build_year = Column(Integer, nullable=True)
     max_build_year = Column(Integer, nullable=True)
     zip_codes = Column(String, nullable=True)  # Comma separated list
@@ -120,9 +122,12 @@ with engine.begin() as conn:
     if "max_bedrooms" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN max_bedrooms INTEGER;"))
     if "min_size" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN min_size FLOAT;"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN min_size FLOAT DEFAULT 0.0;"))
+    conn.execute(text("UPDATE users SET min_size = 0.0 WHERE min_size IS NULL;"))
+    
     if "max_size" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN max_size FLOAT;"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN max_size FLOAT DEFAULT 1000.0;"))
+    conn.execute(text("UPDATE users SET max_size = 1000.0 WHERE max_size IS NULL;"))
     if "min_build_year" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN min_build_year INTEGER;"))
     if "max_build_year" not in existing_columns:
