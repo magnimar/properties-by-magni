@@ -647,4 +647,3 @@ def db_check(db: Session = Depends(get_db)):
         return {"status": "ok", "message": "Database connection successful"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
-ction failed: {e}")

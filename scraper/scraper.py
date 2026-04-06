@@ -1507,4 +1507,3 @@ if __name__ == "__main__":
         # Default to running once for all users if no args provided?
         # Or just show help. Let's show help.
         print("Usage: scraper.py --schedule OR scraper.py --user EMAIL")
-scraper.py --user EMAIL")
