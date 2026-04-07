@@ -568,6 +568,32 @@ class Scraper:
                 else:
                     prop["fasteignamat"] = "N/A"
 
+            # Extract contact information (tengiliður)
+            if prop.get("contact_info") is None:
+                contact_section = soup.find("div", class_="estate__contact")
+                if contact_section:
+                    name_elem = contact_section.find("h4")
+                    name = name_elem.get_text(strip=True) if name_elem else "N/A"
+
+                    company_elem = contact_section.find("p")
+                    company = company_elem.get_text(strip=True) if company_elem else "N/A"
+
+                    phone_elem = contact_section.find("a", href=re.compile(r"^tel:"))
+                    phone = phone_elem.get_text(strip=True) if phone_elem else "N/A"
+
+                    email_elem = contact_section.find("a", href=re.compile(r"^mailto:"))
+                    email = email_elem.get_text(strip=True) if email_elem else "N/A"
+
+                    prop["contact_info"] = {
+                        "name": name,
+                        "company": company,
+                        "phone": phone,
+                        "email": email
+                    }
+                else:
+                    # Fallback or just set to N/A
+                    prop["contact_info"] = "N/A"
+
             if not prop.get("open_house") or prop.get("open_house").strip().lower() in [
                 "opið hús",
                 "opið hús:",
@@ -1186,6 +1212,20 @@ class Scraper:
             except (ValueError, TypeError, KeyError):
                 pass
 
+            if prop.get("contact_info") and isinstance(prop["contact_info"], dict):
+                c = prop["contact_info"]
+                html += f"""
+                <div style='margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0;'>
+                    <p style='font-size: 13px; color: #64748b; margin: 0 0 5px 0;'><strong>Tengiliður:</strong></p>
+                    <p style='font-size: 14px; font-weight: 600; color: #1e293b; margin: 0;'>{c['name']}</p>
+                    {f"<p style='font-size: 13px; color: #64748b; margin: 2px 0;'>{c['company']}</p>" if c.get('company') and c['company'] != 'N/A' else ''}
+                    <p style='font-size: 13px; margin: 5px 0 0 0;'>
+                        {f"<a href='tel:{c['phone']}' style='color: #2563eb; text-decoration: none;'>{c['phone']}</a>" if c.get('phone') and c['phone'] != 'N/A' else ''}
+                        {f" &nbsp;|&nbsp; <a href='mailto:{c['email']}' style='color: #2563eb; text-decoration: none;'>{c['email']}</a>" if c.get('email') and c['email'] != 'N/A' else ''}
+                    </p>
+                </div>
+                """
+
             html += "<div style='margin-top: 15px; text-align: center;'>"
             html += f"  <a href='{prop['link']}' class='button'>Skoða eign á Vísi</a>"
             if prop.get("fasteignanumer") and prop["fasteignanumer"] != "N/A":
@@ -1232,6 +1272,9 @@ class Scraper:
 
             if prop.get("build_year") and prop["build_year"] != "N/A":
                 logging.info(f"  Built: {prop['build_year']}")
+            if prop.get("contact_info") and isinstance(prop["contact_info"], dict):
+                c = prop["contact_info"]
+                logging.info(f"  Contact: {c['name']} ({c['company']}) - {c['phone']} / {c['email']}")
             if prop.get("has_balcony") is not None:
                 logging.info(f"  Balcony: {'yes' if prop['has_balcony'] else 'no'}")
             if prop.get("has_terrace") is not None:
@@ -1251,6 +1294,7 @@ class Scraper:
                 or prop.get("has_garage") is None
                 or prop.get("build_year") is None
                 or prop.get("fasteignamat") is None
+                or prop.get("contact_info") is None
                 or not prop.get("open_house")
                 or prop.get("open_house").strip().lower() in ["opið hús", "opið hús:"]
                 or not prop.get("image_url")
