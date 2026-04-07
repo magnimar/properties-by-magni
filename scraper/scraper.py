@@ -1590,6 +1590,7 @@ class Scraper:
                 and "fellur niður" not in p.get("open_house").lower()
                 and "seld" not in p.get("open_house").lower()
                 and "3d = opið hús þegar þér hentar" not in p.get("open_house").lower()
+                and "þitt eigið opið hús þegar þér hentar" not in p.get("open_house").lower()
             ]
             if open_houses:
                 # We sort them by date if possible, but for now just showing them
