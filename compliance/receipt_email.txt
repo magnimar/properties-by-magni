@@ -1,0 +1,23 @@
+Subject: Your Fundvís Receipt
+
+Hello,
+
+Thank you for your recent transaction with Fundvís.
+
+Transaction Details:
+- Date: [Date]
+- Amount: [Amount]
+- Service: Fundvís Subscription
+- Card: **** **** **** [Last 4 Digits]
+
+Your next billing date is [Date]. You will be charged 999 ISK monthly until you cancel.
+To cancel your subscription at any time, visit your account settings at fundvis.is/settings.
+
+You can view your full billing history and download official invoices from your account settings page.
+
+If you have any questions regarding this charge, please contact us at magnimar@live.com.
+
+Best regards,
+The Fundvís Team
+
+Fundvís by Magni Mar Magnason, Reykjavík, Iceland.
