@@ -569,7 +569,7 @@ class Scraper:
                     prop["fasteignamat"] = "N/A"
 
             # Extract contact information (tengiliður)
-            if prop.get("contact_info") is None:
+            if prop.get("contact_info") is None or prop.get("contact_info") == "N/A":
                 # Try finding by the worker info container
                 contact_section = soup.find("div", class_="details__worker-inner")
                 if not contact_section:
@@ -584,21 +584,34 @@ class Scraper:
                     name_elem = soup.find(class_=re.compile(r"agent-name|details__slidebar-title|agent__name"))
                     name = name_elem.get_text(strip=True) if name_elem else "N/A"
 
-                if contact_section or name != "N/A":
-                    # If we found at least the section or a name, try to extract the rest
-                    # Use soup for extraction if contact_section is None
-                    search_context = contact_section if contact_section else soup
+                search_context = contact_section if contact_section else soup
+                
+                # Company is often not explicitly labeled but might be in a link or text
+                company_elem = soup.find("a", class_="details__slidebar-social-link")
+                company = company_elem.get_text(strip=True) if company_elem else "N/A"
+
+                phone_elem = search_context.find("a", href=re.compile(r"^tel:"))
+                phone = phone_elem.get_text(strip=True) if phone_elem else "N/A"
+
+                email_elem = search_context.find("a", href=re.compile(r"^mailto:"))
+                email = email_elem.get_text(strip=True) if email_elem else "N/A"
+
+                # Fallback: search the description for email and phone
+                if email == "N/A" or phone == "N/A":
+                    description_elem = soup.find(class_=re.compile(r"description__bottom-text|description-box|description"))
+                    text_to_search = description_elem.get_text(separator=" ") if description_elem else page_text
                     
-                    # Company is often not explicitly labeled but might be in a link or text
-                    company_elem = soup.find("a", class_="details__slidebar-social-link")
-                    company = company_elem.get_text(strip=True) if company_elem else "N/A"
+                    if email == "N/A":
+                        email_match = re.search(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", text_to_search)
+                        if email_match:
+                            email = email_match.group(0)
+                    
+                    if phone == "N/A":
+                        phone_match = re.search(r"\b\d{3}[- ]?\d{4}\b", text_to_search)
+                        if phone_match:
+                            phone = phone_match.group(0)
 
-                    phone_elem = search_context.find("a", href=re.compile(r"^tel:"))
-                    phone = phone_elem.get_text(strip=True) if phone_elem else "N/A"
-
-                    email_elem = search_context.find("a", href=re.compile(r"^mailto:"))
-                    email = email_elem.get_text(strip=True) if email_elem else "N/A"
-
+                if name != "N/A" or company != "N/A" or phone != "N/A" or email != "N/A":
                     prop["contact_info"] = {
                         "name": name,
                         "company": company,
