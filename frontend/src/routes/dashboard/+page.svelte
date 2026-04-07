@@ -657,9 +657,9 @@
                         </div>
                     </div>
                     <div class="ml-4">
-                        <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded shadow">
+                        <a href="/upgrade" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded shadow transition-colors">
                             Kaupa áskrift
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
