@@ -202,6 +202,10 @@
     <footer class="py-12 border-t border-gray-100 text-gray-500 bg-white">
         <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
             <div class="font-bold text-gray-900 text-xl tracking-tight">Fundvís</div>
+            <div class="flex gap-6 text-xs">
+                <a href="/terms" class="hover:text-blue-600 transition-colors">Skilmálar</a>
+                <a href="/privacy" class="hover:text-blue-600 transition-colors">Persónuvernd</a>
+            </div>
             <p class="text-xs">© 2026 Fundvís. Allur réttur áskilinn.</p>
         </div>
     </footer>

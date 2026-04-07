@@ -22,5 +22,12 @@ Fundvís provides this platform "as is" and shall not be liable for any indirect
 ## 5. Termination
 We reserve the right to suspend or terminate accounts that violate these terms.
 
-## 6. Contact Information
+## 6. Refund and Cancellation Policy
+Fundvís (sole proprietor: Magni Mar Magnason) provides the following terms regarding refunds and cancellations:
+- **Cancellations:** Users can cancel their subscription at any time through their account dashboard or by contacting us at magnimar@live.com. Cancellations take effect at the end of the current billing period.
+- **Refunds:** All sales are final. Refunds are not available under any circumstances.
+- **Service Failures:** In the event of non-delivery or significant service failures (e.g., technical issues preventing the delivery of updates for more than 48 hours), users will not be issued a refund. However, users may be eligible for a service extension at our sole discretion.
+- **Timeframes:** Any claims regarding service failures must be submitted within 14 days of the incident.
+
+## 7. Contact Information
 For any questions regarding these terms, please contact magnimar@live.com.
