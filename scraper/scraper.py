@@ -18,7 +18,16 @@ import re
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, DateTime, text
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Boolean,
+    Float,
+    DateTime,
+    text,
+)
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
@@ -1445,10 +1454,12 @@ class Scraper:
                 )
                 if last_run and last_run.fasteignanumer_list:
                     last_run_fasteignanumer = last_run.fasteignanumer_list.split(",")
-                
+
                 # Now save current run fasteignanumer
                 current_fasteignanumer_list = [
-                    p.get("fasteignanumer") for p in new_properties if p.get("fasteignanumer")
+                    p.get("fasteignanumer")
+                    for p in new_properties
+                    if p.get("fasteignanumer")
                 ]
                 if current_fasteignanumer_list:
                     new_run = ScraperRun(
@@ -1457,7 +1468,9 @@ class Scraper:
                     )
                     db.add(new_run)
                     db.commit()
-                    logging.info(f"Saved {len(current_fasteignanumer_list)} properties to ScraperRun for user {self.user_id}")
+                    logging.info(
+                        f"Saved {len(current_fasteignanumer_list)} properties to ScraperRun for user {self.user_id}"
+                    )
             except Exception as e:
                 logging.error(f"Failed to fetch or save ScraperRun: {e}")
             finally:
@@ -1465,7 +1478,7 @@ class Scraper:
 
         # Identify properties that were NOT in the last run
         new_since_last_run = []
-        if last_run_fasteignanumer: # Only show this if there was a previous run
+        if last_run_fasteignanumer:  # Only show this if there was a previous run
             for prop in new_properties:
                 fnum = prop.get("fasteignanumer")
                 if fnum and fnum not in last_run_fasteignanumer:
@@ -1590,7 +1603,8 @@ class Scraper:
                 and "fellur niður" not in p.get("open_house").lower()
                 and "seld" not in p.get("open_house").lower()
                 and "3d = opið hús þegar þér hentar" not in p.get("open_house").lower()
-                and "þitt eigið opið hús þegar þér hentar" not in p.get("open_house").lower()
+                and "þitt eigið opið hús þegar þér hentar"
+                not in p.get("open_house").lower()
                 and "kynnir:" not in p.get("open_house").lower()
             ]
             if open_houses:
