@@ -99,6 +99,14 @@ class User(Base):
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 
+class ScraperRun(Base):
+    __tablename__ = "scraper_runs"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    fasteignanumer_list = Column(String, nullable=True)  # Comma separated list
+    created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
+
 # Create tables
 Base.metadata.create_all(bind=engine)
 

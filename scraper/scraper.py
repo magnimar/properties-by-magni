@@ -18,7 +18,16 @@ import re
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Boolean,
+    Float,
+    DateTime,
+    text,
+)
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
@@ -76,6 +85,14 @@ class User(Base):
     ignored_properties = Column(String, nullable=True)
 
 
+class ScraperRun(Base):
+    __tablename__ = "scraper_runs"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=False)
+    fasteignanumer_list = Column(String, nullable=True)  # Comma separated list
+    created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
+
 def get_db_users() -> list[dict]:
     """Fetch verified users and their preferences from the database."""
     if not DATABASE_URL:
@@ -90,6 +107,7 @@ def get_db_users() -> list[dict]:
         user_configs = []
         for u in users:
             config = {
+                "user_id": u.id,
                 "user": u.email,
                 "TO_EMAIL": u.email,
                 "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
@@ -202,6 +220,7 @@ class Scraper:
         """user_config: one element from the database mapping (must include \"user\" and settings)."""
         self.user_config = user_config
         self.args = argparse.Namespace(user=user_config["user"])
+        self.user_id = self.user_config.get("user_id")
 
         self.API_KEY = self.user_config.get("BREVO_API_KEY")
         self.FROM_EMAIL = self.user_config.get("FROM_EMAIL")
@@ -1420,6 +1439,51 @@ class Scraper:
             f"Found {len(new_properties)} properties matching outdoor/garage filters."
         )
 
+        # Fetch the last run's fasteignanumer for this user to identify new properties
+        last_run_fasteignanumer = []
+        if self.user_id and DATABASE_URL:
+            engine = create_engine(DATABASE_URL)
+            SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+            db = SessionLocal()
+            try:
+                last_run = (
+                    db.query(ScraperRun)
+                    .filter(ScraperRun.user_id == self.user_id)
+                    .order_by(ScraperRun.created_at.desc())
+                    .first()
+                )
+                if last_run and last_run.fasteignanumer_list:
+                    last_run_fasteignanumer = last_run.fasteignanumer_list.split(",")
+
+                # Now save current run fasteignanumer
+                current_fasteignanumer_list = [
+                    p.get("fasteignanumer")
+                    for p in new_properties
+                    if p.get("fasteignanumer")
+                ]
+                if current_fasteignanumer_list:
+                    new_run = ScraperRun(
+                        user_id=self.user_id,
+                        fasteignanumer_list=",".join(current_fasteignanumer_list),
+                    )
+                    db.add(new_run)
+                    db.commit()
+                    logging.info(
+                        f"Saved {len(current_fasteignanumer_list)} properties to ScraperRun for user {self.user_id}"
+                    )
+            except Exception as e:
+                logging.error(f"Failed to fetch or save ScraperRun: {e}")
+            finally:
+                db.close()
+
+        # Identify properties that were NOT in the last run
+        new_since_last_run = []
+        if last_run_fasteignanumer:  # Only show this if there was a previous run
+            for prop in new_properties:
+                fnum = prop.get("fasteignanumer")
+                if fnum and fnum not in last_run_fasteignanumer:
+                    new_since_last_run.append(prop)
+
         deal_of_the_day = None
         best_ratio = float("inf")
         for prop in new_properties:
@@ -1539,11 +1603,20 @@ class Scraper:
                 and "fellur niður" not in p.get("open_house").lower()
                 and "seld" not in p.get("open_house").lower()
                 and "3d = opið hús þegar þér hentar" not in p.get("open_house").lower()
+                and "þitt eigið opið hús þegar þér hentar"
+                not in p.get("open_house").lower()
+                and "kynnir:" not in p.get("open_house").lower()
             ]
             if open_houses:
                 # We sort them by date if possible, but for now just showing them
                 html_content += self.generate_property_html(
                     open_houses, "Næstu opin hús 🏠"
+                )
+
+            # --- New Properties Section ---
+            if new_since_last_run:
+                html_content += self.generate_property_html(
+                    new_since_last_run, "Nýjar eignir síðan síðast ✨"
                 )
 
             # --- Property Listings ---
