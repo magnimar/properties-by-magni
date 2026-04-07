@@ -9,6 +9,9 @@ Transaction Details:
 - Amount: [Amount]
 - Service: Fundvís Subscription
 
+Your next billing date is [Date]. You will be charged 999 ISK.
+To cancel your subscription at any time, visit your account settings at fundvis.is/settings.
+
 You can view your full billing history and download official invoices from your account settings page.
 
 If you have any questions regarding this charge, please contact us at magnimar@live.com.
