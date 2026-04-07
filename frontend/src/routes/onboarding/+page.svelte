@@ -103,6 +103,24 @@
     }
 
     async function saveOnboarding(isFinal = false) {
+        // Range validation
+        if (minBedrooms > maxBedrooms) {
+            message = 'Lágmarksfjöldi svefnherbergja getur ekki verið meiri en hámarksfjöldi.';
+            return false;
+        }
+        if (parseNumber(minPrice) > parseNumber(maxPrice)) {
+            message = 'Lágmarksverð getur ekki verið hærra en hámarksverð.';
+            return false;
+        }
+        if (minSize > maxSize) {
+            message = 'Lágmarksstærð getur ekki verið meiri en hámarksstærð.';
+            return false;
+        }
+        if (minBuildYear > maxBuildYear) {
+            message = 'Elsta byggingarár getur ekki verið hærra en nýjasta byggingarár.';
+            return false;
+        }
+
         const token = getToken();
         try {
             const res = await fetch(`${getApiUrl()}/me/preferences`, {
@@ -172,19 +190,35 @@
 
     function nextStep() {
         if (step === 1) {
-            const price = parseNumber(maxPrice);
-            if (price < 40000000) {
+            const pMin = parseNumber(minPrice);
+            const pMax = parseNumber(maxPrice);
+            if (pMin > pMax) {
+                message = 'Lágmarksverð getur ekki verið hærra en hámarksverð.';
+                return;
+            }
+            if (pMax < 40000000) {
                 message = 'Vinsamlegast sláðu inn hámarksverð sem er að minnsta kosti 40.000.000 ISK.';
                 return;
             }
-        }
-        
-        if (step === 5 && selectedZipCodes.length === 0) {
+        } else if (step === 2) {
+            if (minBedrooms > maxBedrooms) {
+                message = 'Lágmarksfjöldi svefnherbergja getur ekki verið meiri en hámarksfjöldi.';
+                return;
+            }
+        } else if (step === 3) {
+            if (minSize > maxSize) {
+                message = 'Lágmarksstærð getur ekki verið meiri en hámarksstærð.';
+                return;
+            }
+        } else if (step === 4) {
+            if (minBuildYear > maxBuildYear) {
+                message = 'Elsta byggingarár getur ekki verið hærra en nýjasta byggingarár.';
+                return;
+            }
+        } else if (step === 5 && selectedZipCodes.length === 0) {
             message = 'Vinsamlegast veldu að minnsta kosti eitt póstnúmer til að halda áfram.';
             return;
-        }
-
-        if (step === 6) {
+        } else if (step === 6) {
             if (!(einbylishus || fjolbylishus || radhus_parhus || parhus || haed || sumarhus || jord_lod || atvinnuhusnaedi || hesthus || oflokkad)) {
                 message = 'Vinsamlegast veldu að minnsta kosti eina tegund eignar.';
                 return;
@@ -442,7 +476,10 @@
                                     <div class="flex flex-col gap-2">
                                         <button 
                                             type="button" 
-                                            onclick={() => minBedrooms++}
+                                            onclick={() => {
+                                                minBedrooms++;
+                                                if (minBedrooms > maxBedrooms) maxBedrooms = minBedrooms;
+                                            }}
                                             class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
                                         >+</button>
                                         <button 
@@ -467,7 +504,10 @@
                                         >+</button>
                                         <button 
                                             type="button" 
-                                            onclick={() => maxBedrooms = Math.max(0, maxBedrooms - 1)}
+                                            onclick={() => {
+                                                maxBedrooms = Math.max(0, maxBedrooms - 1);
+                                                if (maxBedrooms < minBedrooms) minBedrooms = maxBedrooms;
+                                            }}
                                             class="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold text-xl transition-colors"
                                         >−</button>
                                     </div>

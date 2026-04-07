@@ -357,6 +357,40 @@ async def update_my_preferences(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    if (
+        prefs.min_price is not None
+        and prefs.max_price is not None
+        and prefs.min_price > prefs.max_price
+    ):
+        raise HTTPException(
+            status_code=400, detail="Min price cannot be greater than max price"
+        )
+    if (
+        prefs.min_bedrooms is not None
+        and prefs.max_bedrooms is not None
+        and prefs.min_bedrooms > prefs.max_bedrooms
+    ):
+        raise HTTPException(
+            status_code=400, detail="Min bedrooms cannot be greater than max bedrooms"
+        )
+    if (
+        prefs.min_size is not None
+        and prefs.max_size is not None
+        and prefs.min_size > prefs.max_size
+    ):
+        raise HTTPException(
+            status_code=400, detail="Min size cannot be greater than max size"
+        )
+    if (
+        prefs.min_build_year is not None
+        and prefs.max_build_year is not None
+        and prefs.min_build_year > prefs.max_build_year
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Min build year cannot be greater than max build year",
+        )
+
     current_user.min_price = prefs.min_price
     current_user.max_price = prefs.max_price
     current_user.min_bedrooms = prefs.min_bedrooms
