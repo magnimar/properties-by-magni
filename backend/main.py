@@ -387,7 +387,8 @@ async def update_my_preferences(
         and prefs.min_build_year > prefs.max_build_year
     ):
         raise HTTPException(
-            status_code=400, detail="Min build year cannot be greater than max build year"
+            status_code=400,
+            detail="Min build year cannot be greater than max build year",
         )
 
     current_user.min_price = prefs.min_price
