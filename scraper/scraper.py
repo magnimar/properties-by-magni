@@ -577,15 +577,23 @@ class Scraper:
                     contact_section = soup.find("div", class_="details__slidebar-box")
 
                 if contact_section:
-                    name_elem = contact_section.find(class_=re.compile(r"agent-name|details__slidebar-title|agent__name"))
+                    name_elem = contact_section.find(
+                        class_=re.compile(
+                            r"agent-name|details__slidebar-title|agent__name"
+                        )
+                    )
                     name = name_elem.get_text(strip=True) if name_elem else "N/A"
                 else:
                     # Final fallback for name if contact_section was not found
-                    name_elem = soup.find(class_=re.compile(r"agent-name|details__slidebar-title|agent__name"))
+                    name_elem = soup.find(
+                        class_=re.compile(
+                            r"agent-name|details__slidebar-title|agent__name"
+                        )
+                    )
                     name = name_elem.get_text(strip=True) if name_elem else "N/A"
 
                 search_context = contact_section if contact_section else soup
-                
+
                 # Company is often not explicitly labeled but might be in a link or text
                 company_elem = soup.find("a", class_="details__slidebar-social-link")
                 company = company_elem.get_text(strip=True) if company_elem else "N/A"
@@ -598,25 +606,41 @@ class Scraper:
 
                 # Fallback: search the description for email and phone
                 if email == "N/A" or phone == "N/A":
-                    description_elem = soup.find(class_=re.compile(r"description__bottom-text|description-box|description"))
-                    text_to_search = description_elem.get_text(separator=" ") if description_elem else page_text
-                    
+                    description_elem = soup.find(
+                        class_=re.compile(
+                            r"description__bottom-text|description-box|description"
+                        )
+                    )
+                    text_to_search = (
+                        description_elem.get_text(separator=" ")
+                        if description_elem
+                        else page_text
+                    )
+
                     if email == "N/A":
-                        email_match = re.search(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", text_to_search)
+                        email_match = re.search(
+                            r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+",
+                            text_to_search,
+                        )
                         if email_match:
                             email = email_match.group(0)
-                    
+
                     if phone == "N/A":
                         phone_match = re.search(r"\b\d{3}[- ]?\d{4}\b", text_to_search)
                         if phone_match:
                             phone = phone_match.group(0)
 
-                if name != "N/A" or company != "N/A" or phone != "N/A" or email != "N/A":
+                if (
+                    name != "N/A"
+                    or company != "N/A"
+                    or phone != "N/A"
+                    or email != "N/A"
+                ):
                     prop["contact_info"] = {
                         "name": name,
                         "company": company,
                         "phone": phone,
-                        "email": email
+                        "email": email,
                     }
                 else:
                     prop["contact_info"] = "N/A"
@@ -1301,7 +1325,9 @@ class Scraper:
                 logging.info(f"  Built: {prop['build_year']}")
             if prop.get("contact_info") and isinstance(prop["contact_info"], dict):
                 c = prop["contact_info"]
-                logging.info(f"  Contact: {c['name']} ({c['company']}) - {c['phone']} / {c['email']}")
+                logging.info(
+                    f"  Contact: {c['name']} ({c['company']}) - {c['phone']} / {c['email']}"
+                )
             if prop.get("has_balcony") is not None:
                 logging.info(f"  Balcony: {'yes' if prop['has_balcony'] else 'no'}")
             if prop.get("has_terrace") is not None:
