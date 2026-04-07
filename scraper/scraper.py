@@ -570,18 +570,33 @@ class Scraper:
 
             # Extract contact information (tengiliður)
             if prop.get("contact_info") is None:
-                contact_section = soup.find("div", class_="estate__contact")
+                # Try finding by the worker info container
+                contact_section = soup.find("div", class_="details__worker-inner")
+                if not contact_section:
+                    # Fallback to the sidebar box structure
+                    contact_section = soup.find("div", class_="details__slidebar-box")
+
                 if contact_section:
-                    name_elem = contact_section.find("h4")
+                    name_elem = contact_section.find(class_=re.compile(r"agent-name|details__slidebar-title|agent__name"))
+                    name = name_elem.get_text(strip=True) if name_elem else "N/A"
+                else:
+                    # Final fallback for name if contact_section was not found
+                    name_elem = soup.find(class_=re.compile(r"agent-name|details__slidebar-title|agent__name"))
                     name = name_elem.get_text(strip=True) if name_elem else "N/A"
 
-                    company_elem = contact_section.find("p")
+                if contact_section or name != "N/A":
+                    # If we found at least the section or a name, try to extract the rest
+                    # Use soup for extraction if contact_section is None
+                    search_context = contact_section if contact_section else soup
+                    
+                    # Company is often not explicitly labeled but might be in a link or text
+                    company_elem = soup.find("a", class_="details__slidebar-social-link")
                     company = company_elem.get_text(strip=True) if company_elem else "N/A"
 
-                    phone_elem = contact_section.find("a", href=re.compile(r"^tel:"))
+                    phone_elem = search_context.find("a", href=re.compile(r"^tel:"))
                     phone = phone_elem.get_text(strip=True) if phone_elem else "N/A"
 
-                    email_elem = contact_section.find("a", href=re.compile(r"^mailto:"))
+                    email_elem = search_context.find("a", href=re.compile(r"^mailto:"))
                     email = email_elem.get_text(strip=True) if email_elem else "N/A"
 
                     prop["contact_info"] = {
@@ -591,7 +606,6 @@ class Scraper:
                         "email": email
                     }
                 else:
-                    # Fallback or just set to N/A
                     prop["contact_info"] = "N/A"
 
             if not prop.get("open_house") or prop.get("open_house").strip().lower() in [
@@ -1295,6 +1309,7 @@ class Scraper:
                 or prop.get("build_year") is None
                 or prop.get("fasteignamat") is None
                 or prop.get("contact_info") is None
+                or prop.get("contact_info") == "N/A"
                 or not prop.get("open_house")
                 or prop.get("open_house").strip().lower() in ["opið hús", "opið hús:"]
                 or not prop.get("image_url")
