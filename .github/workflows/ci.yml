@@ -21,8 +21,11 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install ansible-lint
-        run: pip install ansible-lint
+      - name: Install ansible-lint and ansible-core
+        run: pip install ansible-lint ansible-core
+
+      - name: Install Ansible collections
+        run: ansible-galaxy collection install community.postgresql
 
       - name: Run Ansible Lint
         run: ansible-lint devops/ansible/playbook.yml
