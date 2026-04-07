@@ -65,4 +65,6 @@ if __name__ == "__main__":
     process_and_send("/opt/properties-by-magni/compliance/welcome_email.txt", to_email)
     print("---")
     process_and_send("/opt/properties-by-magni/compliance/receipt_email.txt", to_email)
+    print("---")
+    process_and_send("/opt/properties-by-magni/compliance/renewal_email.txt", to_email)
 
