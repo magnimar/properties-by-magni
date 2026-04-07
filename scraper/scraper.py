@@ -1533,8 +1533,9 @@ class Scraper:
 
             # --- Open Houses Section ---
             open_houses = [
-                p for p in new_properties
-                if p.get("open_house") 
+                p
+                for p in new_properties
+                if p.get("open_house")
                 and "fellur niður" not in p.get("open_house").lower()
                 and "seld" not in p.get("open_house").lower()
                 and "3d = opið hús þegar þér hentar" not in p.get("open_house").lower()
