@@ -517,6 +517,26 @@
     let isSaving = $state(false);
 
     async function savePreferences(silent = false) {
+        if (!silent) {
+            // Basic range validation
+            if (minBedrooms > maxBedrooms) {
+                message = 'Lágmarksfjöldi svefnherbergja getur ekki verið meiri en hámarksfjöldi.';
+                return false;
+            }
+            if (parseNumber(minPrice) > parseNumber(maxPrice)) {
+                message = 'Lágmarksverð getur ekki verið hærra en hámarksverð.';
+                return false;
+            }
+            if (minSize > maxSize) {
+                message = 'Lágmarksstærð getur ekki verið meiri en hámarksstærð.';
+                return false;
+            }
+            if (minBuildYear > maxBuildYear) {
+                message = 'Elsta byggingarár getur ekki verið hærra en nýjasta byggingarár.';
+                return false;
+            }
+        }
+
         const token = getToken();
         if (!silent) {
             isSaving = true;
@@ -681,7 +701,10 @@
                                 </div>
                                 <button 
                                     type="button" 
-                                    onclick={() => minBedrooms++}
+                                    onclick={() => {
+                                        minBedrooms++;
+                                        if (minBedrooms > maxBedrooms) maxBedrooms = minBedrooms;
+                                    }}
                                     class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
                                 >+</button>
                             </div>
@@ -691,7 +714,10 @@
                             <div class="flex items-center gap-4">
                                 <button 
                                     type="button" 
-                                    onclick={() => maxBedrooms = Math.max(0, maxBedrooms - 1)}
+                                    onclick={() => {
+                                        maxBedrooms = Math.max(0, maxBedrooms - 1);
+                                        if (maxBedrooms < minBedrooms) minBedrooms = maxBedrooms;
+                                    }}
                                     class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 font-bold transition-colors"
                                 >−</button>
                                 <div class="w-12 h-12 rounded-full border-2 border-blue-500 flex items-center justify-center text-xl font-bold text-blue-700">
