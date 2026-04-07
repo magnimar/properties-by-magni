@@ -45,7 +45,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
-                        <p class="ml-3 text-base text-gray-700">Fullt aðgengi að fasteignagögnum</p>
+                        <p class="ml-3 text-base text-gray-700">Fullt aðgengi að eins mörgum fasteignum og þú vilt á dag.</p>
                     </li>
                     <li class="flex items-start">
                         <div class="flex-shrink-0">
