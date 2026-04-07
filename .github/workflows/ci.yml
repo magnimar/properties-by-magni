@@ -25,7 +25,7 @@ jobs:
         run: pip install ansible-lint ansible-core
 
       - name: Install Ansible collections
-        run: ansible-galaxy collection install community.postgresql
+        run: ansible-galaxy collection install community.postgresql community.general
 
       - name: Run Ansible Lint
         run: ansible-lint devops/ansible/playbook.yml
