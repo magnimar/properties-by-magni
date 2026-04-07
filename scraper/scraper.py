@@ -1430,27 +1430,46 @@ class Scraper:
             f"Found {len(new_properties)} properties matching outdoor/garage filters."
         )
 
-        # Save the fasteignanumer for this run to the database
+        # Fetch the last run's fasteignanumer for this user to identify new properties
+        last_run_fasteignanumer = []
         if self.user_id and DATABASE_URL:
-            fasteignanumer_list = [
-                p.get("fasteignanumer") for p in new_properties if p.get("fasteignanumer")
-            ]
-            if fasteignanumer_list:
-                engine = create_engine(DATABASE_URL)
-                SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-                db = SessionLocal()
-                try:
+            engine = create_engine(DATABASE_URL)
+            SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+            db = SessionLocal()
+            try:
+                last_run = (
+                    db.query(ScraperRun)
+                    .filter(ScraperRun.user_id == self.user_id)
+                    .order_by(ScraperRun.created_at.desc())
+                    .first()
+                )
+                if last_run and last_run.fasteignanumer_list:
+                    last_run_fasteignanumer = last_run.fasteignanumer_list.split(",")
+                
+                # Now save current run fasteignanumer
+                current_fasteignanumer_list = [
+                    p.get("fasteignanumer") for p in new_properties if p.get("fasteignanumer")
+                ]
+                if current_fasteignanumer_list:
                     new_run = ScraperRun(
                         user_id=self.user_id,
-                        fasteignanumer_list=",".join(fasteignanumer_list),
+                        fasteignanumer_list=",".join(current_fasteignanumer_list),
                     )
                     db.add(new_run)
                     db.commit()
-                    logging.info(f"Saved {len(fasteignanumer_list)} properties to ScraperRun for user {self.user_id}")
-                except Exception as e:
-                    logging.error(f"Failed to save ScraperRun: {e}")
-                finally:
-                    db.close()
+                    logging.info(f"Saved {len(current_fasteignanumer_list)} properties to ScraperRun for user {self.user_id}")
+            except Exception as e:
+                logging.error(f"Failed to fetch or save ScraperRun: {e}")
+            finally:
+                db.close()
+
+        # Identify properties that were NOT in the last run
+        new_since_last_run = []
+        if last_run_fasteignanumer: # Only show this if there was a previous run
+            for prop in new_properties:
+                fnum = prop.get("fasteignanumer")
+                if fnum and fnum not in last_run_fasteignanumer:
+                    new_since_last_run.append(prop)
 
         deal_of_the_day = None
         best_ratio = float("inf")
@@ -1576,6 +1595,12 @@ class Scraper:
                 # We sort them by date if possible, but for now just showing them
                 html_content += self.generate_property_html(
                     open_houses, "Næstu opin hús 🏠"
+                )
+
+            # --- New Properties Section ---
+            if new_since_last_run:
+                html_content += self.generate_property_html(
+                    new_since_last_run, "Nýjar eignir síðan síðast ✨"
                 )
 
             # --- Property Listings ---
