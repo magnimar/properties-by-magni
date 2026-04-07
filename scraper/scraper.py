@@ -1532,7 +1532,12 @@ class Scraper:
                 )
 
             # --- Open Houses Section ---
-            open_houses = [p for p in new_properties if p.get("open_house")]
+            open_houses = [
+                p for p in new_properties
+                if p.get("open_house") 
+                and "fellur niður" not in p.get("open_house").lower()
+                and "seld" not in p.get("open_house").lower()
+            ]
             if open_houses:
                 # We sort them by date if possible, but for now just showing them
                 html_content += self.generate_property_html(
