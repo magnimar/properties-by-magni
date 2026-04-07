@@ -1,0 +1,17 @@
+Subject: Your Fundvís Receipt
+
+Hello,
+
+Thank you for your recent transaction with Fundvís.
+
+Transaction Details:
+- Date: [Date]
+- Amount: [Amount]
+- Service: Fundvís Subscription
+
+You can view your full billing history and download official invoices from your account settings page.
+
+If you have any questions regarding this charge, please contact us at magnimar@live.com.
+
+Best regards,
+The Fundvís Team
