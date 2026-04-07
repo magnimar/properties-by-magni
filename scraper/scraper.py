@@ -1531,6 +1531,21 @@ class Scraper:
                     [deal_of_the_day], "Díll dagsins! 🔥"
                 )
 
+            # --- Open Houses Section ---
+            open_houses = [
+                p
+                for p in new_properties
+                if p.get("open_house")
+                and "fellur niður" not in p.get("open_house").lower()
+                and "seld" not in p.get("open_house").lower()
+                and "3d = opið hús þegar þér hentar" not in p.get("open_house").lower()
+            ]
+            if open_houses:
+                # We sort them by date if possible, but for now just showing them
+                html_content += self.generate_property_html(
+                    open_houses, "Næstu opin hús 🏠"
+                )
+
             # --- Property Listings ---
             for zip_code in allowed_zips + ["Annað"]:
                 if zip_code in properties_by_zip and properties_by_zip[zip_code]:
