@@ -96,6 +96,9 @@ class User(Base):
     onboarding_completed = Column(Boolean, default=False)
     scrape_hour = Column(Integer, default=20)
     ignored_properties = Column(String, nullable=True)  # Comma separated list
+    email_days = Column(
+        String, default="0,3"
+    )  # Comma separated list of weekdays (0=Monday)
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 
@@ -202,6 +205,10 @@ with engine.begin() as conn:
         )
     if "ignored_properties" not in existing_columns:
         conn.execute(text("ALTER TABLE users ADD COLUMN ignored_properties TEXT;"))
+    if "email_days" not in existing_columns:
+        conn.execute(
+            text("ALTER TABLE users ADD COLUMN email_days TEXT DEFAULT '0,3';")
+        )
 
 # --- Password Hashing ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -249,6 +256,7 @@ class UserPreferences(BaseModel):
     max_build_year: int | None = None
     zip_codes: list[str] | None = None
     ignored_streets: list[str] | None = None
+    email_days: list[int] | None = None
     einbylishus: bool = False
     fjolbylishus: bool = False
     atvinnuhusnaedi: bool = False
@@ -356,6 +364,11 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
         "want_garage": current_user.want_garage,
         "onboarding_completed": current_user.onboarding_completed,
         "scrape_hour": current_user.scrape_hour,
+        "email_days": (
+            [int(d) for d in current_user.email_days.split(",")]
+            if current_user.email_days
+            else []
+        ),
     }
 
 
@@ -425,6 +438,8 @@ async def update_my_preferences(
         current_user.zip_codes = ",".join(prefs.zip_codes)
     if prefs.ignored_streets is not None:
         current_user.ignored_streets = ",".join(prefs.ignored_streets)
+    if prefs.email_days is not None:
+        current_user.email_days = ",".join(map(str, prefs.email_days))
     db.commit()
     return {"message": "Preferences updated successfully"}
 

@@ -3,7 +3,7 @@
     import { getApiUrl } from '$lib/config';
     
     let user = $state(null);
-    let step = $state(0); // 0: Intro, 1: Price Range, 2: Bedrooms, 3: Size, 4: Build Year, 5: Zip Codes, 6: Property Types, 7: Outdoor, 8: Garage, 9: Scrape Hour, 10: Review
+    let step = $state(0); // 0: Intro, 1: Price Range, 2: Bedrooms, 3: Size, 4: Build Year, 5: Zip Codes, 6: Property Types, 7: Outdoor, 8: Garage, 9: Email Days, 10: Scrape Hour, 11: Review
     
     let minPrice = $state('0');
     let maxPrice = $state('0');
@@ -14,6 +14,7 @@
     let minBuildYear = $state(1900);
     let maxBuildYear = $state(2027);
     let scrapeHour = $state(20);
+    let emailDays = $state([0, 3]);
     let selectedZipCodes = $state([]);
     let einbylishus = $state(false);
     let fjolbylishus = $state(false);
@@ -79,6 +80,7 @@
                 minBuildYear = user.min_build_year || 1900;
                 maxBuildYear = user.max_build_year || 2027;
                 scrapeHour = user.scrape_hour !== undefined ? user.scrape_hour : 20;
+                emailDays = user.email_days || [0, 3];
                 selectedZipCodes = user.zip_codes || [];
                 einbylishus = user.einbylishus || false;
                 fjolbylishus = user.fjolbylishus || false;
@@ -139,6 +141,7 @@
                     min_build_year: minBuildYear,
                     max_build_year: maxBuildYear,
                     scrape_hour: scrapeHour,
+                    email_days: emailDays,
                     zip_codes: selectedZipCodes,
                     einbylishus: einbylishus,
                     fjolbylishus: fjolbylishus,
@@ -227,7 +230,7 @@
 
         message = ''; // Clear message if validation passes
 
-        if (step < 10) {
+        if (step < 11) {
             step++;
             // Optional: Auto-save at each step
             saveOnboarding(false);
@@ -383,6 +386,28 @@
         return types.length > 0 ? types.join(", ") : "Engar valdar";
     }
 
+    const dayLabels = [
+        { id: 0, label: 'Mánudagur', short: 'Mán' },
+        { id: 1, label: 'Þriðjudagur', short: 'Þri' },
+        { id: 2, label: 'Miðvikudagur', short: 'Mið' },
+        { id: 3, label: 'Fimmtudagur', short: 'Fim' },
+        { id: 4, label: 'Föstudagur', short: 'Föst' },
+        { id: 5, label: 'Laugardagur', short: 'Laug' },
+        { id: 6, label: 'Sunnudagur', short: 'Sun' }
+    ];
+
+    function getDayLabel(id) {
+        return dayLabels.find(d => d.id === id)?.label || '';
+    }
+
+    function toggleEmailDay(day) {
+        if (emailDays.includes(day)) {
+            emailDays = emailDays.filter(d => d !== day);
+        } else {
+            emailDays = [...emailDays, day].sort();
+        }
+    }
+
     onMount(() => {
         fetchProfile();
     });
@@ -391,16 +416,16 @@
 <div class="min-h-screen bg-white font-sans text-gray-900">
     <div class="max-w-2xl mx-auto px-6 py-12 md:py-20">
         <!-- Progress Bar -->
-        {#if step > 0 && step < 10}
+        {#if step > 0 && step < 11}
             <div class="mb-12">
                 <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                     <div 
                         class="h-full bg-blue-600 transition-all duration-500 ease-out"
-                        style="width: {(step / 10) * 100}%"
+                        style="width: {(step / 11) * 100}%"
                     ></div>
                 </div>
                 <div class="mt-2 text-right text-sm font-bold text-blue-600">
-                    Skref {step} af 10
+                    Skref {step} af 11
                 </div>
             </div>
         {/if}
@@ -707,7 +732,29 @@
 
                 {:else if step === 9}
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 mb-8">Hvenær viltu fá tölvupóstinn?</h2>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Hvaða daga viltu fá tölvupóstinn?</h2>
+                        
+                        <div class="flex flex-col items-center">
+                            <p class="text-gray-600 mb-6 text-center">
+                                Veldu þá daga sem þú vilt fá samantekt um nýjar eignir.
+                            </p>
+                            <div class="flex flex-wrap justify-center gap-2 w-full max-w-lg">
+                                {#each dayLabels as day}
+                                    <button
+                                        type="button"
+                                        onclick={() => toggleEmailDay(day.id)}
+                                        class="px-4 py-2 rounded-xl border-2 font-bold transition-all text-sm {emailDays.includes(day.id) ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
+                                    >
+                                        {day.label}
+                                    </button>
+                                {/each}
+                            </div>
+                        </div>
+                    </div>
+
+                {:else if step === 10}
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Klukkan hvað viltu fá tölvupóstinn?</h2>
                         
                         <div class="flex flex-col items-center">
                             <select 
@@ -719,12 +766,12 @@
                                 {/each}
                             </select>
                             <p class="mt-6 text-gray-500 text-center">
-                                Við leitum að nýjum eignum og sendum þér samantekt á þessum tíma á hverjum degi.
+                                Við leitum að nýjum eignum og sendum þér samantekt á þessum tíma á völdum dögum.
                             </p>
                         </div>
                     </div>
 
-                {:else if step === 10}
+                {:else if step === 11}
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Frábært! Hér er samantekt:</h2>
                         
@@ -773,9 +820,17 @@
                                 <span class="text-gray-500">Bílskúr</span>
                                 <span class="font-bold">{want_garage ? 'Já' : 'Skiptir ekki máli'}</span>
                             </div>
-                            <div class="flex justify-between">
+                            <div class="flex justify-between border-b border-gray-200 pb-2">
                                 <span class="text-gray-500">Tími tölvupósts</span>
                                 <span class="font-bold">{scrapeHour}:00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Dagar</span>
+                                <span class="font-bold text-right ml-4">
+                                    {#if emailDays.length === 7}Hverjum degi
+                                    {:else}{emailDays.map(d => getDayLabel(d)).join(', ')}
+                                    {/if}
+                                </span>
                             </div>
                         </div>
 
@@ -788,7 +843,7 @@
                     </div>
                 {/if}
 
-                {#if step > 0 && step < 10}
+                {#if step > 0 && step < 11}
                     <div class="mt-8 pt-8 border-t border-gray-100 flex justify-between gap-4">
                         <button 
                             onclick={prevStep}
@@ -821,7 +876,13 @@
             </div>
             <h3 class="text-2xl font-bold text-gray-900 mb-2">Frábært!</h3>
             <p class="text-gray-600 mb-8">
-                Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst með eignum sem passa við þínar kröfur.
+                Þú hefur vistað stillingar. Þú munt fá tölvupóst kl. {scrapeHour}:00 á 
+                {#if emailDays.length === 7}
+                    hverjum degi
+                {:else}
+                    {emailDays.map(d => getDayLabel(d).toLowerCase()).join(', ')}
+                {/if}
+                með eignum sem passa við þínar kröfur.
             </p>
             <div class="flex flex-col gap-3">
                 <button 
