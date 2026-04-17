@@ -83,6 +83,7 @@ class User(Base):
     want_garage = Column(Boolean, default=False)
     scrape_hour = Column(Integer, default=20)
     ignored_properties = Column(String, nullable=True)
+    email_days = Column(String, default="0,3")
 
 
 class ScraperRun(Base):
@@ -129,6 +130,7 @@ def get_db_users() -> list[dict]:
                 "outdoor_filter": u.outdoor_filter or "none",
                 "want_garage": u.want_garage or False,
                 "scrape_hour": u.scrape_hour if u.scrape_hour is not None else 20,
+                "email_days": u.email_days or "0,3",
                 "ignored_strings": (
                     u.ignored_streets.split(",") if u.ignored_streets else []
                 ),
@@ -163,6 +165,7 @@ def run_schedule_loop():
         now = datetime.now()
         current_hour = now.hour
         current_date = now.date()
+        current_weekday = now.weekday()
 
         user_configs = get_db_users()
         users_to_run = []
@@ -170,8 +173,10 @@ def run_schedule_loop():
         for config in user_configs:
             email = config["user"]
             user_scrape_hour = config.get("scrape_hour", 20)
+            email_days = config.get("email_days", "0,3").split(",")
+            email_days = [int(d) for d in email_days if d.strip().isdigit()]
 
-            if user_scrape_hour == current_hour:
+            if user_scrape_hour == current_hour and current_weekday in email_days:
                 if last_runs.get(email) != current_date:
                     users_to_run.append(config)
                     last_runs[email] = current_date

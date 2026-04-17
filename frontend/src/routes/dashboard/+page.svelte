@@ -12,6 +12,7 @@
     let minBuildYear = $state(1900);
     let maxBuildYear = $state(2027);
     let scrapeHour = $state(20);
+    let emailDays = $state([0, 3]);
     let selectedZipCodes = $state([]);
     let ignoredStreets = $state([]);
     let einbylishus = $state(false);
@@ -379,10 +380,26 @@
         return options.length > 0 && options.every(o => selectedZipCodes.includes(o.code));
     }
 
-    function formatNumber(val) {
-        if (!val && val !== 0) return '';
-        let num = String(val).replace(/\./g, '').replace(/\D/g, '');
-        return num ? parseInt(num, 10).toLocaleString('de-DE') : '';
+    function toggleEmailDay(day) {
+        if (emailDays.includes(day)) {
+            emailDays = emailDays.filter(d => d !== day);
+        } else {
+            emailDays = [...emailDays, day].sort();
+        }
+    }
+
+    const dayLabels = [
+        { id: 0, label: 'Mánudagur', short: 'Mán' },
+        { id: 1, label: 'Þriðjudagur', short: 'Þri' },
+        { id: 2, label: 'Miðvikudagur', short: 'Mið' },
+        { id: 3, label: 'Fimmtudagur', short: 'Fim' },
+        { id: 4, label: 'Föstudagur', short: 'Föst' },
+        { id: 5, label: 'Laugardagur', short: 'Laug' },
+        { id: 6, label: 'Sunnudagur', short: 'Sun' }
+    ];
+
+    function getDayLabel(id) {
+        return dayLabels.find(d => d.id === id)?.label || '';
     }
 
     function parseNumber(val) {
@@ -448,6 +465,7 @@
                 minBuildYear = user.min_build_year || 1900;
                 maxBuildYear = user.max_build_year || 2027;
                 scrapeHour = user.scrape_hour !== undefined ? user.scrape_hour : 20;
+                emailDays = user.email_days || [0, 3];
                 selectedZipCodes = (user.zip_codes || []).map(z => {
                     const match = String(z).match(/\d{3}/);
                     return match ? match[0] : null;
@@ -560,6 +578,7 @@
                     min_build_year: minBuildYear,
                     max_build_year: maxBuildYear,
                     scrape_hour: scrapeHour,
+                    email_days: emailDays,
                     zip_codes: selectedZipCodes,
                     ignored_streets: ignoredStreets,
                     einbylishus: einbylishus,
@@ -1107,7 +1126,22 @@
             <div class="mb-6">
                 
                 <div class="mb-8 flex flex-col items-center w-full">
-                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Hvenær viltu fá tölvupóstinn?</span>
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Dagar sem þú færð tölvupóst</span>
+                    <div class="flex flex-wrap justify-center gap-2 w-full">
+                        {#each dayLabels as day}
+                            <button
+                                type="button"
+                                onclick={() => toggleEmailDay(day.id)}
+                                class="px-3 py-2 rounded-xl border-2 font-bold transition-all text-sm {emailDays.includes(day.id) ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-100 text-gray-600 hover:border-gray-200'}"
+                            >
+                                {day.label}
+                            </button>
+                        {/each}
+                    </div>
+                </div>
+
+                <div class="mb-8 flex flex-col items-center w-full">
+                    <span class="block text-sm uppercase tracking-wider font-bold text-gray-500 mb-3 text-center">Klukkan hvað færðu tölvupóstinn?</span>
                     <select 
                         bind:value={scrapeHour}
                         class="w-full max-w-[200px] p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white text-center font-semibold text-lg"
@@ -1164,7 +1198,15 @@
                 </div>
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Frábært!</h3>
                 <p class="text-gray-600 mb-8">
-                    Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst milli 13 og 14 með eignum sem passa við þínar kröfur.
+                    Þú hefur vistað stillingar. Þú munt fá tölvupóst kl. {scrapeHour}:00 á 
+                    {#if emailDays.length === 7}
+                        hverjum degi
+                    {:else if emailDays.length === 0}
+                        engum degi (vaktin er óvirk)
+                    {:else}
+                        {emailDays.map(d => getDayLabel(d).toLowerCase()).join(', ')}
+                    {/if}
+                    með eignum sem passa við þínar kröfur.
                 </p>
                 <div class="flex flex-col gap-3">
                     <button

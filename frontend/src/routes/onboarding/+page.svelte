@@ -14,6 +14,7 @@
     let minBuildYear = $state(1900);
     let maxBuildYear = $state(2027);
     let scrapeHour = $state(20);
+    let emailDays = $state([0, 3]);
     let selectedZipCodes = $state([]);
     let einbylishus = $state(false);
     let fjolbylishus = $state(false);
@@ -79,6 +80,7 @@
                 minBuildYear = user.min_build_year || 1900;
                 maxBuildYear = user.max_build_year || 2027;
                 scrapeHour = user.scrape_hour !== undefined ? user.scrape_hour : 20;
+                emailDays = user.email_days || [0, 3];
                 selectedZipCodes = user.zip_codes || [];
                 einbylishus = user.einbylishus || false;
                 fjolbylishus = user.fjolbylishus || false;
@@ -139,6 +141,7 @@
                     min_build_year: minBuildYear,
                     max_build_year: maxBuildYear,
                     scrape_hour: scrapeHour,
+                    email_days: emailDays,
                     zip_codes: selectedZipCodes,
                     einbylishus: einbylishus,
                     fjolbylishus: fjolbylishus,
@@ -381,6 +384,20 @@
         if (jord_lod) types.push("Jörð / Lóð");
         if (atvinnuhusnaedi) types.push("Atvinnuhúsnæði");
         return types.length > 0 ? types.join(", ") : "Engar valdar";
+    }
+
+    const dayLabels = [
+        { id: 0, label: 'Mánudagur', short: 'Mán' },
+        { id: 1, label: 'Þriðjudagur', short: 'Þri' },
+        { id: 2, label: 'Miðvikudagur', short: 'Mið' },
+        { id: 3, label: 'Fimmtudagur', short: 'Fim' },
+        { id: 4, label: 'Föstudagur', short: 'Föst' },
+        { id: 5, label: 'Laugardagur', short: 'Laug' },
+        { id: 6, label: 'Sunnudagur', short: 'Sun' }
+    ];
+
+    function getDayLabel(id) {
+        return dayLabels.find(d => d.id === id)?.label || '';
     }
 
     onMount(() => {
@@ -773,9 +790,17 @@
                                 <span class="text-gray-500">Bílskúr</span>
                                 <span class="font-bold">{want_garage ? 'Já' : 'Skiptir ekki máli'}</span>
                             </div>
-                            <div class="flex justify-between">
+                            <div class="flex justify-between border-b border-gray-200 pb-2">
                                 <span class="text-gray-500">Tími tölvupósts</span>
                                 <span class="font-bold">{scrapeHour}:00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Dagar</span>
+                                <span class="font-bold text-right ml-4">
+                                    {#if emailDays.length === 7}Hverjum degi
+                                    {:else}{emailDays.map(d => getDayLabel(d)).join(', ')}
+                                    {/if}
+                                </span>
                             </div>
                         </div>
 
@@ -821,7 +846,13 @@
             </div>
             <h3 class="text-2xl font-bold text-gray-900 mb-2">Frábært!</h3>
             <p class="text-gray-600 mb-8">
-                Þú hefur vistað stillingar. Þú munt fá daglegan tölvupóst með eignum sem passa við þínar kröfur.
+                Þú hefur vistað stillingar. Þú munt fá tölvupóst kl. {scrapeHour}:00 á 
+                {#if emailDays.length === 7}
+                    hverjum degi
+                {:else}
+                    {emailDays.map(d => getDayLabel(d).toLowerCase()).join(', ')}
+                {/if}
+                með eignum sem passa við þínar kröfur.
             </p>
             <div class="flex flex-col gap-3">
                 <button 
