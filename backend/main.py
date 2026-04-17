@@ -96,7 +96,9 @@ class User(Base):
     onboarding_completed = Column(Boolean, default=False)
     scrape_hour = Column(Integer, default=20)
     ignored_properties = Column(String, nullable=True)  # Comma separated list
-    email_days = Column(String, default="0,3")  # Comma separated list of weekdays (0=Monday)
+    email_days = Column(
+        String, default="0,3"
+    )  # Comma separated list of weekdays (0=Monday)
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 
