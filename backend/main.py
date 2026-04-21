@@ -565,6 +565,37 @@ async def subscribe(
     return {"redirect_url": checkout_res["data"]["redirect_url"]}
 
 
+@app.post("/me/subscribe/verify")
+async def verify_subscription(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.is_pro:
+        return {"is_pro": True}
+
+    if not current_user.rapyd_customer_id:
+        raise HTTPException(
+            status_code=400, detail="Enginn Rapyd viðskiptavinur fyrir notanda"
+        )
+
+    subs_res = RapydService.list_customer_subscriptions(current_user.rapyd_customer_id)
+    if subs_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502,
+            detail=f"Rapyd subscription lookup failed: {subs_res.get('status', {}).get('message')}",
+        )
+
+    subscriptions = subs_res.get("data", []) or []
+    has_active = any(sub.get("status") == "active" for sub in subscriptions)
+
+    if has_active:
+        current_user.is_pro = True
+        db.commit()
+        return {"is_pro": True}
+
+    return {"is_pro": False}
+
+
 @app.delete("/me")
 async def delete_my_account(
     current_user: User = Depends(get_current_user),

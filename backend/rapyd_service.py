@@ -139,5 +139,11 @@ class RapydService:
             "subscription_items": [{"plan": plan_id, "quantity": 1}],
             "complete_checkout_url": complete_url,
             "cancel_checkout_url": cancel_url,
+            "payment_method_type_categories": ["card"],
         }
         return cls.make_request("POST", path, body)
+
+    @classmethod
+    def list_customer_subscriptions(cls, customer_id):
+        path = f"/v1/customers/{customer_id}/subscriptions"
+        return cls.make_request("GET", path)
