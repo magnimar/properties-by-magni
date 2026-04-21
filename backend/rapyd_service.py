@@ -144,6 +144,6 @@ class RapydService:
         return cls.make_request("POST", path, body)
 
     @classmethod
-    def retrieve_customer(cls, customer_id):
-        path = f"/v1/customers/{customer_id}"
+    def list_subscriptions_for_customer(cls, customer_id):
+        path = f"/v1/payments/subscriptions?customer={customer_id}"
         return cls.make_request("GET", path)

@@ -578,25 +578,23 @@ async def verify_subscription(
             status_code=400, detail="Enginn Rapyd viðskiptavinur fyrir notanda"
         )
 
-    cust_res = RapydService.retrieve_customer(current_user.rapyd_customer_id)
-    if cust_res.get("status", {}).get("status") != "SUCCESS":
+    subs_res = RapydService.list_subscriptions_for_customer(
+        current_user.rapyd_customer_id
+    )
+    if subs_res.get("status", {}).get("status") != "SUCCESS":
         print(
-            f"[verify_subscription] Rapyd error for customer={current_user.rapyd_customer_id}: {cust_res}",
+            f"[verify_subscription] Rapyd error for customer={current_user.rapyd_customer_id}: {subs_res}",
             flush=True,
         )
         raise HTTPException(
             status_code=502,
-            detail=f"Rapyd customer lookup failed: {cust_res.get('status', {})}",
+            detail=f"Rapyd subscription lookup failed: {subs_res.get('status', {})}",
         )
 
-    cust_data = cust_res.get("data") or {}
-    subs_obj = cust_data.get("subscriptions") or {}
-    subscriptions = subs_obj.get("data") or []
-    print(
-        f"[verify_subscription] customer={current_user.rapyd_customer_id} subscriptions={subscriptions}",
-        flush=True,
+    subscriptions = subs_res.get("data") or []
+    has_active = any(
+        sub.get("status") in ("active", "trialing") for sub in subscriptions
     )
-    has_active = any(sub.get("status") == "active" for sub in subscriptions)
 
     if has_active:
         current_user.is_pro = True
