@@ -589,7 +589,9 @@ async def verify_subscription(
             detail=f"Rapyd customer lookup failed: {cust_res.get('status', {})}",
         )
 
-    subscriptions = (cust_res.get("data") or {}).get("subscriptions", {}).get("data", []) or []
+    subscriptions = (cust_res.get("data") or {}).get("subscriptions", {}).get(
+        "data", []
+    ) or []
     has_active = any(sub.get("status") == "active" for sub in subscriptions)
 
     if has_active:
