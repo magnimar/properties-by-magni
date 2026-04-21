@@ -531,7 +531,9 @@ async def subscribe(
 ):
     plan_id = os.getenv("RAPYD_PRO_PLAN_ID")
     if not plan_id:
-        raise HTTPException(status_code=500, detail="Subscription plan is not configured")
+        raise HTTPException(
+            status_code=500, detail="Subscription plan is not configured"
+        )
 
     if current_user.is_pro:
         raise HTTPException(status_code=400, detail="Notandi er þegar með Pro áskrift")
