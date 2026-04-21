@@ -136,6 +136,8 @@ class RapydService:
             "subscription_items": [{"plan": plan_id, "quantity": 1}],
             "complete_payment_url": complete_url,
             "error_payment_url": error_url,
+            "complete_checkout_url": complete_url,
+            "cancel_checkout_url": error_url,
         }
         return cls.make_request("POST", path, body)
 
