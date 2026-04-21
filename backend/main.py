@@ -578,14 +578,20 @@ async def verify_subscription(
             status_code=400, detail="Enginn Rapyd viðskiptavinur fyrir notanda"
         )
 
-    subs_res = RapydService.list_customer_subscriptions(current_user.rapyd_customer_id)
-    if subs_res.get("status", {}).get("status") != "SUCCESS":
+    cust_res = RapydService.retrieve_customer(current_user.rapyd_customer_id)
+    if cust_res.get("status", {}).get("status") != "SUCCESS":
+        print(
+            f"[verify_subscription] Rapyd error for customer={current_user.rapyd_customer_id}: {cust_res}",
+            flush=True,
+        )
         raise HTTPException(
             status_code=502,
-            detail=f"Rapyd subscription lookup failed: {subs_res.get('status', {}).get('message')}",
+            detail=f"Rapyd customer lookup failed: {cust_res.get('status', {})}",
         )
 
-    subscriptions = subs_res.get("data", []) or []
+    subscriptions = (cust_res.get("data") or {}).get("subscriptions", {}).get(
+        "data", []
+    ) or []
     has_active = any(sub.get("status") == "active" for sub in subscriptions)
 
     if has_active:
