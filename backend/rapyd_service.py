@@ -120,26 +120,22 @@ class RapydService:
         return cls.make_request("POST", path, body)
 
     @classmethod
-    def create_checkout_page(
+    def create_subscription_checkout_page(
         cls,
         customer_id,
         plan_id,
-        amount,
         complete_url,
-        cancel_url,
+        error_url,
         country="IS",
-        currency="ISK",
     ):
-        path = "/v1/checkout"
+        path = "/v1/checkout/subscriptions"
         body = {
             "customer": customer_id,
             "country": country,
-            "currency": currency,
-            "amount": amount,
+            "billing": "pay_automatically",
             "subscription_items": [{"plan": plan_id, "quantity": 1}],
-            "complete_checkout_url": complete_url,
-            "cancel_checkout_url": cancel_url,
-            "payment_method_type_categories": ["card"],
+            "complete_payment_url": complete_url,
+            "error_payment_url": error_url,
         }
         return cls.make_request("POST", path, body)
 
