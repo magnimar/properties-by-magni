@@ -1,14 +1,43 @@
 <script>
-    import { onMount } from 'svelte';
+    import { getApiUrl } from '$lib/config';
     let termsAccepted = $state(true);
     let selectedPlan = $state('pro');
+    let loading = $state(false);
+    let errorMessage = $state('');
 
-    function handleSubscribe() {
+    function getToken() {
+        return document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    }
+
+    async function handleSubscribe() {
         if (!termsAccepted) {
-            alert("You must agree to the terms.");
+            alert("Þú verður að samþykkja skilmálana.");
             return;
         }
-        alert("Proceeding to Rapyd Checkout...");
+        const token = getToken();
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+
+        loading = true;
+        errorMessage = '';
+        try {
+            const res = await fetch(`${getApiUrl()}/me/subscribe`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                errorMessage = data.detail || 'Villa við að hefja áskrift.';
+                return;
+            }
+            window.location.href = data.redirect_url;
+        } catch (err) {
+            errorMessage = 'Tenging við greiðsluþjónustu mistókst.';
+        } finally {
+            loading = false;
+        }
     }
 </script>
 
@@ -92,10 +121,14 @@
 
             <button
                 onclick={handleSubscribe}
-                class="w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                disabled={loading}
+                class="w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-                Greiða 999 kr. & Hefja áskrift
+                {loading ? 'Vinsamlegast bíddu…' : 'Greiða 999 kr. & Hefja áskrift'}
             </button>
+            {#if errorMessage}
+                <div class="mt-3 text-center text-sm text-red-600">{errorMessage}</div>
+            {/if}
             <div class="mt-4 text-center text-sm text-gray-500">
                Örugg greiðsla í gegnum Rapyd.
             </div>

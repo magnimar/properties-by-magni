@@ -24,6 +24,7 @@ import secrets
 from dotenv import load_dotenv
 
 from email_service import send_verification_email, send_password_reset_email
+from rapyd_service import RapydService
 from sqlalchemy import inspect
 
 load_dotenv("/opt/properties-by-magni/.env")
@@ -99,6 +100,7 @@ class User(Base):
     email_days = Column(
         String, default="0,3"
     )  # Comma separated list of weekdays (0=Monday)
+    rapyd_customer_id = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
 
@@ -209,6 +211,8 @@ with engine.begin() as conn:
         conn.execute(
             text("ALTER TABLE users ADD COLUMN email_days TEXT DEFAULT '0,3';")
         )
+    if "rapyd_customer_id" not in existing_columns:
+        conn.execute(text("ALTER TABLE users ADD COLUMN rapyd_customer_id TEXT;"))
 
 # --- Password Hashing ---
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -518,6 +522,47 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
         raise HTTPException(
             status_code=500, detail=f"Villa við að senda póst: {str(e)}"
         )
+
+
+@app.post("/me/subscribe")
+async def subscribe(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    plan_id = os.getenv("RAPYD_PRO_PLAN_ID")
+    if not plan_id:
+        raise HTTPException(
+            status_code=500, detail="Subscription plan is not configured"
+        )
+
+    if current_user.is_pro:
+        raise HTTPException(status_code=400, detail="Notandi er þegar með Pro áskrift")
+
+    if not current_user.rapyd_customer_id:
+        cust_res = RapydService.create_customer(current_user.email)
+        if cust_res.get("status", {}).get("status") != "SUCCESS":
+            raise HTTPException(
+                status_code=502,
+                detail=f"Rapyd customer creation failed: {cust_res.get('status', {}).get('message')}",
+            )
+        current_user.rapyd_customer_id = cust_res["data"]["id"]
+        db.commit()
+
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+    checkout_res = RapydService.create_checkout_page(
+        customer_id=current_user.rapyd_customer_id,
+        plan_id=plan_id,
+        amount=999,
+        complete_url=f"{frontend_url}/upgrade/success",
+        cancel_url=f"{frontend_url}/upgrade",
+    )
+    if checkout_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502,
+            detail=f"Rapyd checkout creation failed: {checkout_res.get('status', {}).get('message')}",
+        )
+
+    return {"redirect_url": checkout_res["data"]["redirect_url"]}
 
 
 @app.delete("/me")
