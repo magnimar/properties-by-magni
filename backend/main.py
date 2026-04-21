@@ -549,12 +549,11 @@ async def subscribe(
         db.commit()
 
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
-    checkout_res = RapydService.create_checkout_page(
+    checkout_res = RapydService.create_subscription_checkout_page(
         customer_id=current_user.rapyd_customer_id,
         plan_id=plan_id,
-        amount=999,
         complete_url=f"{frontend_url}/upgrade/success",
-        cancel_url=f"{frontend_url}/upgrade",
+        error_url=f"{frontend_url}/upgrade",
     )
     if checkout_res.get("status", {}).get("status") != "SUCCESS":
         raise HTTPException(
