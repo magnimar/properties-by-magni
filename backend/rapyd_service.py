@@ -166,7 +166,9 @@ class RapydService:
         return cls.make_request("GET", path)
 
     @classmethod
-    def create_add_payment_method_checkout(cls, customer_id, complete_url, error_url, country="IS", currency="ISK"):
+    def create_add_payment_method_checkout(
+        cls, customer_id, complete_url, error_url, country="IS", currency="ISK"
+    ):
         path = "/v1/checkout"
         body = {
             "customer": customer_id,
@@ -179,9 +181,6 @@ class RapydService:
             "complete_checkout_url": complete_url,
             "cancel_checkout_url": error_url,
             "payment_method_type_categories": ["card"],
-            "custom_elements": {
-                "save_card_default": True,
-                "hide_save_card": True
-            }
+            "custom_elements": {"save_card_default": True, "hide_save_card": True},
         }
         return cls.make_request("POST", path, body)
