@@ -73,6 +73,8 @@ class RapydService:
             response = requests.get(url, headers=headers)
         elif http_method.upper() == "POST":
             response = requests.post(url, headers=headers, data=body_str)
+        elif http_method.upper() == "DELETE":
+            response = requests.delete(url, headers=headers, data=body_str)
         else:
             raise ValueError(f"Unsupported HTTP method: {http_method}")
 
@@ -145,3 +147,40 @@ class RapydService:
     def list_subscriptions_for_customer(cls, customer_id):
         path = f"/v1/payments/subscriptions?customer={customer_id}"
         return cls.make_request("GET", path)
+
+    @classmethod
+    def cancel_subscription(cls, subscription_id, cancel_at_period_end=False):
+        path = f"/v1/payments/subscriptions/{subscription_id}"
+        if cancel_at_period_end:
+            path += "?cancel_at_period_end=true"
+        return cls.make_request("DELETE", path)
+
+    @classmethod
+    def update_subscription(cls, subscription_id, **kwargs):
+        path = f"/v1/payments/subscriptions/{subscription_id}"
+        return cls.make_request("POST", path, kwargs)
+
+    @classmethod
+    def get_payment_method(cls, customer_id, payment_method_id):
+        path = f"/v1/customers/{customer_id}/payment_methods/{payment_method_id}"
+        return cls.make_request("GET", path)
+
+    @classmethod
+    def create_add_payment_method_checkout(
+        cls, customer_id, complete_url, error_url, country="IS", currency="ISK"
+    ):
+        path = "/v1/checkout"
+        body = {
+            "customer": customer_id,
+            "country": country,
+            "currency": currency,
+            "amount": 1,
+            "operation": "add_payment_method",
+            "complete_payment_url": complete_url,
+            "error_payment_url": error_url,
+            "complete_checkout_url": complete_url,
+            "cancel_checkout_url": error_url,
+            "payment_method_type_categories": ["card"],
+            "custom_elements": {"save_card_default": True, "hide_save_card": True},
+        }
+        return cls.make_request("POST", path, body)

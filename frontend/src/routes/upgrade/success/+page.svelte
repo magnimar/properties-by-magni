@@ -16,6 +16,12 @@
             return;
         }
         try {
+            // First sync payment in case they were updating a card
+            await fetch(`${getApiUrl()}/me/subscriptions/sync-payment`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
             const res = await fetch(`${getApiUrl()}/me/subscribe/verify`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }

@@ -527,6 +527,297 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
         )
 
 
+@app.get("/me/subscriptions")
+async def get_my_subscriptions(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.rapyd_customer_id:
+        return []
+
+    subs_res = RapydService.list_subscriptions_for_customer(
+        current_user.rapyd_customer_id
+    )
+    if subs_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502,
+            detail=f"Rapyd subscription lookup failed: {subs_res.get('status', {})}",
+        )
+
+    subscriptions = subs_res.get("data") or []
+    # Filter for active/trialing and return relevant info
+    active_subs = []
+    for sub in subscriptions:
+        if sub.get("status") in ("active", "trialing"):
+            sub_info = {
+                "id": sub.get("id"),
+                "status": sub.get("status"),
+                "plan_id": sub.get("plan_id"),
+                "created_at": sub.get("created_at"),
+                "cancel_at_period_end": sub.get("cancel_at_period_end"),
+                "current_period_end": sub.get("current_period_end"),
+                "payment_method_id": sub.get("payment_method"),
+                "card_details": None,
+            }
+
+            # Fetch card details if payment_method is present
+            pm_id = sub.get("payment_method")
+            if pm_id:
+                pm_res = RapydService.get_payment_method(
+                    current_user.rapyd_customer_id, pm_id
+                )
+                if pm_res.get("status", {}).get("status") == "SUCCESS":
+                    pm_data = pm_res.get("data", {})
+                    sub_info["card_details"] = {
+                        "brand": pm_data.get("image", "")
+                        .split("/")[-1]
+                        .split(".")[0]
+                        .capitalize()
+                        or "Card",
+                        "last4": pm_data.get("last4"),
+                        "exp_month": pm_data.get("expiration_month"),
+                        "exp_year": pm_data.get("expiration_year"),
+                    }
+            active_subs.append(sub_info)
+
+    return active_subs
+
+
+@app.delete("/me/subscriptions/{subscription_id}")
+async def cancel_my_subscription(
+    subscription_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.rapyd_customer_id:
+        raise HTTPException(status_code=400, detail="No Rapyd customer ID found")
+
+    # Verify the subscription belongs to the user
+    subs_res = RapydService.list_subscriptions_for_customer(
+        current_user.rapyd_customer_id
+    )
+    if subs_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502, detail="Failed to verify subscription ownership"
+        )
+
+    subscriptions = subs_res.get("data") or []
+    if not any(sub.get("id") == subscription_id for sub in subscriptions):
+        raise HTTPException(
+            status_code=403, detail="Subscription does not belong to user"
+        )
+
+    cancel_res = RapydService.cancel_subscription(
+        subscription_id, cancel_at_period_end=True
+    )
+    if cancel_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502,
+            detail=f"Failed to cancel subscription: {cancel_res.get('status', {})}",
+        )
+
+    return {"message": "Subscription cancelled successfully"}
+
+
+@app.post("/me/subscriptions/{subscription_id}/reactivate")
+async def reactivate_my_subscription(
+    subscription_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.rapyd_customer_id:
+        raise HTTPException(status_code=400, detail="No Rapyd customer ID found")
+
+    # Verify the subscription belongs to the user
+    subs_res = RapydService.list_subscriptions_for_customer(
+        current_user.rapyd_customer_id
+    )
+    if subs_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502, detail="Failed to verify subscription ownership"
+        )
+
+    subscriptions = subs_res.get("data") or []
+    if not any(sub.get("id") == subscription_id for sub in subscriptions):
+        raise HTTPException(
+            status_code=403, detail="Subscription does not belong to user"
+        )
+
+    update_res = RapydService.update_subscription(
+        subscription_id, cancel_at_period_end=False
+    )
+    if update_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502,
+            detail=f"Failed to reactivate subscription: {update_res.get('status', {})}",
+        )
+
+    return {"message": "Subscription reactivated successfully"}
+
+
+class UpdateCardRequest(BaseModel):
+    payment_method_id: str
+
+
+@app.get("/me/payment-methods")
+async def get_my_payment_methods(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.rapyd_customer_id:
+        return []
+
+    path = f"/v1/customers/{current_user.rapyd_customer_id}/payment_methods"
+    pm_res = RapydService.make_request("GET", path)
+    if pm_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(status_code=502, detail="Failed to fetch payment methods")
+
+    pms = pm_res.get("data", [])
+    formatted_pms = []
+    for pm in pms:
+        formatted_pms.append(
+            {
+                "id": pm.get("id"),
+                "brand": (
+                    pm.get("image", "").split("/")[-1].split(".")[0].capitalize()
+                    if pm.get("image")
+                    else "Card"
+                ),
+                "last4": pm.get("last4"),
+                "exp_month": pm.get("expiration_month"),
+                "exp_year": pm.get("expiration_year"),
+                "created_at": pm.get("created_at", 0),
+            }
+        )
+
+    return sorted(formatted_pms, key=lambda x: x["created_at"], reverse=True)
+
+
+@app.post("/me/subscriptions/{subscription_id}/change-card")
+async def change_subscription_card(
+    subscription_id: str,
+    req: UpdateCardRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.rapyd_customer_id:
+        raise HTTPException(status_code=400, detail="No Rapyd customer ID found")
+
+    subs_res = RapydService.list_subscriptions_for_customer(
+        current_user.rapyd_customer_id
+    )
+    if subs_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502, detail="Failed to verify subscription ownership"
+        )
+
+    subscriptions = subs_res.get("data") or []
+    if not any(sub.get("id") == subscription_id for sub in subscriptions):
+        raise HTTPException(
+            status_code=403, detail="Subscription does not belong to user"
+        )
+
+    update_res = RapydService.update_subscription(
+        subscription_id, payment_method=req.payment_method_id
+    )
+    if update_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502, detail="Failed to update subscription payment method"
+        )
+
+    return {"message": "Payment method updated successfully"}
+
+
+@app.post("/me/subscriptions/{subscription_id}/update-payment")
+async def get_card_update_url(
+    subscription_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.rapyd_customer_id:
+        raise HTTPException(status_code=400, detail="No Rapyd customer ID found")
+
+    # Verify the subscription belongs to the user
+    subs_res = RapydService.list_subscriptions_for_customer(
+        current_user.rapyd_customer_id
+    )
+    if subs_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502, detail="Failed to verify subscription ownership"
+        )
+
+    subscriptions = subs_res.get("data") or []
+    if not any(sub.get("id") == subscription_id for sub in subscriptions):
+        raise HTTPException(
+            status_code=403, detail="Subscription does not belong to user"
+        )
+
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+    # Note: In a production app, the success URL should trigger a backend check
+    # to find the newly added card and update the subscription's payment_method field.
+    checkout_res = RapydService.create_add_payment_method_checkout(
+        customer_id=current_user.rapyd_customer_id,
+        complete_url=f"{frontend_url}/upgrade/success",
+        error_url=f"{frontend_url}/dashboard",
+    )
+
+    if checkout_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(
+            status_code=502,
+            detail=f"Failed to create card update page: {checkout_res.get('status', {})}",
+        )
+
+    return {"redirect_url": checkout_res["data"]["redirect_url"]}
+
+
+@app.post("/me/subscriptions/sync-payment")
+async def sync_subscription_payment(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.rapyd_customer_id:
+        raise HTTPException(status_code=400, detail="No Rapyd customer ID found")
+
+    # 1. Get all payment methods for the customer
+    path = f"/v1/customers/{current_user.rapyd_customer_id}/payment_methods"
+    pm_res = RapydService.make_request("GET", path)
+    if pm_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(status_code=502, detail="Failed to fetch payment methods")
+
+    payment_methods = pm_res.get("data", [])
+    if not payment_methods:
+        raise HTTPException(status_code=404, detail="No payment methods found")
+
+    # Sort by created_at descending to get the latest one
+    latest_pm = sorted(
+        payment_methods, key=lambda x: x.get("created_at", 0), reverse=True
+    )[0]
+    latest_pm_id = latest_pm.get("id")
+
+    # 2. Get active subscriptions
+    subs_res = RapydService.list_subscriptions_for_customer(
+        current_user.rapyd_customer_id
+    )
+    if subs_res.get("status", {}).get("status") != "SUCCESS":
+        raise HTTPException(status_code=502, detail="Failed to fetch subscriptions")
+
+    subscriptions = subs_res.get("data") or []
+    updated_count = 0
+    for sub in subscriptions:
+        if sub.get("status") in ("active", "trialing"):
+            # 3. Update each active subscription with the latest card
+            update_res = RapydService.update_subscription(
+                sub["id"], payment_method=latest_pm_id
+            )
+            if update_res.get("status", {}).get("status") == "SUCCESS":
+                updated_count += 1
+
+    return {
+        "message": f"Updated {updated_count} subscription(s) with new card",
+        "card_last4": latest_pm.get("last4"),
+    }
+
+
 @app.post("/me/subscribe")
 async def subscribe(
     current_user: User = Depends(get_current_user),
