@@ -58,10 +58,13 @@ Base = declarative_base()
 class IgnoredProperty(Base):
     __tablename__ = "ignored_properties"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
     property_id = Column(String, index=True, nullable=False)
-    
+
     user = relationship("User", back_populates="ignored_properties")
+
 
 class User(Base):
     __tablename__ = "users"
@@ -92,7 +95,7 @@ class User(Base):
     want_garage = Column(Boolean, default=False)
     scrape_hour = Column(Integer, default=20)
     email_days = Column(String, default="0,3")
-    
+
     ignored_properties = relationship("IgnoredProperty", back_populates="user")
 
 

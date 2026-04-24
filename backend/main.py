@@ -66,10 +66,13 @@ class Item(Base):
 class IgnoredProperty(Base):
     __tablename__ = "ignored_properties"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
     property_id = Column(String, index=True, nullable=False)
-    
+
     user = relationship("User", back_populates="ignored_properties")
+
 
 class User(Base):
     __tablename__ = "users"
@@ -110,8 +113,10 @@ class User(Base):
     )  # Comma separated list of weekdays (0=Monday)
     rapyd_customer_id = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    
-    ignored_properties = relationship("IgnoredProperty", back_populates="user", cascade="all, delete-orphan")
+
+    ignored_properties = relationship(
+        "IgnoredProperty", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class ScraperRun(Base):
@@ -508,7 +513,9 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
             if current_user.ignored_streets
             else []
         ),
-        "ignored_properties": [ip.property_id for ip in current_user.ignored_properties],
+        "ignored_properties": [
+            ip.property_id for ip in current_user.ignored_properties
+        ],
         "EINBYLISHUS": "yes" if current_user.einbylishus else "no",
         "FJOLBYLISHUS": "yes" if current_user.fjolbylishus else "no",
         "ATVINNUHUSNAEDI": "yes" if current_user.atvinnuhusnaedi else "no",
@@ -1048,11 +1055,15 @@ async def ignore_property_public(
     if not user:
         return "<html><body><h2 style='text-align:center; padding: 50px; font-family: sans-serif;'>Aðgangur fannst ekki</h2></body></html>"
 
-    exists = db.query(IgnoredProperty).filter(
-        IgnoredProperty.user_id == user.id,
-        IgnoredProperty.property_id == fasteignanumer
-    ).first()
-    
+    exists = (
+        db.query(IgnoredProperty)
+        .filter(
+            IgnoredProperty.user_id == user.id,
+            IgnoredProperty.property_id == fasteignanumer,
+        )
+        .first()
+    )
+
     if not exists:
         new_ignored = IgnoredProperty(user_id=user.id, property_id=fasteignanumer)
         db.add(new_ignored)
