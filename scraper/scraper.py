@@ -66,17 +66,18 @@ class IgnoredProperty(Base):
     user = relationship("User", back_populates="ignored_properties")
 
 
-class User(Base):
-    __tablename__ = "users"
+class SearchPreference(Base):
+    __tablename__ = "search_preferences"
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    is_verified = Column(Boolean, default=False)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True, nullable=False
+    )
     min_price = Column(Float, nullable=True)
     max_price = Column(Float, nullable=True)
     min_bedrooms = Column(Integer, nullable=True)
     max_bedrooms = Column(Integer, nullable=True)
-    min_size = Column(Float, default=0.0)
-    max_size = Column(Float, default=1000.0)
+    min_size = Column(Float, nullable=True, default=0.0)
+    max_size = Column(Float, nullable=True, default=1000.0)
     min_build_year = Column(Integer, nullable=True)
     max_build_year = Column(Integer, nullable=True)
     zip_codes = Column(String, nullable=True)
@@ -93,10 +94,20 @@ class User(Base):
     oflokkad = Column(Boolean, default=False)
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
+
+    user = relationship("User", back_populates="search_preference")
+
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    is_verified = Column(Boolean, default=False)
     scrape_hour = Column(Integer, default=20)
     email_days = Column(String, default="0,3")
 
     ignored_properties = relationship("IgnoredProperty", back_populates="user")
+    search_preference = relationship("SearchPreference", back_populates="user", uselist=False)
 
 
 class ScraperRun(Base):
@@ -120,44 +131,45 @@ def get_db_users() -> list[dict]:
         users = db.query(User).filter(User.is_verified).all()
         user_configs = []
         for u in users:
+            sp = u.search_preference
             config = {
                 "user_id": u.id,
                 "user": u.email,
                 "TO_EMAIL": u.email,
                 "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
                 "FROM_EMAIL": os.getenv("FROM_EMAIL"),
-                "MIN_PRICE": int(u.min_price) if u.min_price is not None else 0,
+                "MIN_PRICE": int(sp.min_price) if sp and sp.min_price is not None else 0,
                 "MAX_PRICE": (
-                    int(u.max_price) if u.max_price is not None else 1000000000
+                    int(sp.max_price) if sp and sp.max_price is not None else 1000000000
                 ),
-                "MIN_BEDROOMS": u.min_bedrooms if u.min_bedrooms is not None else 0,
-                "MAX_BEDROOMS": u.max_bedrooms if u.max_bedrooms is not None else 10,
+                "MIN_BEDROOMS": sp.min_bedrooms if sp and sp.min_bedrooms is not None else 0,
+                "MAX_BEDROOMS": sp.max_bedrooms if sp and sp.max_bedrooms is not None else 10,
                 "MIN_BUILD_YEAR": (
-                    u.min_build_year if u.min_build_year is not None else 1900
+                    sp.min_build_year if sp and sp.min_build_year is not None else 1900
                 ),
                 "MAX_BUILD_YEAR": (
-                    u.max_build_year if u.max_build_year is not None else 2027
+                    sp.max_build_year if sp and sp.max_build_year is not None else 2027
                 ),
                 "GOOGLE_MAPS_KEY": os.getenv("GOOGLE_MAPS_KEY"),
-                "ZIP_CODES": u.zip_codes if u.zip_codes else "101,107",
-                "outdoor_filter": u.outdoor_filter or "none",
-                "want_garage": u.want_garage or False,
+                "ZIP_CODES": sp.zip_codes if sp and sp.zip_codes else "101,107",
+                "outdoor_filter": sp.outdoor_filter if sp else "none",
+                "want_garage": sp.want_garage if sp else False,
                 "scrape_hour": u.scrape_hour if u.scrape_hour is not None else 20,
                 "email_days": u.email_days or "0,3",
                 "ignored_strings": (
-                    u.ignored_streets.split(",") if u.ignored_streets else []
+                    sp.ignored_streets.split(",") if sp and sp.ignored_streets else []
                 ),
                 "ignored_properties": [ip.property_id for ip in u.ignored_properties],
-                "EINBYLISHUS": "yes" if u.einbylishus else "no",
-                "FJOLBYLISHUS": "yes" if u.fjolbylishus else "no",
-                "ATVINNUHUSNAEDI": "yes" if u.atvinnuhusnaedi else "no",
-                "RADHUS_PARHUS": "yes" if u.radhus_parhus else "no",
-                "SUMARHUS": "yes" if u.sumarhus else "no",
-                "PARHUS": "yes" if u.parhus else "no",
-                "JORD_LOD": "yes" if u.jord_lod else "no",
-                "HAED": "yes" if u.haed else "no",
-                "HESTHUS": "yes" if u.hesthus else "no",
-                "OFLOKKAD": "yes" if u.oflokkad else "no",
+                "EINBYLISHUS": "yes" if sp and sp.einbylishus else "no",
+                "FJOLBYLISHUS": "yes" if sp and sp.fjolbylishus else "no",
+                "ATVINNUHUSNAEDI": "yes" if sp and sp.atvinnuhusnaedi else "no",
+                "RADHUS_PARHUS": "yes" if sp and sp.radhus_parhus else "no",
+                "SUMARHUS": "yes" if sp and sp.sumarhus else "no",
+                "PARHUS": "yes" if sp and sp.parhus else "no",
+                "JORD_LOD": "yes" if sp and sp.jord_lod else "no",
+                "HAED": "yes" if sp and sp.haed else "no",
+                "HESTHUS": "yes" if sp and sp.hesthus else "no",
+                "OFLOKKAD": "yes" if sp and sp.oflokkad else "no",
             }
             user_configs.append(config)
         return user_configs

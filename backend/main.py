@@ -74,16 +74,12 @@ class IgnoredProperty(Base):
     user = relationship("User", back_populates="ignored_properties")
 
 
-class User(Base):
-    __tablename__ = "users"
+class SearchPreference(Base):
+    __tablename__ = "search_preferences"
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    is_pro = Column(Boolean, default=False)
-    is_verified = Column(Boolean, default=False)
-    verification_token = Column(String, nullable=True, index=True)
-    reset_token = Column(String, nullable=True, index=True)
-    reset_token_expires = Column(DateTime, nullable=True)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True, nullable=False
+    )
     min_price = Column(Float, nullable=True)
     max_price = Column(Float, nullable=True)
     min_bedrooms = Column(Integer, nullable=True)
@@ -92,8 +88,8 @@ class User(Base):
     max_size = Column(Float, nullable=True, default=1000.0)
     min_build_year = Column(Integer, nullable=True)
     max_build_year = Column(Integer, nullable=True)
-    zip_codes = Column(String, nullable=True)  # Comma separated list
-    ignored_streets = Column(String, nullable=True)  # Comma separated list
+    zip_codes = Column(String, nullable=True)
+    ignored_streets = Column(String, nullable=True)
     einbylishus = Column(Boolean, default=False)
     fjolbylishus = Column(Boolean, default=False)
     atvinnuhusnaedi = Column(Boolean, default=False)
@@ -106,6 +102,20 @@ class User(Base):
     oflokkad = Column(Boolean, default=False)
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
+
+    user = relationship("User", back_populates="search_preference")
+
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_pro = Column(Boolean, default=False)
+    is_verified = Column(Boolean, default=False)
+    verification_token = Column(String, nullable=True, index=True)
+    reset_token = Column(String, nullable=True, index=True)
+    reset_token_expires = Column(DateTime, nullable=True)
     onboarding_completed = Column(Boolean, default=False)
     scrape_hour = Column(Integer, default=20)
     email_days = Column(
@@ -116,6 +126,9 @@ class User(Base):
 
     ignored_properties = relationship(
         "IgnoredProperty", back_populates="user", cascade="all, delete-orphan"
+    )
+    search_preference = relationship(
+        "SearchPreference", back_populates="user", uselist=False, cascade="all, delete-orphan"
     )
 
 
@@ -140,75 +153,6 @@ with engine.begin() as conn:
     if "reset_token_expires" not in existing_columns:
         conn.execute(
             text("ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMP;")
-        )
-    if "min_price" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN min_price FLOAT;"))
-    if "max_price" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN max_price FLOAT;"))
-    if "min_bedrooms" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN min_bedrooms INTEGER;"))
-    if "max_bedrooms" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN max_bedrooms INTEGER;"))
-    if "min_size" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN min_size FLOAT DEFAULT 0.0;"))
-    conn.execute(text("UPDATE users SET min_size = 0.0 WHERE min_size IS NULL;"))
-
-    if "max_size" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN max_size FLOAT DEFAULT 1000.0;")
-        )
-    conn.execute(text("UPDATE users SET max_size = 1000.0 WHERE max_size IS NULL;"))
-    if "min_build_year" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN min_build_year INTEGER;"))
-    if "max_build_year" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN max_build_year INTEGER;"))
-    if "zip_codes" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN zip_codes TEXT;"))
-    if "ignored_streets" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN ignored_streets TEXT;"))
-    if "einbylishus" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN einbylishus BOOLEAN DEFAULT FALSE;")
-        )
-    if "fjolbylishus" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN fjolbylishus BOOLEAN DEFAULT FALSE;")
-        )
-    if "atvinnuhusnaedi" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN atvinnuhusnaedi BOOLEAN DEFAULT FALSE;")
-        )
-    if "radhus_parhus" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN radhus_parhus BOOLEAN DEFAULT FALSE;")
-        )
-    if "sumarhus" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN sumarhus BOOLEAN DEFAULT FALSE;")
-        )
-    if "parhus" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN parhus BOOLEAN DEFAULT FALSE;"))
-    if "jord_lod" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN jord_lod BOOLEAN DEFAULT FALSE;")
-        )
-    if "haed" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN haed BOOLEAN DEFAULT FALSE;"))
-    if "hesthus" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN hesthus BOOLEAN DEFAULT FALSE;")
-        )
-    if "oflokkad" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN oflokkad BOOLEAN DEFAULT FALSE;")
-        )
-    if "outdoor_filter" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN outdoor_filter TEXT DEFAULT 'none';")
-        )
-    if "want_garage" not in existing_columns:
-        conn.execute(
-            text("ALTER TABLE users ADD COLUMN want_garage BOOLEAN DEFAULT FALSE;")
         )
     if "onboarding_completed" not in existing_columns:
         conn.execute(
@@ -353,35 +297,36 @@ def read_root():
 
 @app.get("/me")
 async def get_my_profile(current_user: User = Depends(get_current_user)):
+    sp = current_user.search_preference
     return {
         "email": current_user.email,
         "is_pro": current_user.is_pro,
-        "min_price": current_user.min_price,
-        "max_price": current_user.max_price,
-        "min_bedrooms": current_user.min_bedrooms,
-        "max_bedrooms": current_user.max_bedrooms,
-        "min_build_year": current_user.min_build_year,
-        "max_build_year": current_user.max_build_year,
+        "min_price": sp.min_price if sp else None,
+        "max_price": sp.max_price if sp else None,
+        "min_bedrooms": sp.min_bedrooms if sp else None,
+        "max_bedrooms": sp.max_bedrooms if sp else None,
+        "min_build_year": sp.min_build_year if sp else None,
+        "max_build_year": sp.max_build_year if sp else None,
         "zip_codes": (
-            current_user.zip_codes.split(",") if current_user.zip_codes else []
+            sp.zip_codes.split(",") if sp and sp.zip_codes else []
         ),
         "ignored_streets": (
-            current_user.ignored_streets.split(",")
-            if current_user.ignored_streets
+            sp.ignored_streets.split(",")
+            if sp and sp.ignored_streets
             else []
         ),
-        "einbylishus": current_user.einbylishus,
-        "fjolbylishus": current_user.fjolbylishus,
-        "atvinnuhusnaedi": current_user.atvinnuhusnaedi,
-        "radhus_parhus": current_user.radhus_parhus,
-        "sumarhus": current_user.sumarhus,
-        "parhus": current_user.parhus,
-        "jord_lod": current_user.jord_lod,
-        "haed": current_user.haed,
-        "hesthus": current_user.hesthus,
-        "oflokkad": current_user.oflokkad,
-        "outdoor_filter": current_user.outdoor_filter,
-        "want_garage": current_user.want_garage,
+        "einbylishus": sp.einbylishus if sp else False,
+        "fjolbylishus": sp.fjolbylishus if sp else False,
+        "atvinnuhusnaedi": sp.atvinnuhusnaedi if sp else False,
+        "radhus_parhus": sp.radhus_parhus if sp else False,
+        "sumarhus": sp.sumarhus if sp else False,
+        "parhus": sp.parhus if sp else False,
+        "jord_lod": sp.jord_lod if sp else False,
+        "haed": sp.haed if sp else False,
+        "hesthus": sp.hesthus if sp else False,
+        "oflokkad": sp.oflokkad if sp else False,
+        "outdoor_filter": sp.outdoor_filter if sp else "none",
+        "want_garage": sp.want_garage if sp else False,
         "onboarding_completed": current_user.onboarding_completed,
         "scrape_hour": current_user.scrape_hour,
         "email_days": (
@@ -432,32 +377,38 @@ async def update_my_preferences(
             detail="Min build year cannot be greater than max build year",
         )
 
-    current_user.min_price = prefs.min_price
-    current_user.max_price = prefs.max_price
-    current_user.min_bedrooms = prefs.min_bedrooms
-    current_user.max_bedrooms = prefs.max_bedrooms
-    current_user.min_size = prefs.min_size
-    current_user.max_size = prefs.max_size
-    current_user.min_build_year = prefs.min_build_year
-    current_user.max_build_year = prefs.max_build_year
-    current_user.einbylishus = prefs.einbylishus
-    current_user.fjolbylishus = prefs.fjolbylishus
-    current_user.atvinnuhusnaedi = prefs.atvinnuhusnaedi
-    current_user.radhus_parhus = prefs.radhus_parhus
-    current_user.sumarhus = prefs.sumarhus
-    current_user.parhus = prefs.parhus
-    current_user.jord_lod = prefs.jord_lod
-    current_user.haed = prefs.haed
-    current_user.hesthus = prefs.hesthus
-    current_user.oflokkad = prefs.oflokkad
-    current_user.outdoor_filter = prefs.outdoor_filter
-    current_user.want_garage = prefs.want_garage
+    sp = current_user.search_preference
+    if not sp:
+        sp = SearchPreference(user_id=current_user.id)
+        db.add(sp)
+        
+    sp.min_price = prefs.min_price
+    sp.max_price = prefs.max_price
+    sp.min_bedrooms = prefs.min_bedrooms
+    sp.max_bedrooms = prefs.max_bedrooms
+    sp.min_size = prefs.min_size
+    sp.max_size = prefs.max_size
+    sp.min_build_year = prefs.min_build_year
+    sp.max_build_year = prefs.max_build_year
+    sp.einbylishus = prefs.einbylishus
+    sp.fjolbylishus = prefs.fjolbylishus
+    sp.atvinnuhusnaedi = prefs.atvinnuhusnaedi
+    sp.radhus_parhus = prefs.radhus_parhus
+    sp.sumarhus = prefs.sumarhus
+    sp.parhus = prefs.parhus
+    sp.jord_lod = prefs.jord_lod
+    sp.haed = prefs.haed
+    sp.hesthus = prefs.hesthus
+    sp.oflokkad = prefs.oflokkad
+    sp.outdoor_filter = prefs.outdoor_filter
+    sp.want_garage = prefs.want_garage
+    if prefs.zip_codes is not None:
+        sp.zip_codes = ",".join(prefs.zip_codes)
+    if prefs.ignored_streets is not None:
+        sp.ignored_streets = ",".join(prefs.ignored_streets)
+
     current_user.scrape_hour = prefs.scrape_hour
     current_user.onboarding_completed = prefs.onboarding_completed
-    if prefs.zip_codes is not None:
-        current_user.zip_codes = ",".join(prefs.zip_codes)
-    if prefs.ignored_streets is not None:
-        current_user.ignored_streets = ",".join(prefs.ignored_streets)
     if prefs.email_days is not None:
         current_user.email_days = ",".join(map(str, prefs.email_days))
     db.commit()
@@ -471,61 +422,62 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
     sys.path.append("/opt/properties-by-magni/scraper")
     from scraper import Scraper
 
+    sp = current_user.search_preference
     user_config = {
         "user": current_user.email,
         "TO_EMAIL": current_user.email,
         "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
         "FROM_EMAIL": "fundvis@fundvis.is",
         "MIN_PRICE": (
-            int(current_user.min_price) if current_user.min_price is not None else 0
+            int(sp.min_price) if sp and sp.min_price is not None else 0
         ),
         "MAX_PRICE": (
-            int(current_user.max_price)
-            if current_user.max_price is not None
+            int(sp.max_price)
+            if sp and sp.max_price is not None
             else 1000000000
         ),
         "MIN_BEDROOMS": (
-            current_user.min_bedrooms if current_user.min_bedrooms is not None else 0
+            sp.min_bedrooms if sp and sp.min_bedrooms is not None else 0
         ),
         "MAX_BEDROOMS": (
-            current_user.max_bedrooms if current_user.max_bedrooms is not None else 10
+            sp.max_bedrooms if sp and sp.max_bedrooms is not None else 10
         ),
-        "MIN_SIZE": (current_user.min_size if current_user.min_size is not None else 0),
+        "MIN_SIZE": (sp.min_size if sp and sp.min_size is not None else 0),
         "MAX_SIZE": (
-            current_user.max_size if current_user.max_size is not None else 1000000
+            sp.max_size if sp and sp.max_size is not None else 1000000
         ),
         "MIN_BUILD_YEAR": (
-            current_user.min_build_year
-            if current_user.min_build_year is not None
+            sp.min_build_year
+            if sp and sp.min_build_year is not None
             else 1900
         ),
         "MAX_BUILD_YEAR": (
-            current_user.max_build_year
-            if current_user.max_build_year is not None
+            sp.max_build_year
+            if sp and sp.max_build_year is not None
             else 2027
         ),
         "GOOGLE_MAPS_KEY": os.getenv("GOOGLE_MAPS_KEY"),
-        "ZIP_CODES": current_user.zip_codes if current_user.zip_codes else "101,107",
-        "outdoor_filter": current_user.outdoor_filter or "none",
-        "want_garage": current_user.want_garage or False,
+        "ZIP_CODES": sp.zip_codes if sp and sp.zip_codes else "101,107",
+        "outdoor_filter": sp.outdoor_filter if sp else "none",
+        "want_garage": sp.want_garage if sp else False,
         "ignored_strings": (
-            current_user.ignored_streets.split(",")
-            if current_user.ignored_streets
+            sp.ignored_streets.split(",")
+            if sp and sp.ignored_streets
             else []
         ),
         "ignored_properties": [
             ip.property_id for ip in current_user.ignored_properties
         ],
-        "EINBYLISHUS": "yes" if current_user.einbylishus else "no",
-        "FJOLBYLISHUS": "yes" if current_user.fjolbylishus else "no",
-        "ATVINNUHUSNAEDI": "yes" if current_user.atvinnuhusnaedi else "no",
-        "RADHUS_PARHUS": "yes" if current_user.radhus_parhus else "no",
-        "SUMARHUS": "yes" if current_user.sumarhus else "no",
-        "PARHUS": "yes" if current_user.parhus else "no",
-        "JORD_LOD": "yes" if current_user.jord_lod else "no",
-        "HAED": "yes" if current_user.haed else "no",
-        "HESTHUS": "yes" if current_user.hesthus else "no",
-        "OFLOKKAD": "yes" if current_user.oflokkad else "no",
+        "EINBYLISHUS": "yes" if sp and sp.einbylishus else "no",
+        "FJOLBYLISHUS": "yes" if sp and sp.fjolbylishus else "no",
+        "ATVINNUHUSNAEDI": "yes" if sp and sp.atvinnuhusnaedi else "no",
+        "RADHUS_PARHUS": "yes" if sp and sp.radhus_parhus else "no",
+        "SUMARHUS": "yes" if sp and sp.sumarhus else "no",
+        "PARHUS": "yes" if sp and sp.parhus else "no",
+        "JORD_LOD": "yes" if sp and sp.jord_lod else "no",
+        "HAED": "yes" if sp and sp.haed else "no",
+        "HESTHUS": "yes" if sp and sp.hesthus else "no",
+        "OFLOKKAD": "yes" if sp and sp.oflokkad else "no",
     }
 
     try:
@@ -1013,6 +965,10 @@ async def register(data: UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    
+    new_sp = SearchPreference(user_id=new_user.id)
+    db.add(new_sp)
+    db.commit()
 
     # Send actual email via Brevo
     send_verification_email(new_user.email, verification_token)
