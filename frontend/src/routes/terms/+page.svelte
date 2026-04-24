@@ -1,11 +1,11 @@
 <div class="min-h-screen font-sans text-gray-900 bg-white selection:bg-blue-100 flex flex-col">
     <!-- Header (simplified) -->
-    <header class="relative z-50 pt-10 pb-6 px-6 md:px-10 lg:pt-12 lg:pb-8 flex items-center justify-between gap-6 border-b border-gray-100">
-        <a href="/" class="flex items-center gap-5 hover:opacity-90 transition-opacity">
-            <span class="font-bold text-4xl md:text-5xl tracking-tight text-blue-500 mt-2 ml-1" style="letter-spacing: -0.02em;">Fundvís</span>
+    <header class="relative z-50 pt-6 pb-4 px-4 md:pt-10 md:pb-6 md:px-10 lg:pt-12 lg:pb-8 flex items-center justify-between gap-2 md:gap-6 border-b border-gray-100">
+        <a href="/" class="flex items-center gap-2 md:gap-5 hover:opacity-90 transition-opacity">
+            <span class="font-bold text-2xl md:text-5xl tracking-tight text-blue-500 mt-2 ml-1" style="letter-spacing: -0.02em;">Fundvís</span>
         </a>
-        <nav class="flex items-center gap-4">
-            <a href="/" class="px-6 py-2.5 bg-blue-600 text-white rounded-full font-bold text-base md:text-lg hover:bg-blue-700 transition-all shadow-lg text-center">
+        <nav class="flex items-center gap-2 md:gap-4">
+            <a href="/" class="px-4 py-2 md:px-6 md:py-2.5 bg-blue-600 text-white rounded-full font-bold text-sm md:text-lg hover:bg-blue-700 transition-all shadow-lg text-center">
                 Aftur á forsíðu
             </a>
         </nav>

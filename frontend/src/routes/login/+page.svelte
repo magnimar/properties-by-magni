@@ -28,9 +28,9 @@
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-  <div class="fixed top-0 left-0 pt-10 pl-6 md:pl-10 lg:pt-12 z-50">
+  <div class="fixed top-0 left-0 pt-6 pl-4 md:pt-10 md:pl-10 lg:pt-12 z-50">
     <a href="/home" class="flex items-center hover:opacity-90 transition-opacity">
-        <span class="font-bold text-4xl md:text-5xl tracking-tight text-blue-500 mt-2 ml-1" style="letter-spacing: -0.02em;">Fundvís</span>
+        <span class="font-bold text-2xl md:text-5xl tracking-tight text-blue-500 mt-2 ml-1" style="letter-spacing: -0.02em;">Fundvís</span>
     </a>
   </div>
   <form onsubmit={(e) => { e.preventDefault(); handleLogin(); }} class="flex flex-col gap-6 p-12 border rounded-xl shadow-xl bg-white w-[500px]">
