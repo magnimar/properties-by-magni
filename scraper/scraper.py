@@ -70,7 +70,11 @@ class SearchPreference(Base):
     __tablename__ = "search_preferences"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True, nullable=False
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        unique=True,
+        index=True,
+        nullable=False,
     )
     min_price = Column(Float, nullable=True)
     max_price = Column(Float, nullable=True)
@@ -107,7 +111,9 @@ class User(Base):
     email_days = Column(String, default="0,3")
 
     ignored_properties = relationship("IgnoredProperty", back_populates="user")
-    search_preference = relationship("SearchPreference", back_populates="user", uselist=False)
+    search_preference = relationship(
+        "SearchPreference", back_populates="user", uselist=False
+    )
 
 
 class ScraperRun(Base):
@@ -138,12 +144,18 @@ def get_db_users() -> list[dict]:
                 "TO_EMAIL": u.email,
                 "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
                 "FROM_EMAIL": os.getenv("FROM_EMAIL"),
-                "MIN_PRICE": int(sp.min_price) if sp and sp.min_price is not None else 0,
+                "MIN_PRICE": (
+                    int(sp.min_price) if sp and sp.min_price is not None else 0
+                ),
                 "MAX_PRICE": (
                     int(sp.max_price) if sp and sp.max_price is not None else 1000000000
                 ),
-                "MIN_BEDROOMS": sp.min_bedrooms if sp and sp.min_bedrooms is not None else 0,
-                "MAX_BEDROOMS": sp.max_bedrooms if sp and sp.max_bedrooms is not None else 10,
+                "MIN_BEDROOMS": (
+                    sp.min_bedrooms if sp and sp.min_bedrooms is not None else 0
+                ),
+                "MAX_BEDROOMS": (
+                    sp.max_bedrooms if sp and sp.max_bedrooms is not None else 10
+                ),
                 "MIN_BUILD_YEAR": (
                     sp.min_build_year if sp and sp.min_build_year is not None else 1900
                 ),

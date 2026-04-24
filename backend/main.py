@@ -78,7 +78,11 @@ class SearchPreference(Base):
     __tablename__ = "search_preferences"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True, nullable=False
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        unique=True,
+        index=True,
+        nullable=False,
     )
     min_price = Column(Float, nullable=True)
     max_price = Column(Float, nullable=True)
@@ -128,7 +132,10 @@ class User(Base):
         "IgnoredProperty", back_populates="user", cascade="all, delete-orphan"
     )
     search_preference = relationship(
-        "SearchPreference", back_populates="user", uselist=False, cascade="all, delete-orphan"
+        "SearchPreference",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
     )
 
 
@@ -307,13 +314,9 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
         "max_bedrooms": sp.max_bedrooms if sp else None,
         "min_build_year": sp.min_build_year if sp else None,
         "max_build_year": sp.max_build_year if sp else None,
-        "zip_codes": (
-            sp.zip_codes.split(",") if sp and sp.zip_codes else []
-        ),
+        "zip_codes": (sp.zip_codes.split(",") if sp and sp.zip_codes else []),
         "ignored_streets": (
-            sp.ignored_streets.split(",")
-            if sp and sp.ignored_streets
-            else []
+            sp.ignored_streets.split(",") if sp and sp.ignored_streets else []
         ),
         "einbylishus": sp.einbylishus if sp else False,
         "fjolbylishus": sp.fjolbylishus if sp else False,
@@ -381,7 +384,7 @@ async def update_my_preferences(
     if not sp:
         sp = SearchPreference(user_id=current_user.id)
         db.add(sp)
-        
+
     sp.min_price = prefs.min_price
     sp.max_price = prefs.max_price
     sp.min_bedrooms = prefs.min_bedrooms
@@ -428,42 +431,26 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
         "TO_EMAIL": current_user.email,
         "BREVO_API_KEY": os.getenv("BREVO_API_KEY"),
         "FROM_EMAIL": "fundvis@fundvis.is",
-        "MIN_PRICE": (
-            int(sp.min_price) if sp and sp.min_price is not None else 0
-        ),
+        "MIN_PRICE": (int(sp.min_price) if sp and sp.min_price is not None else 0),
         "MAX_PRICE": (
-            int(sp.max_price)
-            if sp and sp.max_price is not None
-            else 1000000000
+            int(sp.max_price) if sp and sp.max_price is not None else 1000000000
         ),
-        "MIN_BEDROOMS": (
-            sp.min_bedrooms if sp and sp.min_bedrooms is not None else 0
-        ),
-        "MAX_BEDROOMS": (
-            sp.max_bedrooms if sp and sp.max_bedrooms is not None else 10
-        ),
+        "MIN_BEDROOMS": (sp.min_bedrooms if sp and sp.min_bedrooms is not None else 0),
+        "MAX_BEDROOMS": (sp.max_bedrooms if sp and sp.max_bedrooms is not None else 10),
         "MIN_SIZE": (sp.min_size if sp and sp.min_size is not None else 0),
-        "MAX_SIZE": (
-            sp.max_size if sp and sp.max_size is not None else 1000000
-        ),
+        "MAX_SIZE": (sp.max_size if sp and sp.max_size is not None else 1000000),
         "MIN_BUILD_YEAR": (
-            sp.min_build_year
-            if sp and sp.min_build_year is not None
-            else 1900
+            sp.min_build_year if sp and sp.min_build_year is not None else 1900
         ),
         "MAX_BUILD_YEAR": (
-            sp.max_build_year
-            if sp and sp.max_build_year is not None
-            else 2027
+            sp.max_build_year if sp and sp.max_build_year is not None else 2027
         ),
         "GOOGLE_MAPS_KEY": os.getenv("GOOGLE_MAPS_KEY"),
         "ZIP_CODES": sp.zip_codes if sp and sp.zip_codes else "101,107",
         "outdoor_filter": sp.outdoor_filter if sp else "none",
         "want_garage": sp.want_garage if sp else False,
         "ignored_strings": (
-            sp.ignored_streets.split(",")
-            if sp and sp.ignored_streets
-            else []
+            sp.ignored_streets.split(",") if sp and sp.ignored_streets else []
         ),
         "ignored_properties": [
             ip.property_id for ip in current_user.ignored_properties
@@ -965,7 +952,7 @@ async def register(data: UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    
+
     new_sp = SearchPreference(user_id=new_user.id)
     db.add(new_sp)
     db.commit()
