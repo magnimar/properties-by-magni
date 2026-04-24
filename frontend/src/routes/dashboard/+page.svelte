@@ -30,6 +30,17 @@
     let message = $state('');
     let showSuccessModal = $state(false);
     let showEmailSentModal = $state(false);
+    let showSubscriptionsModal = $state(false);
+    let showCancelConfirmModal = $state(false);
+    let showCancelSuccessModal = $state(false);
+    let showReactivateSuccessModal = $state(false);
+    let showPaymentMethodsModal = $state(false);
+    let showUpdateCardSuccessModal = $state(false);
+    let subscriptionToCancel = $state(null);
+    let subscriptionToUpdate = $state(null);
+    let paymentMethods = $state([]);
+    let isCancelling = $state(false);
+    let activeSubscriptions = $state([]);
     let loading = $state(true);
     let showZipDropdown = $state(false);
     let zipDropdownEl = $state(null);
@@ -408,6 +419,19 @@
         return num ? parseInt(num, 10).toLocaleString('de-DE') : '';
     }
 
+    function formatIcelandicDate(timestamp) {
+        if (!timestamp) return '';
+        const date = new Date(timestamp * 1000);
+        const day = date.getDate();
+        const year = date.getFullYear();
+        const months = [
+            'janúar', 'febrúar', 'mars', 'apríl', 'maí', 'júní',
+            'júlí', 'ágúst', 'september', 'október', 'nóvember', 'desember'
+        ];
+        const monthName = months[date.getMonth()];
+        return `${day}. ${monthName} ${year}`;
+    }
+
     function parseNumber(val) {
         if (!val) return 0;
         return parseInt(String(val).replace(/\./g, ''), 10) || 0;
@@ -441,6 +465,166 @@
             }
         } catch (e) {
             message = 'Villa við að tengjast þjóni.';
+        }
+    }
+
+    async function fetchSubscriptions() {
+        const token = getToken();
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${getApiUrl()}/me/subscriptions`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (res.ok) {
+                activeSubscriptions = await res.json();
+            }
+        } catch (e) {
+            console.error("Error fetching subscriptions:", e);
+        }
+    }
+
+    async function handleShowSubscriptions() {
+        await fetchSubscriptions();
+        showSubscriptionsModal = true;
+    }
+
+    function promptCancelSubscription(subscriptionId) {
+        subscriptionToCancel = subscriptionId;
+        showCancelConfirmModal = true;
+    }
+
+    async function executeCancelSubscription() {
+        if (!subscriptionToCancel) return;
+        isCancelling = true;
+        
+        const token = getToken();
+        if (!token) {
+            isCancelling = false;
+            return;
+        }
+
+        try {
+            const res = await fetch(`${getApiUrl()}/me/subscriptions/${subscriptionToCancel}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (res.ok) {
+                showCancelConfirmModal = false;
+                subscriptionToCancel = null;
+                showCancelSuccessModal = true;
+                await fetchSubscriptions(); // Refresh the list
+            } else {
+                message = 'Ekki tókst að segja upp áskrift.';
+            }
+        } catch (e) {
+            console.error("Error cancelling subscription:", e);
+            message = 'Villa kom upp við að segja upp áskrift.';
+        } finally {
+            isCancelling = false;
+        }
+    }
+
+    async function executeReactivateSubscription(subscriptionId) {
+        const token = getToken();
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${getApiUrl()}/me/subscriptions/${subscriptionId}/reactivate`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (res.ok) {
+                showReactivateSuccessModal = true;
+                await fetchSubscriptions();
+            } else {
+                message = 'Ekki tókst að afturkalla uppsögn.';
+            }
+        } catch (e) {
+            console.error("Error reactivating subscription:", e);
+            message = 'Villa kom upp við að afturkalla uppsögn.';
+        }
+    }
+
+    async function openPaymentMethodsModal(subscriptionId) {
+        subscriptionToUpdate = subscriptionId;
+        const token = getToken();
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${getApiUrl()}/me/payment-methods`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                paymentMethods = await res.json();
+                showPaymentMethodsModal = true;
+            } else {
+                message = 'Ekki tókst að sækja greiðslukort.';
+            }
+        } catch (e) {
+            console.error("Error fetching payment methods:", e);
+            message = 'Villa við að sækja greiðslukort.';
+        }
+    }
+
+    async function setSubscriptionPaymentMethod(paymentMethodId) {
+        if (!subscriptionToUpdate) return;
+        const token = getToken();
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${getApiUrl()}/me/subscriptions/${subscriptionToUpdate}/change-card`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ payment_method_id: paymentMethodId })
+            });
+
+            if (res.ok) {
+                showPaymentMethodsModal = false;
+                await fetchSubscriptions();
+                showUpdateCardSuccessModal = true;
+            } else {
+                message = 'Ekki tókst að uppfæra kortið.';
+            }
+        } catch (e) {
+            console.error(e);
+            message = 'Villa kom upp við að uppfæra kort.';
+        }
+    }
+
+    async function handleAddPaymentMethod() {
+        if (!subscriptionToUpdate) return;
+        const token = getToken();
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${getApiUrl()}/me/subscriptions/${subscriptionToUpdate}/update-payment`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                }
+            } else {
+                alert('Ekki tókst að sækja greiðslusíðu.');
+            }
+        } catch (e) {
+            console.error("Error getting update card URL:", e);
+            alert('Villa kom upp við að tengjast greiðsluþjónustu.');
         }
     }
 
@@ -657,6 +841,12 @@
     </div>
 
     <div class="fixed top-0 right-0 pt-10 pr-6 md:pr-10 lg:pt-12 flex gap-2 z-50">
+        <button
+            onclick={handleShowSubscriptions}
+            class="bg-blue-50 text-blue-700 px-4 py-2 rounded-full border border-blue-200 hover:bg-blue-100 transition-colors font-semibold text-sm shadow-sm"
+        >
+            Virkar áskriftir
+        </button>
         <button
             onclick={() => { document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = '/home'; }}
             class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors font-semibold text-sm shadow-sm"
@@ -1248,6 +1438,228 @@
                         Loka
                     </button>
                 </div>
+            </div>
+        </div>
+    {/if}
+
+    {#if showSubscriptionsModal}
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-200 transform transition-all">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Virkar áskriftir</h3>
+                    <button onclick={() => showSubscriptionsModal = false} class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                {#if activeSubscriptions.length === 0}
+                    <p class="text-gray-600 text-center py-8">Engar virkar áskriftir fundust.</p>
+                {:else}
+                    <div class="space-y-4">
+                        {#each activeSubscriptions as sub}
+                            <div class="p-4 border border-gray-100 rounded-xl bg-gray-50">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <p class="font-bold text-gray-900">Fundvís Pro</p>
+                                    </div>
+                                    {#if sub.cancel_at_period_end}
+                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full uppercase">
+                                            Uppsögn í vinnslu
+                                        </span>
+                                    {:else}
+                                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase">
+                                            {sub.status === 'active' ? 'Virk' : 'Í prufu'}
+                                        </span>
+                                    {/if}
+                                </div>
+                                <div class="text-sm text-gray-600 space-y-1 mb-4">
+                                    {#if sub.cancel_at_period_end && sub.current_period_end}
+                                        <p><span class="font-medium">Rennur út:</span> {formatIcelandicDate(sub.current_period_end)}</p>
+                                    {:else}
+                                        <p><span class="font-medium">Stofnað:</span> {formatIcelandicDate(sub.created_at)}</p>
+                                    {/if}
+                                </div>
+                                <div class="flex justify-between items-center border-t border-gray-100 pt-3">
+                                    {#if sub.card_details}
+                                        <div class="flex items-center gap-2">
+                                            <div class="bg-gray-100 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-gray-500 border border-gray-200 whitespace-nowrap">
+                                                {sub.card_details.brand}
+                                            </div>
+                                            <p class="text-sm font-medium text-gray-600">•••• {sub.card_details.last4}</p>
+                                        </div>
+                                    {:else}
+                                        <div></div>
+                                    {/if}
+
+                                    <div class="flex gap-2">
+                                        {#if !sub.cancel_at_period_end}
+                                            <button
+                                                onclick={() => openPaymentMethodsModal(sub.id)}
+                                                class="text-blue-600 hover:text-blue-800 font-semibold text-xs border border-blue-200 bg-blue-50 px-3 py-1 rounded-full transition-colors"
+                                            >
+                                                Breyta greiðslukorti
+                                            </button>
+                                            <button
+                                                onclick={() => promptCancelSubscription(sub.id)}
+                                                class="text-red-600 hover:text-red-800 font-semibold text-xs border border-red-200 bg-red-50 px-3 py-1 rounded-full transition-colors"
+                                            >
+                                                Segja upp
+                                            </button>
+                                        {:else}
+                                            <button
+                                                onclick={() => executeReactivateSubscription(sub.id)}
+                                                class="text-green-600 hover:text-green-800 font-semibold text-xs border border-green-200 bg-green-50 px-3 py-1 rounded-full transition-colors"
+                                            >
+                                                Afturkalla uppsögn
+                                            </button>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        {/each}
+                    </div>
+                {/if}
+
+                <button
+                    onclick={() => showSubscriptionsModal = false}
+                    class="w-full mt-8 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+                >
+                    Loka
+                </button>
+            </div>
+        </div>
+    {/if}
+
+    {#if showCancelConfirmModal}
+        <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl border border-gray-200 transform transition-all text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Segja upp áskrift?</h3>
+                <p class="text-gray-600 mb-8">
+                    Ertu viss um að þú viljir segja upp áskriftinni? Uppsögnin tekur gildi við lok yfirstandandi tímabils.
+                </p>
+                <div class="flex flex-col gap-3">
+                    <button
+                        onclick={() => { showCancelConfirmModal = false; subscriptionToCancel = null; }}
+                        disabled={isCancelling}
+                        class="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md disabled:opacity-50"
+                    >
+                        Hætta við
+                    </button>
+                    <button
+                        onclick={executeCancelSubscription}
+                        disabled={isCancelling}
+                        class="w-full bg-red-50 text-red-700 px-6 py-3 rounded-xl font-bold hover:bg-red-100 border border-red-200 transition-colors disabled:opacity-50"
+                    >
+                        {isCancelling ? 'Segir upp...' : 'Já, segja upp'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    {#if showCancelSuccessModal}
+        <div class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl border border-gray-200 transform transition-all text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Áskrift sögð upp</h3>
+                <p class="text-gray-600 mb-8">
+                    Áskriftinni þinni hefur verið sagt upp. Þú munt áfram hafa aðgang að Pro eiginleikum fram að næsta gjalddaga.
+                </p>
+                <button
+                    onclick={() => showCancelSuccessModal = false}
+                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md"
+                >
+                    Loka
+                </button>
+            </div>
+        </div>
+    {/if}
+
+    {#if showReactivateSuccessModal}
+        <div class="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl border border-gray-200 transform transition-all text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Uppsögn afturkölluð</h3>
+                <p class="text-gray-600 mb-8">
+                    Uppsögn á áskriftinni hefur verið afturkölluð. Áskriftin er nú virk á ný og mun endurnýjast sjálfkrafa.
+                </p>
+                <button
+                    onclick={() => showReactivateSuccessModal = false}
+                    class="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md"
+                >
+                    Loka
+                </button>
+            </div>
+        </div>
+    {/if}
+
+    {#if showPaymentMethodsModal}
+        <div class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl border border-gray-200 transform transition-all">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Veldu greiðslukort</h3>
+                    <button onclick={() => showPaymentMethodsModal = false} class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                {#if paymentMethods.length === 0}
+                    <p class="text-gray-600 text-center py-4">Engin vistuð kort fundust.</p>
+                {:else}
+                    <div class="space-y-3 mb-6 max-h-64 overflow-y-auto">
+                        {#each paymentMethods as pm}
+                            <button
+                                onclick={() => setSubscriptionPaymentMethod(pm.id)}
+                                class="w-full text-left p-4 border border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all flex items-center gap-4 group"
+                            >
+                                <div class="px-2 h-6 bg-gray-100 flex items-center justify-center rounded text-[10px] font-bold uppercase tracking-wider text-gray-600 border border-gray-300 group-hover:border-blue-300 whitespace-nowrap">
+                                    {pm.brand}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">•••• {pm.last4}</p>
+                                    <p class="text-xs text-gray-500">Rennur út: {pm.exp_month}/{pm.exp_year}</p>
+                                </div>
+                            </button>
+                        {/each}
+                    </div>
+                {/if}
+
+                <div class="pt-4 border-t border-gray-100">
+                    <button
+                        onclick={handleAddPaymentMethod}
+                        class="w-full bg-blue-50 text-blue-700 border border-blue-200 px-6 py-3 rounded-xl font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Bæta við nýju korti
+                    </button>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    {#if showUpdateCardSuccessModal}
+        <div class="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-white/40 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl border border-gray-200 transform transition-all text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Greiðslukort uppfært</h3>
+                <p class="text-gray-600 mb-8">
+                    Nýja greiðslukortið hefur verið tengt við áskriftina þína og verður notað við næstu endurnýjun.
+                </p>
+                <button
+                    onclick={() => showUpdateCardSuccessModal = false}
+                    class="w-full bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md"
+                >
+                    Loka
+                </button>
             </div>
         </div>
     {/if}

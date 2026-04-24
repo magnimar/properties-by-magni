@@ -17,7 +17,7 @@ export default defineConfig({
 	envDir,
 	plugins: [tailwindcss(), sveltekit()],
 	server: {
-		allowedHosts: ['fundvis.is', 'www.fundvis.is', 'localhost', 'angry-spiders-make.loca.lt', '.loca.lt', '07a0781d732ac5.lhr.life', '.lhr.life'],
+		allowedHosts: ['fundvis.is', 'www.fundvis.is', 'localhost', 'angry-spiders-make.loca.lt', '.loca.lt', '07a0781d732ac5.lhr.life', '.lhr.life', 'b1b32f5c2da666.lhr.life'],
 		host: true, // This allows the tunnel to connect to the local IP
 		port: 5000,
 		// Commented out to fix local development WebSocket connection
