@@ -11,9 +11,10 @@ from sqlalchemy import (
     DateTime,
     Float,
     text,
+    ForeignKey,
 )
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, relationship
 from pydantic import BaseModel
 from passlib.context import CryptContext
 import jwt
@@ -62,6 +63,17 @@ class Item(Base):
     description = Column(String, index=True)
 
 
+class IgnoredProperty(Base):
+    __tablename__ = "ignored_properties"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    property_id = Column(String, index=True, nullable=False)
+
+    user = relationship("User", back_populates="ignored_properties")
+
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -96,12 +108,15 @@ class User(Base):
     want_garage = Column(Boolean, default=False)
     onboarding_completed = Column(Boolean, default=False)
     scrape_hour = Column(Integer, default=20)
-    ignored_properties = Column(String, nullable=True)  # Comma separated list
     email_days = Column(
         String, default="0,3"
     )  # Comma separated list of weekdays (0=Monday)
     rapyd_customer_id = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+
+    ignored_properties = relationship(
+        "IgnoredProperty", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class ScraperRun(Base):
@@ -205,8 +220,6 @@ with engine.begin() as conn:
         conn.execute(
             text("ALTER TABLE users ADD COLUMN scrape_hour INTEGER DEFAULT 20;")
         )
-    if "ignored_properties" not in existing_columns:
-        conn.execute(text("ALTER TABLE users ADD COLUMN ignored_properties TEXT;"))
     if "email_days" not in existing_columns:
         conn.execute(
             text("ALTER TABLE users ADD COLUMN email_days TEXT DEFAULT '0,3';")
@@ -500,11 +513,9 @@ async def send_test_email(current_user: User = Depends(get_current_user)):
             if current_user.ignored_streets
             else []
         ),
-        "ignored_properties": (
-            current_user.ignored_properties.split(",")
-            if current_user.ignored_properties
-            else []
-        ),
+        "ignored_properties": [
+            ip.property_id for ip in current_user.ignored_properties
+        ],
         "EINBYLISHUS": "yes" if current_user.einbylishus else "no",
         "FJOLBYLISHUS": "yes" if current_user.fjolbylishus else "no",
         "ATVINNUHUSNAEDI": "yes" if current_user.atvinnuhusnaedi else "no",
@@ -1044,10 +1055,18 @@ async def ignore_property_public(
     if not user:
         return "<html><body><h2 style='text-align:center; padding: 50px; font-family: sans-serif;'>Aðgangur fannst ekki</h2></body></html>"
 
-    ignored = user.ignored_properties.split(",") if user.ignored_properties else []
-    if fasteignanumer not in ignored:
-        ignored.append(fasteignanumer)
-        user.ignored_properties = ",".join(ignored)
+    exists = (
+        db.query(IgnoredProperty)
+        .filter(
+            IgnoredProperty.user_id == user.id,
+            IgnoredProperty.property_id == fasteignanumer,
+        )
+        .first()
+    )
+
+    if not exists:
+        new_ignored = IgnoredProperty(user_id=user.id, property_id=fasteignanumer)
+        db.add(new_ignored)
         db.commit()
 
     return f"""

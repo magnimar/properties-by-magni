@@ -27,8 +27,9 @@ from sqlalchemy import (
     Float,
     DateTime,
     text,
+    ForeignKey,
 )
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from dotenv import load_dotenv
 
 load_dotenv("/opt/properties-by-magni/.env")
@@ -52,6 +53,17 @@ if not DATABASE_URL:
     # We'll raise error only when trying to connect, to allow for local testing if needed.
 
 Base = declarative_base()
+
+
+class IgnoredProperty(Base):
+    __tablename__ = "ignored_properties"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    property_id = Column(String, index=True, nullable=False)
+
+    user = relationship("User", back_populates="ignored_properties")
 
 
 class User(Base):
@@ -82,8 +94,9 @@ class User(Base):
     outdoor_filter = Column(String, default="none")
     want_garage = Column(Boolean, default=False)
     scrape_hour = Column(Integer, default=20)
-    ignored_properties = Column(String, nullable=True)
     email_days = Column(String, default="0,3")
+
+    ignored_properties = relationship("IgnoredProperty", back_populates="user")
 
 
 class ScraperRun(Base):
@@ -134,9 +147,7 @@ def get_db_users() -> list[dict]:
                 "ignored_strings": (
                     u.ignored_streets.split(",") if u.ignored_streets else []
                 ),
-                "ignored_properties": (
-                    u.ignored_properties.split(",") if u.ignored_properties else []
-                ),
+                "ignored_properties": [ip.property_id for ip in u.ignored_properties],
                 "EINBYLISHUS": "yes" if u.einbylishus else "no",
                 "FJOLBYLISHUS": "yes" if u.fjolbylishus else "no",
                 "ATVINNUHUSNAEDI": "yes" if u.atvinnuhusnaedi else "no",
