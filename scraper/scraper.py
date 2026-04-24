@@ -711,18 +711,24 @@ class Scraper:
                 container = oh_elem.parent
                 # If the parent only contains "Opið hús:", look higher or at siblings
                 text = container.get_text(strip=True, separator=" ")
-                
+
                 if len(text) < 30 and container.parent:
                     text = container.parent.get_text(strip=True, separator=" ")
-                
+
                 # Vísir often has the time in a sibling or next block if the address is long
-                if len(text) < 60 and container.parent and container.parent.find_next_sibling():
-                    next_text = container.parent.find_next_sibling().get_text(strip=True, separator=" ")
+                if (
+                    len(text) < 60
+                    and container.parent
+                    and container.parent.find_next_sibling()
+                ):
+                    next_text = container.parent.find_next_sibling().get_text(
+                        strip=True, separator=" "
+                    )
                     if any(char.isdigit() for char in next_text):
                         text += " " + next_text
-                
+
                 # Clean up multiple spaces and ensure it's not too long but enough for full descriptions
-                text = re.sub(r'\s+', ' ', text).strip()
+                text = re.sub(r"\s+", " ", text).strip()
                 prop["open_house"] = text if len(text) < 500 else text[:497] + "..."
             elif not prop.get("open_house"):
                 prop["open_house"] = None
@@ -1257,7 +1263,11 @@ class Scraper:
                 )
                 oh_safe = "".join(
                     [
-                        c + "&#8203;" if c.isdigit() and i < len(prop["open_house"]) - 1 else c
+                        (
+                            c + "&#8203;"
+                            if c.isdigit() and i < len(prop["open_house"]) - 1
+                            else c
+                        )
                         for i, c in enumerate(prop["open_house"])
                     ]
                 )
