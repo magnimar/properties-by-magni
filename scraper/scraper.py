@@ -704,29 +704,28 @@ class Scraper:
                 else:
                     prop["contact_info"] = "N/A"
 
-            if not prop.get("open_house") or prop.get("open_house").strip().lower() in [
-                "opið hús",
-                "opið hús:",
-            ]:
-                oh_elem = soup.find(string=re.compile("Opið hús", re.I))
-                if oh_elem:
-                    text = oh_elem.parent.get_text(strip=True, separator=" ")
-                    if len(text) < 15 and oh_elem.parent.parent:
-                        text = oh_elem.parent.parent.get_text(strip=True, separator=" ")
-                    if (
-                        len(text) < 15
-                        and oh_elem.parent.parent
-                        and oh_elem.parent.parent.find_next_sibling()
-                    ):
-                        text += (
-                            " "
-                            + oh_elem.parent.parent.find_next_sibling().get_text(
-                                strip=True, separator=" "
-                            )
-                        )
-                    prop["open_house"] = text if len(text) < 150 else text[:147]
-                else:
-                    prop["open_house"] = None
+            # Always try to get a better open house text from the detail page
+            oh_elem = soup.find(string=re.compile("Opið hús", re.I))
+            if oh_elem:
+                # Try to get the most complete text block
+                container = oh_elem.parent
+                # If the parent only contains "Opið hús:", look higher or at siblings
+                text = container.get_text(strip=True, separator=" ")
+                
+                if len(text) < 30 and container.parent:
+                    text = container.parent.get_text(strip=True, separator=" ")
+                
+                # Vísir often has the time in a sibling or next block if the address is long
+                if len(text) < 60 and container.parent and container.parent.find_next_sibling():
+                    next_text = container.parent.find_next_sibling().get_text(strip=True, separator=" ")
+                    if any(char.isdigit() for char in next_text):
+                        text += " " + next_text
+                
+                # Clean up multiple spaces and ensure it's not too long but enough for full descriptions
+                text = re.sub(r'\s+', ' ', text).strip()
+                prop["open_house"] = text if len(text) < 500 else text[:497] + "..."
+            elif not prop.get("open_house"):
+                prop["open_house"] = None
 
             if not prop.get("image_url") or "staticmap" in (
                 prop.get("image_url") or ""
@@ -1257,7 +1256,10 @@ class Scraper:
                     prop.get("address", "Fasteign"), prop["open_house"]
                 )
                 oh_safe = "".join(
-                    [c + "&#8203;" if c.isdigit() else c for c in prop["open_house"]]
+                    [
+                        c + "&#8203;" if c.isdigit() and i < len(prop["open_house"]) - 1 else c
+                        for i, c in enumerate(prop["open_house"])
+                    ]
                 )
                 if cal_link:
                     html += f"<table width='100%' cellpadding='0' cellspacing='0' border='0' style='background-color: #1d4ed8; color: white;'><tr><td style='padding: 12px 10px 12px 20px; font-weight: 800; font-size: 1.1em; text-align: left; vertical-align: middle;' class='open-house-text'><span style='color: #ffffff !important; text-decoration: none !important;'>{oh_safe}</span></td><td style='padding: 12px 20px 12px 10px; text-align: right; vertical-align: middle;' width='1%'><a href='{cal_link}' target='_blank' style='display: inline-block; background-color: #ffffff; color: #1d4ed8; padding: 6px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; font-weight: bold; white-space: nowrap;'>Bæta í dagatal</a></td></tr></table>"
