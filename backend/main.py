@@ -288,7 +288,10 @@ origins = [
     "http://localhost:5000",
     "https://localhost:5000",
     "http://localhost:5173",
+    os.getenv("FRONTEND_URL"),
+    os.getenv("VITE_API_URL"),
 ]
+origins = [o for o in origins if o]
 
 app.add_middleware(
     CORSMiddleware,

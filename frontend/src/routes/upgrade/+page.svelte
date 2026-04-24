@@ -112,7 +112,7 @@
                 </div>
                 <div class="ml-3 text-sm">
                     <label for="terms" class="font-medium text-gray-700 cursor-pointer">
-                        Ég samþykki <a href="/compliance/TERMS.md" class="text-blue-600 hover:underline">skilmála (Terms of Service)</a> og <a href="/compliance/PRIVACY.md" class="text-blue-600 hover:underline">persónuverndarstefnu (Privacy Policy)</a>.
+                        Ég samþykki <a href="/terms" target="_blank" class="text-blue-600 hover:underline">skilmála (Terms of Service)</a> og <a href="/privacy" target="_blank" class="text-blue-600 hover:underline">persónuverndarstefnu (Privacy Policy)</a>.
                         <br/><br/>
                         Ég skil að ég er að gerast áskrifandi að Fundvís Pro fyrir <strong class="text-gray-900">999 kr. á mánuði</strong> og að áskriftin endurnýjast sjálfkrafa í hverjum mánuði þar til henni er sagt upp. Ég get sagt upp áskriftinni hvenær sem er inni á stillingum aðgangsins míns.
                     </label>
